@@ -45,11 +45,13 @@ if Meteor.isClient
 				m \thead, m \tr, attr.regis.table.headers.map (i) ->
 					m \th, _.startCase i
 				m \tfoot, coll.pasien.find!fetch!map (i) -> m \tr,
-					m \td, _.startCase i.regis.nama_lengkap
-					m \td, i.regis.tgl_lahir.toString!
-					m \td, _.startCase i.regis.tmpt_lahir
+					onclick: -> m.route.set "/regis/#{i._id}"
+					if i.regis.nama_lengkap then m \td, _.startCase that
+					if i.regis.tgl_lahir then m \td, that.toString!
+					if i.regis.tmpt_lahir then m \td, _.startCase that
 
 	m.route.prefix ''
 	m.route document.body, \/dashboard,
 		_.merge '/dashboard': layout(comp.welcome!),
-			... modules.map ({name}) -> "/#name": layout comp.regis!
+			... modules.map ({name}) -> "/#name": layout comp[name]?!
+			'/regis/:idpasien': layout comp.regis!
