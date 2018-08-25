@@ -1,0 +1,14 @@
+{
+  "name": "sample",
+  "private": true,
+  "scripts": {
+    "start": "meteor run"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.0.0-beta.42",
+    "bulma-extensions": "^2.2.1",
+    "meteor-node-stubs": "^0.3.2",
+    "mithril": "^1.1.6",
+    "simpl-schema": "^1.5.0"
+  }
+}
