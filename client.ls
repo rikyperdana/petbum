@@ -39,16 +39,38 @@ if Meteor.isClient
 				type: \insert
 				id: \formRegis
 				buttonContent: \Simpan
-			m \table.table,
+			unless m.route.param \idpasien
+				m \table.table,
+					oncreate: -> Meteor.subscribe \coll, \pasien,
+						onReady: -> m.redraw!
+					m \thead, m \tr, attr.regis.table.headers.map (i) ->
+						m \th, _.startCase i
+					m \tfoot, coll.pasien.find!fetch!map (i) -> m \tr,
+						ondblclick: -> m.route.set "/regis/#{i._id}"
+						if i.regis.nama_lengkap then m \td, _.startCase that
+						if i.regis.tgl_lahir then m \td, moment(that)format 'D MMM YYYY'
+						if i.regis.tmpt_lahir then m \td, _.startCase that
+			else m \div,
 				oncreate: -> Meteor.subscribe \coll, \pasien,
-					onReady: -> m.redraw!
-				m \thead, m \tr, attr.regis.table.headers.map (i) ->
-					m \th, _.startCase i
-				m \tfoot, coll.pasien.find!fetch!map (i) -> m \tr,
-					onclick: -> m.route.set "/regis/#{i._id}"
-					if i.regis.nama_lengkap then m \td, _.startCase that
-					if i.regis.tgl_lahir then m \td, that.toString!
-					if i.regis.tmpt_lahir then m \td, _.startCase that
+					{_id: m.route.param \idpasien}, onReady: -> m.redraw!
+				m \.content, m \h5, 'Rincian Pasien'
+				if coll.pasien.findOne(_id: m.route.param \idpasien)
+					m \table.table, [
+						[
+							{name: 'No. MR', data: that.no_mr}
+							{name: 'Tanggal Lahir', data: that.regis.tgl_lahir.toString!}
+						]
+					,
+						[
+							{name: 'Nama Lengkap', data: _.startCase that.regis.nama_lengkap}
+							{name: 'Tempat Lahir', data: _.startCase that.regis.tmpt_lahir}
+						]
+					,
+						[
+							{name: 'Tempat Tinggal', data: _.startCase that.regis.alamat}
+							{name: 'Umur', data: moment!diff(that.regis.tgl_lahir, \years) + ' tahun'}
+						]
+					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.data)]
 
 	m.route.prefix ''
 	m.route document.body, \/dashboard,

@@ -19,10 +19,20 @@ schema.regis = new SimpleSchema do
 	'regis.ayah': type: String, optional: true
 	'regis.ibu': type: String, optional: true
 	'regis.pasangan': type: String, optional: true
-	'regis.tgl_daftar':
+	'regis.tanggal':
 		type: Date
 		autoform: type: \hidden
 		autoValue: -> new Date!
+
+schema.rawat = new SimpleSchema do
+	no_mr: type: Number
+	rawat: type: Array
+	'rawat.$': type: Object
+	'rawat.$.tanggal':
+		type: Date
+		autoform: type: \hidden
+		autoValue: -> new Date!
+	'rawat.$.cara_bayar': type: Number, autoform: options: selects.cara_bayar
 
 coll.pasien = new Meteor.Collection \pasien
 coll.pasien.allow insert: -> true
