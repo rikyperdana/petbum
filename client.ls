@@ -54,7 +54,7 @@ if Meteor.isClient
 				oncreate: -> Meteor.subscribe \coll, \pasien,
 					{_id: m.route.param \idpasien}, onReady: -> m.redraw!
 				m \.content, m \h5, 'Rincian Pasien'
-				if coll.pasien.findOne(_id: m.route.param \idpasien)
+				if coll.pasien.findOne(_id: m.route.param \idpasien) then m \div,
 					m \table.table, [
 						[
 							{name: 'No. MR', data: that.no_mr}
@@ -71,6 +71,14 @@ if Meteor.isClient
 							{name: 'Umur', data: moment!diff(that.regis.tgl_lahir, \years) + ' tahun'}
 						]
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.data)]
+					m autoForm do
+						collection: coll.pasien
+						schema: schema.rawat
+						type: \update-pushArray
+						id: \formJalan
+						scope: \rawat
+						doc: that
+						buttonContent: \Tambahkan
 
 	m.route.prefix ''
 	m.route document.body, \/dashboard,

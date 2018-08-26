@@ -1,15 +1,19 @@
 @_ = lodash
 @coll = {}; @schema = {}; @afState = {};
+@ors = -> it.find -> it
+@ands = -> _.last it if _.every it
 
 if Meteor.isClient
 	@m = require \mithril
 
 	@autoForm = (opts) ->
 		state = afState
-		scope = if opts.scope then new SimpleSchema do
+
+		scope = if opts.scope then new SimpleSchema do ->
 			reducer = (res, val, key) ->
-				(new RegExp "^#{opts.scope}")test(key)
-				and _.merge res, "#key": val
+				if new RegExp("^#that")test key
+					_.merge res, "#key": val
+				else res
 			_.reduce opts.schema._schema, reducer, {}
 
 		usedSchema = scope or opts.schema
@@ -17,7 +21,10 @@ if Meteor.isClient
 
 		omitFields = if opts.omitFields
 			_.pull (_.values usedSchema._firstLevelSchemaKeys), ...opts.omitFields
-		usedFields = omitFields or opts.fields or usedSchema._firstLevelSchemaKeys
+		usedFields = ors arr =
+			omitFields
+			opts.fields
+			usedSchema._firstLevelSchemaKeys
 
 		optionList = (name) ->
 			theSchema(name)?allowedValues?map (i) ->
