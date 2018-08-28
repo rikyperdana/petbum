@@ -13,6 +13,8 @@ if Meteor.isClient
 			button: onclick: ->
 				state.showForm = not state.showForm
 			table: headers: <[ nama_lengkap tanggal_lahir tempat_lahir ]>
+		jalan:
+			rawatHeaders: <[ tanggal klinik cara_bayar bayar_pendaftaran status_bayar cek ]>
 
 	layout = (comp) ->
 		view: -> m \div,
@@ -35,7 +37,7 @@ if Meteor.isClient
 			m \.button.is-success, attr.regis.button, \+Pasien
 			state.showForm and  m autoForm do
 				collection: coll.pasien
-				schema: schema.regis
+				schema: new SimpleSchema schema.regis
 				type: \insert
 				id: \formRegis
 				buttonContent: \Simpan
@@ -58,7 +60,7 @@ if Meteor.isClient
 					m \table.table, [
 						[
 							{name: 'No. MR', data: that.no_mr}
-							{name: 'Tanggal Lahir', data: that.regis.tgl_lahir.toString!}
+							{name: 'Tanggal Lahir', data: hari that.regis.tgl_lahir}
 						]
 					,
 						[
@@ -73,12 +75,18 @@ if Meteor.isClient
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.data)]
 					m autoForm do
 						collection: coll.pasien
-						schema: schema.rawat
+						schema: new SimpleSchema schema.jalan
 						type: \update-pushArray
 						id: \formJalan
 						scope: \rawat
 						doc: that
 						buttonContent: \Tambahkan
+					m \table.table,
+						m \thead, m \tr, attr.jalan.rawatHeaders.map (i) ->
+							m \th, _.startCase i
+						m \tbody, that.rawat.map (i) -> m \tr,
+							m \td, hari i.tanggal
+							m \td, look(\cara_bayar, i.cara_bayar)label
 
 	m.route.prefix ''
 	m.route document.body, \/dashboard,

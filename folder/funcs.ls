@@ -159,7 +159,7 @@ if Meteor.isClient
 
 			hidden: -> m \input,
 				type: \hidden, name: name, id: name,
-				value: schema.autoValue name, _.map state.form[opts.id],
+				value: schema.autoValue? name, _.map state.form[opts.id],
 					(val, key) -> name: key, value: val
 
 			textarea: -> m \div,

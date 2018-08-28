@@ -1,4 +1,4 @@
-schema.regis = new SimpleSchema do
+schema.regis =
 	no_mr: type: Number, max: 999999
 	regis: type: Object
 	'regis.alias': type: Number, optional: true, autoform: options: selects.alias
@@ -24,7 +24,46 @@ schema.regis = new SimpleSchema do
 		autoform: type: \hidden
 		autoValue: -> new Date!
 
-schema.rawat = new SimpleSchema do
+schema.fisik =
+	tekanan_darah: type: String, optional: true
+	nadi: type: Number, optional: true
+	suhu: type: Number, decimal: true, optional: true
+	pernapasan: type: Number, optional: true
+	berat: type: Number, optional: true
+	tinggi: type: Number, optional: true
+	lila: type: Number, optional: true
+
+schema.tindakan =
+	idtindakan:
+		type: String
+		autoform: type: \hidden
+		autoValue: -> randomId!
+	nama: type: String, autoform: options: null
+	dokter: type: String, autoform: options: null
+
+schema.obat =
+	idobat:
+		type: String
+		autoform: type: \hidden
+		autoValue: -> randomId!
+	nama: type: String, autoform: options: selects.obat
+	puyer: type: String, optional: true
+	aturan: type: Object
+	'aturan.kali': type: Number
+	'aturan.dosis': type: Number
+	'aturan.bentuk': type: Number, autoform: type: \hidden
+	jumlah: type: Number
+	harga:
+		type: Number
+		autoform: type: \hidden
+		autoValue: -> null
+	subtotal:
+		type: Number
+		autoform: type: \hidden
+		autoValue: -> null
+	hasil: type: String, optional: true, autoform: type: \hidden
+
+schema.rawat =
 	no_mr: type: Number
 	rawat: type: Array
 	'rawat.$': type: Object
@@ -33,10 +72,52 @@ schema.rawat = new SimpleSchema do
 		autoform: type: \hidden
 		autoValue: -> new Date!
 	'rawat.$.cara_bayar': type: Number, autoform: options: selects.cara_bayar
+	'rawat.$.klinik': type: Number, autoform: options: selects.klinik
 	'rawat.$.karcis':
 		type: Number
 		autoform: type: \hidden
 		autoValue: (name, doc) -> 30000
+	'rawat.$.rujukan': type: Number, autoform: options: selects.rujukan
+	'rawat.$.billRegis':
+		type: Boolean
+		autoform: type: \hidden
+		autoValue: -> false
+	'rawat.$.nobill':
+		type: Number
+		autoform: type: \hidden
+		autoValue: -> +(_.toString Date.now! .substr 7, 13)
+	'rawat.$.status_bayar':
+		type: Boolean
+		autoform: type: \hidden
+		autoValue: -> false
+	'rawat.$.anamesa_perawat': type: String, autoform: type: \textarea
+	'rawat.$.fisik': type: [new SimpleSchema schema.fisik]
+	'rawat.$.anamesa_dokter': type: String, optional: true, autoform: type: \textarea
+	'rawat.$.diagnosa': type: String, optional: true, autoform: type: \textarea
+	'rawat.$.planning': type: String, optional: true, autoform: type: \textarea
+	'rawat.$.tindakan': type: [new SimpleSchema schema.tindakan], optional: true
+	'rawat.$.obat': type: [new SimpleSchema schema.obat], optional: true
+	'rawat.$.total': type: Object, autoform: type: \hidden
+	'rawat.$.total.tindakan':
+		type: Number, optional: true,
+		autoform: type: \hidden
+		autoValue: -> null
+	'rawat.$.total.obat':
+		type: Number, optional: true,
+		autoform: type: \hidden
+		autoValue: -> nul
+	'rawat.$.spm':
+		type: Number
+		autoform: type: \hidden
+		autoValue: -> null
+	'rawat.$.pindah': type: Number, optional: true, autoform: options: selects.klinik
+	'rawat.$.keluar': type: Number, optional: true, autoform: options: selects.keluar
+	'rawat.$.petugas':
+		type: String
+		autoform: type: \hidden
+		autoValue: -> null
+
+schema.jalan = _.assign {}, schema.rawat, {}
 
 coll.pasien = new Meteor.Collection \pasien
 coll.pasien.allow _.merge ... <[ insert update ]>map -> "#it": -> true

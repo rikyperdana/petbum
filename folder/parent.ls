@@ -6,3 +6,7 @@
 	diff = date.getTime! - (new Date!)getTime!
 	diff /= 1000ms * 60sec * 60min * 24hour * 7day * 4week
 	Math.round diff
+
+if Meteor.isClient
+
+	@hari = -> moment it .format 'D MMM YYYY'
