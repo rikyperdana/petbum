@@ -33,6 +33,10 @@ schema.rawat = new SimpleSchema do
 		autoform: type: \hidden
 		autoValue: -> new Date!
 	'rawat.$.cara_bayar': type: Number, autoform: options: selects.cara_bayar
+	'rawat.$.karcis':
+		type: Number
+		autoform: type: \hidden
+		autoValue: (name, doc) -> 30000
 
 coll.pasien = new Meteor.Collection \pasien
-coll.pasien.allow insert: -> true
+coll.pasien.allow _.merge ... <[ insert update ]>map -> "#it": -> true

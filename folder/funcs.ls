@@ -6,6 +6,34 @@
 if Meteor.isClient
 	@m = require \mithril
 
+	@abnormalize = (obj) ->
+		recurse = (name, value) ->
+			if value?getMonth then "#name": value
+			else if _.isObject value then _.assign {},
+				... _.map value, (val, key) ->
+					recurse "#name.#key", val
+			else "#name": value
+		_.assign {}, ... _.map (recurse \obj, obj),
+			(val, key) -> "#{key.substring 4}": val
+
+	@normalize = (obj) ->
+		recurse = (value, name) ->
+			if _.isObject value
+				isNum = _.size _.filter value, (val, key) -> +key
+				res = "#name":
+					if isNum > 0 then _.map value, recurse
+					else if value.getMonth then value
+					else _.merge {}, ... _.map value, recurse
+				if +name then res[name] else res
+			else
+				if +name then value
+				else "#name": value
+		obj = recurse obj, \obj .obj
+		for key, val of obj
+			if key.split(\.)length > 1
+				delete obj[key]
+		obj
+
 	@autoForm = (opts) ->
 		state = afState
 
@@ -19,8 +47,10 @@ if Meteor.isClient
 		usedSchema = scope or opts.schema
 		theSchema = (name) -> usedSchema._schema[name]
 
-		omitFields = if opts.omitFields
-			_.pull (_.values usedSchema._firstLevelSchemaKeys), ...opts.omitFields
+		omitFields = if opts.omitFields then _.pull do
+			_.values usedSchema._firstLevelSchemaKeys
+			...opts.omitFields
+
 		usedFields = ors arr =
 			omitFields
 			opts.fields
@@ -40,15 +70,6 @@ if Meteor.isClient
 		stateTempGet = (field) -> if state.temp[opts.id]
 			_.findLast state.temp[opts.id], (i) -> i.name is field
 
-		abnormalize = (obj) ->
-			recurse = (name, value) ->
-				if value?getMonth then "#name": value
-				else if _.isObject value then _.assign {},
-					... _.map value, (val, key) ->
-						recurse "#name.#key", val
-				else "#name": value
-			_.assign {}, ... _.map (recurse \obj, obj),
-				(val, key) -> "#{key.substring 4}": val
 		abnDoc = abnormalize opts.doc if opts.doc
 		normed = -> it.replace /\d/g, \$
 
@@ -64,42 +85,21 @@ if Meteor.isClient
 				onsubmit: (e) ->
 					e.preventDefault!
 					temp = state.temp[opts.id]map (i) -> "#{i.name}": i.value
-					filtered = _.filter e.target, (i) ->
+					formFields = _.filter e.target, (i) ->
 						a = -> (i.value isnt \on) and i.name
 						arr = <[ radio checkbox select ]>
 						b = -> theSchema(i)?autoform?type in arr
 						a! and not b!
 
-					normalize = (obj) ->
-						recurse = (value, name) ->
-							if _.isObject value
-								isNum = _.size _.filter value, (val, key) -> +key
-								res = "#name":
-									if isNum > 0 then _.map value, recurse
-									else if value.getMonth then value
-									else _.merge {}, ... _.map value, recurse
-								if +name then res[name] else res
-							else
-								if +name then value
-								else "#name": value
-						obj = recurse obj, \obj .obj
-						for key, val of obj
-							if key.split(\.)length > 1
-								delete obj[key]
-						obj
+					formValues = formFields.map ({name, value}) ->
+						name and _.reduceRight name.split(\.),
+							((res, inc) -> "#inc": res)
+							if value then switch theSchema(normed name)type
+								when String then value
+								when Number then +value
+								when Date then new Date value
 
-					obj = normalize _.merge ... temp.concat _.map filtered,
-						({name, value}) -> name and _.reduceRight name.split(\.),
-							((res, inc) -> "#inc": res), do ->
-								if value
-									switch theSchema(normed name)type
-										when String then value
-										when Number then +value
-										when Date then new Date value
-								else if theSchema(normed name)?autoValue
-									that name, temp.concat filtered
-								else if theSchema(normed name)?defaultValue
-									that
+					obj = normalize _.merge ... temp.concat formValues
 
 					context = usedSchema.newContext!
 					context.validate _.merge {}, obj, (opts.doc or {})
@@ -157,7 +157,10 @@ if Meteor.isClient
 			error = _.startCase _.find state.errors[opts.id],
 				(val, key) -> key is name
 
-			hidden: -> null
+			hidden: -> m \input,
+				type: \hidden, name: name, id: name,
+				value: schema.autoValue name, _.map state.form[opts.id],
+					(val, key) -> name: key, value: val
 
 			textarea: -> m \div,
 				m \textarea.textarea,
@@ -237,8 +240,9 @@ if Meteor.isClient
 
 				else if schema.type is Array
 					found = maped.find -> it.name is "#{normed name}.$"
-					docLen = (.length-1) _.filter abnDoc, (val, key) ->
-						_.includes key, "#name."
+					unless opts.type is \update-pushArray
+						docLen = (.length-1) _.filter abnDoc, (val, key) ->
+							_.includes key, "#name."
 					m \.box,
 						m \h5.subtitle, label
 						m \a.button.is-success, attr.arrLen(name, \inc), '+ Add'
