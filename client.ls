@@ -9,12 +9,15 @@ if Meteor.isClient
 			class: \is-active if state.activeMenu is name
 			href: "/#name"
 			oncreate: m.route.link
-		regis:
-			button: onclick: ->
-				state.showFormaddPatient = not state.showFormaddPatient
-			table: headers: <[ nama_lengkap tanggal_lahir tempat_lahir ]>
-		jalan:
-			rawatHeaders: <[ tanggal klinik cara_bayar bayar_pendaftaran status_bayar cek ]>
+		pasien:
+			showForm:
+				patient: onclick: ->
+					state.showAddPatient = not state.showAddPatient
+				rawat: onclick: ->
+					state.showAddRawat = not state.showAddRawat
+			headers:
+				patientList: <[ nama_lengkap tanggal_lahir tempat_lahir ]>
+				rawatFields: <[ tanggal klinik cara_bayar bayar_pendaftaran status_bayar cek ]>
 
 	layout = (comp) ->
 		view: -> m \div,
@@ -35,8 +38,8 @@ if Meteor.isClient
 			m \p, 'Selamat datang di SIMRSPB 2018'
 		pasien: -> view: -> m \div,
 			unless m.route.param \idpasien
-				m \.button.is-success, attr.regis.button, \+Pasien
-			state.showFormaddPatient and  m autoForm do
+				m \.button.is-success, attr.pasien.showForm.patient, \+Pasien
+			state.showAddPatient and  m autoForm do
 				collection: coll.pasien
 				schema: new SimpleSchema schema.regis
 				type: \insert
@@ -46,10 +49,10 @@ if Meteor.isClient
 				m \table.table,
 					oncreate: -> Meteor.subscribe \coll, \pasien,
 						onReady: -> m.redraw!
-					m \thead, m \tr, attr.regis.table.headers.map (i) ->
+					m \thead, m \tr, attr.pasien.headers.patientList.map (i) ->
 						m \th, _.startCase i
 					m \tfoot, coll.pasien.find!fetch!map (i) -> m \tr,
-						ondblclick: -> m.route.set "/regis/#{i._id}"
+						ondblclick: -> m.route.set "#{m.route.get!}/#{i._id}"
 						if i.regis.nama_lengkap then m \td, _.startCase that
 						if i.regis.tgl_lahir then m \td, moment(that)format 'D MMM YYYY'
 						if i.regis.tmpt_lahir then m \td, _.startCase that
@@ -74,7 +77,8 @@ if Meteor.isClient
 							{name: 'Umur', data: moment!diff(that.regis.tgl_lahir, \years) + ' tahun'}
 						]
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.data)]
-					m autoForm do
+					m \.button.is-success, attr.pasien.showForm.rawat, \+Pasien
+					state.showAddRawat and m autoForm do
 						collection: coll.pasien
 						schema: new SimpleSchema schema.jalan
 						type: \update-pushArray
@@ -83,7 +87,7 @@ if Meteor.isClient
 						doc: that
 						buttonContent: \Tambahkan
 					m \table.table,
-						m \thead, m \tr, attr.jalan.rawatHeaders.map (i) ->
+						m \thead, m \tr, attr.pasien.headers.rawatFields.map (i) ->
 							m \th, _.startCase i
 						m \tbody, _.reverse that.rawat.map (i) -> m \tr,
 							m \td, hari i.tanggal
@@ -124,4 +128,5 @@ if Meteor.isClient
 	m.route document.body, \/dashboard,
 		_.merge '/dashboard': layout(comp.welcome!),
 			... modules.map ({name}) -> "/#name": layout comp[name]?!
-			'/regis/:idpasien': layout comp.regis!
+			'/regis/:idpasien': layout comp.pasien!
+			'/jalan/:idpasien': layout comp.pasien!
