@@ -1,7 +1,6 @@
 if Meteor.isClient
 
 	@state = {}
-
 	attr =
 		menuLink: (name) ->
 			onclick: ->
@@ -37,7 +36,7 @@ if Meteor.isClient
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
 		pasien: -> view: -> m \div,
-			unless m.route.param \idpasien
+			if currentRoute! is \regis then unless m.route.param \idpasien
 				m \.button.is-success, attr.pasien.showForm.patient, \+Pasien
 			state.showAddPatient and  m autoForm do
 				collection: coll.pasien
@@ -77,7 +76,8 @@ if Meteor.isClient
 							{name: 'Umur', data: moment!diff(that.regis.tgl_lahir, \years) + ' tahun'}
 						]
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.data)]
-					m \.button.is-success, attr.pasien.showForm.rawat, \+Pasien
+					if currentRoute! is \regis
+						m \.button.is-success, attr.pasien.showForm.rawat, \+Pasien
 					state.showAddRawat and m autoForm do
 						collection: coll.pasien
 						schema: new SimpleSchema schema.jalan

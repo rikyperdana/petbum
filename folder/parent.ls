@@ -10,3 +10,4 @@
 if Meteor.isClient
 
 	@hari = -> moment it .format 'D MMM YYYY'
+	@currentRoute = -> m.route.get!split(\/).1
