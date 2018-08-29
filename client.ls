@@ -35,6 +35,19 @@ if Meteor.isClient
 		welcome: -> view: -> m \.content,
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
+		modal: ({title, content, confirm, cancel}) -> m \.modal,
+			class: \is-active
+			m \.modal-background
+			m \.modal-card,
+				m \header.modal-card-head,
+					m \p.modal-card-title, title
+					m \button.delete,
+						'aria-label': \close
+						onclick: -> state.modal = null
+				m \section.modal-card-body, m \.content, content
+				m \footer.modal-card-foot,
+					m \button.button.is-success, confirm
+					m \button.button, cancel
 		pasien: -> view: -> m \div,
 			if currentRoute! is \regis then unless m.route.param \idpasien
 				m \.button.is-success, attr.pasien.showForm.patient, \+Pasien
@@ -98,32 +111,52 @@ if Meteor.isClient
 							m \td, m \button.button.is-info,
 								onclick: -> state.modal = i
 								m \span, \Cek
-					if state.modal then m \.modal,
-						class: \is-active if state.modal
-						m \.modal-background
-						m \.modal-card,
-							m \header.modal-card-head,
-								m \p.modal-card-title, 'Rincian Rawat'
-								m \button.delete,
-									'aria-label': \close
-									onclick: -> state.modal = null
-							m \section.modal-card-body, m \.content,
-								m \h1, coll.pasien.findOne!regis.nama_lengkap
-								m \table.table, [
-									{head: \Tanggal, cell: hari state.modal.tanggal}
-									{head: \Klinik, cell: look(\klinik, state.modal.klinik)label}
-									{head: 'Cara Bayar', cell: look(\cara_bayar, state.modal.cara_bayar)label}
-									{head: 'Anamesa Perawat', cell: state.modal?anamesa_perawat}
-									{head: 'Anamesa Dokter', cell: state.modal?anamesa_dokter}
-									{head: \Diagnosa, cell: state.modal?diagnosa}
-									{head: \Planning, cell: state.modal?planning}
-								]map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
-							m \footer.modal-card-foot,
-								m \button.button.is-success, 'Lanjutkan data'
-								m \button.button, \Batal
+					if state.modal then comp.modal do
+						title: 'Rincian rawat'
+						confirm: \Lanjutkan
+						cancel: \Batal
+						content: m \div,
+							m \h1, coll.pasien.findOne!regis.nama_lengkap
+							m \table.table, [
+								{head: \Tanggal, cell: hari state.modal.tanggal}
+								{head: \Klinik, cell: look(\klinik, state.modal.klinik)label}
+								{head: 'Cara Bayar', cell: look(\cara_bayar, state.modal.cara_bayar)label}
+								{head: 'Anamesa Perawat', cell: state.modal?anamesa_perawat}
+								{head: 'Anamesa Dokter', cell: state.modal?anamesa_dokter}
+								{head: \Diagnosa, cell: state.modal?diagnosa}
+								{head: \Planning, cell: state.modal?planning}
+							]map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
 		regis: -> this.pasien
 		jalan: -> this.pasien
-
+		manajemen: -> view: -> m \.content,
+			oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
+			m \h1, 'Manajemen Pengguna'
+			m \h5, 'Tambahkan pengguna baru'
+			m \form,
+				onsubmit: (e) ->
+					e.preventDefault!
+					vals = _.initial _.map e.target, -> it.value
+					if vals.1 is vals.2
+						Meteor.call \newUser, username: vals.0, password: vals.1
+				[
+					{type: \text, place: \Username}
+					{type: \password, place: \Password}
+					{type: \password, place: 'Ulangi password'}
+				]map (i) -> m \.field, m \.control, m \input.input,
+					type: i.type, placeholder: i.place
+				m \.field, m \.control, m \input.button,
+					type: \submit, value: \Daftarkan
+			m \table.table,
+				m \thead, m \tr, <[ username peranan ]>map (i) -> m \th, _.startCase i
+				m \tbody, Meteor.users.find!fetch!map (i) -> m \tr,
+					ondblclick: -> state.modal = i
+					m \td, i.username
+					m \td, ''
+				if state.modal then comp.modal do
+					title: 'Berikan peranan'
+					confirm: \Beri
+					cancel: \Batal
+					content: m \.content, m \p, \coba
 	m.route.prefix ''
 	m.route document.body, \/dashboard,
 		_.merge '/dashboard': layout(comp.welcome!),

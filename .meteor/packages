@@ -22,3 +22,5 @@ stevezhu:lodash              # So good I don't wanna code without it
 aldeed:collection2@=2.0.1    # Data structure validator
 aldeed:autoform@=5.8.1       # Needed only to allow autoform prop in schema
 momentjs:moment              # To deal with date/time formatting
+
+accounts-password
