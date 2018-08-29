@@ -11,7 +11,7 @@ if Meteor.isClient
 			oncreate: m.route.link
 		regis:
 			button: onclick: ->
-				state.showForm = not state.showForm
+				state.showFormaddPatient = not state.showFormaddPatient
 			table: headers: <[ nama_lengkap tanggal_lahir tempat_lahir ]>
 		jalan:
 			rawatHeaders: <[ tanggal klinik cara_bayar bayar_pendaftaran status_bayar cek ]>
@@ -33,9 +33,10 @@ if Meteor.isClient
 		welcome: -> view: -> m \.content,
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
-		regis: -> view: -> m \div,
-			m \.button.is-success, attr.regis.button, \+Pasien
-			state.showForm and  m autoForm do
+		pasien: -> view: -> m \div,
+			unless m.route.param \idpasien
+				m \.button.is-success, attr.regis.button, \+Pasien
+			state.showFormaddPatient and  m autoForm do
 				collection: coll.pasien
 				schema: new SimpleSchema schema.regis
 				type: \insert
@@ -84,9 +85,40 @@ if Meteor.isClient
 					m \table.table,
 						m \thead, m \tr, attr.jalan.rawatHeaders.map (i) ->
 							m \th, _.startCase i
-						m \tbody, that.rawat.map (i) -> m \tr,
+						m \tbody, _.reverse that.rawat.map (i) -> m \tr,
 							m \td, hari i.tanggal
+							m \td, look(\klinik, i.klinik)label
 							m \td, look(\cara_bayar, i.cara_bayar)label
+							m \td, \-
+							m \td, \-
+							m \td, m \button.button.is-info,
+								onclick: -> state.modal = i
+								m \span, \Cek
+					if state.modal then m \.modal,
+						class: \is-active if state.modal
+						m \.modal-background
+						m \.modal-card,
+							m \header.modal-card-head,
+								m \p.modal-card-title, 'Rincian Rawat'
+								m \button.delete,
+									'aria-label': \close
+									onclick: -> state.modal = null
+							m \section.modal-card-body, m \.content,
+								m \h1, coll.pasien.findOne!regis.nama_lengkap
+								m \table.table, [
+									{head: \Tanggal, cell: hari state.modal.tanggal}
+									{head: \Klinik, cell: look(\klinik, state.modal.klinik)label}
+									{head: 'Cara Bayar', cell: look(\cara_bayar, state.modal.cara_bayar)label}
+									{head: 'Anamesa Perawat', cell: state.modal?anamesa_perawat}
+									{head: 'Anamesa Dokter', cell: state.modal?anamesa_dokter}
+									{head: \Diagnosa, cell: state.modal?diagnosa}
+									{head: \Planning, cell: state.modal?planning}
+								]map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
+							m \footer.modal-card-foot,
+								m \button.button.is-success, 'Lanjutkan data'
+								m \button.button, \Batal
+		regis: -> this.pasien
+		jalan: -> this.pasien
 
 	m.route.prefix ''
 	m.route document.body, \/dashboard,
