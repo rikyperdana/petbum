@@ -24,3 +24,4 @@ aldeed:autoform@=5.8.1       # Needed only to allow autoform prop in schema
 momentjs:moment              # To deal with date/time formatting
 
 accounts-password
+harrison:papa-parse

@@ -3,11 +3,8 @@ if Meteor.isClient
 	@state = {}
 	attr =
 		menuLink: (name) ->
-			onclick: ->
-				state.activeMenu = name
 			class: \is-active if state.activeMenu is name
 			href: "/#name"
-			oncreate: m.route.link
 		pasien:
 			showForm:
 				patient: onclick: ->
@@ -20,6 +17,7 @@ if Meteor.isClient
 
 	layout = (comp) ->
 		view: -> m \div,
+			m \link, rel: \stylesheet, href: 'https:/maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
 			m \nav.navbar.is-info,
 				role: \navigation, 'aria-label': 'main navigation',
 				m \.navbar-brand, m \a.navbar-item, href: \#, \RSPB
@@ -28,26 +26,30 @@ if Meteor.isClient
 					m \p.menu-label, 'Admin Menu'
 					m \ul.menu-list, modules.map (i) ->
 						m \li, m "a##{i.name}",
-							attr.menuLink(i.name), _.startCase i.full
+							href: "/#{i.name}"
+							class: \is-active if state.activeMenu is i.name
+							m \span, _.startCase i.full
+							if currentRoute! is \manajemen
+								if i.name is \manajemen
+									m \ul, <[ users imports ]>map (i) ->
+										m \li, m \a,
+											href: "/manajemen/#i"
+											m \span, _.startCase i
 				m \.column, if comp then m that
 
 	comp =
 		welcome: -> view: -> m \.content,
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
-		modal: ({title, content, confirm, cancel}) -> m \.modal,
-			class: \is-active
+		modal: ({title, content, confirm}) -> m \.modal.is-active,
 			m \.modal-background
 			m \.modal-card,
 				m \header.modal-card-head,
 					m \p.modal-card-title, title
-					m \button.delete,
-						'aria-label': \close
-						onclick: -> state.modal = null
+					m \button.delete, 'aria-label': \close onclick: -> state.modal = null
 				m \section.modal-card-body, m \.content, content
 				m \footer.modal-card-foot,
 					m \button.button.is-success, confirm
-					m \button.button, cancel
 		pasien: -> view: -> m \div,
 			if currentRoute! is \regis then unless m.route.param \idpasien
 				m \.button.is-success, attr.pasien.showForm.patient, \+Pasien
@@ -114,7 +116,6 @@ if Meteor.isClient
 					if state.modal then comp.modal do
 						title: 'Rincian rawat'
 						confirm: \Lanjutkan
-						cancel: \Batal
 						content: m \div,
 							m \h1, coll.pasien.findOne!regis.nama_lengkap
 							m \table.table, [
@@ -128,38 +129,73 @@ if Meteor.isClient
 							]map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
 		regis: -> this.pasien
 		jalan: -> this.pasien
-		manajemen: -> view: -> m \.content,
-			oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
-			m \h1, 'Manajemen Pengguna'
-			m \h5, 'Tambahkan pengguna baru'
-			m \form,
-				onsubmit: (e) ->
-					e.preventDefault!
-					vals = _.initial _.map e.target, -> it.value
-					if vals.1 is vals.2
-						Meteor.call \newUser, username: vals.0, password: vals.1
-				[
-					{type: \text, place: \Username}
-					{type: \password, place: \Password}
-					{type: \password, place: 'Ulangi password'}
-				]map (i) -> m \.field, m \.control, m \input.input,
-					type: i.type, placeholder: i.place
-				m \.field, m \.control, m \input.button,
-					type: \submit, value: \Daftarkan
-			m \table.table,
-				m \thead, m \tr, <[ username peranan ]>map (i) -> m \th, _.startCase i
-				m \tbody, Meteor.users.find!fetch!map (i) -> m \tr,
-					ondblclick: -> state.modal = i
-					m \td, i.username
-					m \td, ''
-				if state.modal then comp.modal do
-					title: 'Berikan peranan'
-					confirm: \Beri
-					cancel: \Batal
-					content: m \.content, m \p, \coba
+		manajemen: -> view: ->
+			if \users is m.route.param \subroute then m \.content,
+				oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
+				m \h1, 'Manajemen Pengguna'
+				m \h5, 'Tambahkan pengguna baru'
+				m \form,
+					onsubmit: (e) ->
+						e.preventDefault!
+						vals = _.initial _.map e.target, -> it.value
+						if vals.1 is vals.2
+							Meteor.call \newUser, username: vals.0, password: vals.1
+					[
+						{type: \text, place: \Username}
+						{type: \password, place: \Password}
+						{type: \password, place: 'Ulangi password'}
+					]map (i) -> m \.field, m \.control, m \input.input,
+						type: i.type, placeholder: i.place
+					m \.field, m \.control, m \input.button,
+						type: \submit, value: \Daftarkan
+				m \table.table,
+					m \thead, m \tr, <[ username peranan ]>map (i) -> m \th, _.startCase i
+					m \tbody, Meteor.users.find!fetch!map (i) -> m \tr,
+						ondblclick: -> state.modal = i
+						m \td, i.username
+						m \td, ''
+					if state.modal then comp.modal do
+						title: 'Berikan peranan'
+						confirm: \Beri
+						content: m \.content, m \p, \coba
+			else if \imports is m.route.param \subroute then m \.content,
+				m \h1, 'Importer Data'
+				m \h5, 'Unggah data csv'
+				m \.file, m \label.file-label,
+					m \input.file-input,
+						type: \file, name: \csv,
+						onchange: (e) -> Papa.parse e.target.files.0,
+							header: true, step: (result) ->
+								data = result.data.0
+								if data.digudang
+									sel = nama: data.nama
+									opt =
+										jenis: +data.jenis
+										satuan: +data.satuan
+										nobatch: that if data.nobatch
+										merek: that if data.merek
+										masuk: new Date that if data.masuk
+										kadaluarsa: new Date that if data.kadaluarsa
+										digudang: +data.digudang
+										diapotik: +that if data.diapotik
+										diretur: +that if data.diretur
+										beli: +that if data.beli
+										jual: +that if data.jual
+										suplier: that if data.suplier
+										returnable: !!that if data.returnable
+										anggaran: +that if data.anggaran
+										pengadaan: that if data.pengadaan
+										no_spk: that if data.no_spk
+										tanggal_spk: new Date that if data.tanggal_spk
+									Meteor.call \import, \gudang, sel, opt
+					m \span.file-cta,
+						m \span.file-icon, m \i.fa.fa-upload
+						m \span.file-label, 'Pilih file .csv'
+
 	m.route.prefix ''
 	m.route document.body, \/dashboard,
 		_.merge '/dashboard': layout(comp.welcome!),
 			... modules.map ({name}) -> "/#name": layout comp[name]?!
 			'/regis/:idpasien': layout comp.pasien!
 			'/jalan/:idpasien': layout comp.pasien!
+			'/manajemen/:subroute': layout comp.manajemen!
