@@ -119,5 +119,6 @@ schema.rawat =
 
 schema.jalan = _.assign {}, schema.rawat, {}
 
-coll.pasien = new Meteor.Collection \pasien
-coll.pasien.allow _.merge ... <[ insert update ]>map -> "#it": -> true
+<[ pasien gudang tarif ]>map (i) ->
+	coll[i] = new Meteor.Collection i
+	coll[i]allow _.merge ... <[ insert update ]>map -> "#it": -> true

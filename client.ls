@@ -1,10 +1,7 @@
 if Meteor.isClient
 
-	@state = {}
+	@state = pagins: limit: 5, page: 0
 	attr =
-		menuLink: (name) ->
-			class: \is-active if state.activeMenu is name
-			href: "/#name"
 		pasien:
 			showForm:
 				patient: onclick: ->
@@ -14,6 +11,9 @@ if Meteor.isClient
 			headers:
 				patientList: <[ nama_lengkap tanggal_lahir tempat_lahir ]>
 				rawatFields: <[ tanggal klinik cara_bayar bayar_pendaftaran status_bayar cek ]>
+		manajemen:
+			headers:
+				tarif: <[ nama jenis harga grup active ]>
 
 	layout = (comp) ->
 		view: -> m \div,
@@ -41,15 +41,6 @@ if Meteor.isClient
 		welcome: -> view: -> m \.content,
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
-		modal: ({title, content, confirm}) -> m \.modal.is-active,
-			m \.modal-background
-			m \.modal-card,
-				m \header.modal-card-head,
-					m \p.modal-card-title, title
-					m \button.delete, 'aria-label': \close onclick: -> state.modal = null
-				m \section.modal-card-body, m \.content, content
-				m \footer.modal-card-foot,
-					m \button.button.is-success, confirm
 		pasien: -> view: -> m \div,
 			if currentRoute! is \regis then unless m.route.param \idpasien
 				m \.button.is-success, attr.pasien.showForm.patient, \+Pasien
@@ -113,7 +104,7 @@ if Meteor.isClient
 							m \td, m \button.button.is-info,
 								onclick: -> state.modal = i
 								m \span, \Cek
-					if state.modal then comp.modal do
+					if state.modal then elem.modal do
 						title: 'Rincian rawat'
 						confirm: \Lanjutkan
 						content: m \div,
@@ -154,7 +145,7 @@ if Meteor.isClient
 						ondblclick: -> state.modal = i
 						m \td, i.username
 						m \td, ''
-					if state.modal then comp.modal do
+					if state.modal then elem.modal do
 						title: 'Berikan peranan'
 						confirm: \Beri
 						content: m \.content, m \p, \coba
@@ -188,9 +179,26 @@ if Meteor.isClient
 										no_spk: that if data.no_spk
 										tanggal_spk: new Date that if data.tanggal_spk
 									Meteor.call \import, \gudang, sel, opt
+								if data.harga
+									sel = nama: _.snakeCase data.nama
+									opt =
+										harga: +data.harga
+										jenis: _.snakeCase data.jenis
+										grup: _.startCase that if data.grup
+										active: true
+									Meteor.call \import, \tarif, sel, opt
 					m \span.file-cta,
 						m \span.file-icon, m \i.fa.fa-upload
 						m \span.file-label, 'Pilih file .csv'
+				[til 2]map -> m \br
+				m \h5, 'Daftar Tarif Tindakan'
+				m \table.table,
+					oncreate: -> Meteor.subscribe \coll, \tarif, onReady: -> m.redraw!
+					m \thead, m \tr, attr.manajemen.headers.tarif.map (i) ->
+						m \th, _.startCase i
+					m \tbody, pagins(coll.tarif.find!fetch!)map (i) -> m \tr,
+						attr.manajemen.headers.tarif.map (j) -> m \td, _.startCase i[j]
+				elem.pagins coll.tarif.find!fetch!
 
 	m.route.prefix ''
 	m.route document.body, \/dashboard,

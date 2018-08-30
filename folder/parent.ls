@@ -11,3 +11,20 @@ if Meteor.isClient
 
 	@hari = -> moment it .format 'D MMM YYYY'
 	@currentRoute = -> m.route.get!split(\/).1
+	@pagins = -> _.slice it, state.pagins.page, state.pagins.page+state.pagins.limit
+	@elem =
+		modal: ({title, content, confirm}) -> m \.modal.is-active,
+			m \.modal-background
+			m \.modal-card,
+				m \header.modal-card-head,
+					m \p.modal-card-title, title
+					m \button.delete, 'aria-label': \close onclick: -> state.modal = null
+				m \section.modal-card-body, m \.content, content
+				m \footer.modal-card-foot,
+					m \button.button.is-success, confirm
+		pagins: (arr) -> m \nav.pagination, role: \navigation, 'aria-label': \pagination,
+			[[\previous, -1], [\next, 1]]map (i) -> m ".pagination-#{i.0}",
+				onclick: -> state.pagins.page += i.1
+				m \span, _.startCase i.0
+			m \.pagination-list, [til 3]map (i) -> m \a.pagination-link,
+				m \span, _.startCase state.pagins.page+i+1
