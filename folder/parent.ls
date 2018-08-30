@@ -9,9 +9,12 @@
 
 if Meteor.isClient
 
+	@state = pagins: limit: 5, page: 0
 	@hari = -> moment it .format 'D MMM YYYY'
 	@currentRoute = -> m.route.get!split(\/).1
-	@pagins = -> _.slice it, state.pagins.page, state.pagins.page+state.pagins.limit
+	@pagins = ->
+		position = state.pagins.page * state.pagins.limit
+		_.slice it, position, (position + state.pagins.limit)
 	@elem =
 		modal: ({title, content, confirm}) -> m \.modal.is-active,
 			m \.modal-background

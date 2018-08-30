@@ -19,3 +19,7 @@
 	alias: <[ tn ny nn an by ]>
 
 _.map selects, (i, j) -> selects[j] = _.map selects[j], (m, n) -> value: n+1, label: _.startCase m
+
+selects.tindakan = -> if Meteor.isClient
+	coll.tarif?find!fetch!map ->
+		value: it._id, label: it.nama

@@ -1,6 +1,5 @@
 if Meteor.isClient
 
-	@state = pagins: limit: 5, page: 0
 	attr =
 		pasien:
 			showForm:
@@ -52,8 +51,8 @@ if Meteor.isClient
 				buttonContent: \Simpan
 			unless m.route.param \idpasien
 				m \table.table,
-					oncreate: -> Meteor.subscribe \coll, \pasien,
-						onReady: -> m.redraw!
+					oncreate: ->
+						Meteor.subscribe \coll, \pasien, onReady: -> m.redraw!
 					m \thead, m \tr, attr.pasien.headers.patientList.map (i) ->
 						m \th, _.startCase i
 					m \tfoot, coll.pasien.find!fetch!map (i) -> m \tr,
@@ -62,8 +61,10 @@ if Meteor.isClient
 						if i.regis.tgl_lahir then m \td, moment(that)format 'D MMM YYYY'
 						if i.regis.tmpt_lahir then m \td, _.startCase that
 			else m \div,
-				oncreate: -> Meteor.subscribe \coll, \pasien,
-					{_id: m.route.param \idpasien}, onReady: -> m.redraw!
+				oncreate: ->
+					Meteor.subscribe \coll, \pasien,
+						{_id: m.route.param \idpasien}, onReady: -> m.redraw!
+					Meteor.subscribe \coll, \tarif
 				m \.content, m \h5, 'Rincian Pasien'
 				if coll.pasien.findOne(_id: m.route.param \idpasien) then m \div,
 					m \table.table, [

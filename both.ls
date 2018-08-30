@@ -38,7 +38,7 @@ schema.tindakan =
 		type: String
 		autoform: type: \hidden
 		autoValue: -> randomId!
-	nama: type: String, autoform: options: null
+	nama: type: String, autoform: options: selects.tindakan
 	dokter: type: String, autoform: options: null
 
 schema.obat =

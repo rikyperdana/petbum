@@ -56,11 +56,14 @@ if Meteor.isClient
 			opts.fields
 			usedSchema._firstLevelSchemaKeys
 
-		optionList = (name) ->
+		optionList = (name) -> ors arr =
 			theSchema(name)?allowedValues?map (i) ->
 				value: i, label: _.startCase i
-			or theSchema(name)?autoform?options
-			or <[ true false ]>map (i) ->
+			do ->
+				if _.isFunction theSchema(name)?autoform?options
+					theSchema(name)?autoform?options!
+				else theSchema(name)?autoform?options
+			<[ true false ]>map (i) ->
 				value: JSON.parse i
 				label: _.startCase i
 
