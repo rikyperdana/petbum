@@ -188,9 +188,22 @@ if Meteor.isClient
 										grup: _.startCase that if data.grup
 										active: true
 									Meteor.call \import, \tarif, sel, opt
+								if data.password
+									Meteor.call \newUser, data
+									Meteor.call \addRoles, data
 					m \span.file-cta,
 						m \span.file-icon, m \i.fa.fa-upload
 						m \span.file-label, 'Pilih file .csv'
+				[til 2]map -> m \br
+				m \h5, 'Daftar Pengguna Sistem'
+				m \table.table,
+					oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
+					m \thead, m \tr, <[ Username Peran Aksi ]>map (i) -> m \th, i
+					m \tbody, pagins(Meteor.users.find!fetch!)map (i) -> m \tr,
+						m \td, i.username
+						m \td, JSON.stringify i.roles
+						m \td, m \a, \Reset
+				elem.pagins Meteor.users.find!fetch!
 				[til 2]map -> m \br
 				m \h5, 'Daftar Tarif Tindakan'
 				m \table.table,

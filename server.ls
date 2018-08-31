@@ -14,6 +14,11 @@ if Meteor.isServer
 					Accounts["set#{_.startCase i}"] that._id, doc[i]
 			else Accounts.createUser doc
 
+		addRoles: (doc) ->
+			if Accounts.findUserByUsername doc.username
+				Roles.addUsersToRoles do
+					that._id, (doc.poli or doc.role), doc.group
+
 		import: (name, selector, modifier, arrName) ->
 			find = coll[name]find selector
 			if arrName
@@ -21,3 +26,4 @@ if Meteor.isServer
 					{_id: find._id}, $push: "#that": modifier[that]0
 				else coll[name]insert _.merge selector, modifier
 			else coll[name]insert _.merge selector, modifier
+
