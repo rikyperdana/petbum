@@ -131,8 +131,9 @@ if Meteor.isClient
 					onsubmit: (e) ->
 						e.preventDefault!
 						vals = _.initial _.map e.target, -> it.value
-						if vals.1 is vals.2
-							Meteor.call \newUser, username: vals.0, password: vals.1
+						if vals.1 is vals.2 then Meteor.call \newUser,
+							{username: vals.0, password: vals.1}
+							(err, res) -> res and m.redraw!
 					[
 						{type: \text, place: \Username}
 						{type: \password, place: \Password}
@@ -146,7 +147,7 @@ if Meteor.isClient
 				m \table.table,
 					oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
 					m \thead, m \tr, <[ Username Peran Aksi ]>map (i) -> m \th, i
-					m \tbody, pagins(Meteor.users.find!fetch!)map (i) -> m \tr,
+					m \tbody, pagins(Meteor.users.find!fetch!reverse!)map (i) -> m \tr,
 						ondblclick: -> state.modal = i
 						m \td, i.username
 						m \td, JSON.stringify i.roles
