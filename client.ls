@@ -57,9 +57,9 @@ if Meteor.isClient
 						m \th, _.startCase i
 					m \tfoot, coll.pasien.find!fetch!map (i) -> m \tr,
 						ondblclick: -> m.route.set "#{m.route.get!}/#{i._id}"
-						if i.regis.nama_lengkap then m \td, _.startCase that
-						if i.regis.tgl_lahir then m \td, moment(that)format 'D MMM YYYY'
-						if i.regis.tmpt_lahir then m \td, _.startCase that
+						m \td, if i.regis.nama_lengkap then _.startCase that
+						m \td, if i.regis.tgl_lahir then moment(that)format 'D MMM YYYY'
+						m \td, if i.regis.tmpt_lahir then _.startCase that
 			else m \div,
 				oncreate: ->
 					Meteor.subscribe \coll, \pasien,
@@ -96,7 +96,7 @@ if Meteor.isClient
 					m \table.table,
 						m \thead, m \tr, attr.pasien.headers.rawatFields.map (i) ->
 							m \th, _.startCase i
-						m \tbody, _.reverse that.rawat.map (i) -> m \tr,
+						m \tbody, that.rawat?reverse!map (i) -> m \tr,
 							m \td, hari i.tanggal
 							m \td, look(\klinik, i.klinik)label
 							m \td, look(\cara_bayar, i.cara_bayar)label
@@ -107,7 +107,6 @@ if Meteor.isClient
 								m \span, \Cek
 					if state.modal then elem.modal do
 						title: 'Rincian rawat'
-						confirm: \Lanjutkan
 						content: m \div,
 							m \h1, coll.pasien.findOne!regis.nama_lengkap
 							m \table.table, [
@@ -119,6 +118,8 @@ if Meteor.isClient
 								{head: \Diagnosa, cell: state.modal?diagnosa}
 								{head: \Planning, cell: state.modal?planning}
 							]map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
+						confirm: \Lanjutkan
+						action: -> null
 		regis: -> this.pasien
 		jalan: -> this.pasien
 		manajemen: -> view: ->
@@ -140,16 +141,22 @@ if Meteor.isClient
 						type: i.type, placeholder: i.place
 					m \.field, m \.control, m \input.button,
 						type: \submit, value: \Daftarkan
+				[til 2]map -> m \br
+				m \h5, 'Daftar Pengguna Sistem'
 				m \table.table,
-					m \thead, m \tr, <[ username peranan ]>map (i) -> m \th, _.startCase i
-					m \tbody, Meteor.users.find!fetch!map (i) -> m \tr,
+					oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
+					m \thead, m \tr, <[ Username Peran Aksi ]>map (i) -> m \th, i
+					m \tbody, pagins(Meteor.users.find!fetch!)map (i) -> m \tr,
 						ondblclick: -> state.modal = i
 						m \td, i.username
-						m \td, ''
+						m \td, JSON.stringify i.roles
+						m \td, m \a, \Reset
 					if state.modal then elem.modal do
-						title: 'Berikan peranan'
+						title: 'Berikan Peranan'
+						content: m \p, \coba
 						confirm: \Beri
-						content: m \.content, m \p, \coba
+						action: -> null
+				elem.pagins Meteor.users.find!fetch!
 			else if \imports is m.route.param \subroute then m \.content,
 				m \h1, 'Importer Data'
 				m \h5, 'Unggah data csv'
@@ -159,6 +166,19 @@ if Meteor.isClient
 						onchange: (e) -> Papa.parse e.target.files.0,
 							header: true, step: (result) ->
 								data = result.data.0
+								if data.no_mr
+									sel = no_mr: data.no_mr
+									opt = regis:
+										nama_lengkap: _.startCase data.nama_lengkap
+										alamat: _.startCase that if data.alamat
+										agama: +that if data.agama
+										ayah: _.startCase that if data.ayah
+										nikah: +that if data.nikah
+										pekerjaan: +that if data.pekerjaan
+										pendidikan: +that if data.pendidikan
+										tgl_lahir: new Date that if Date.parse that if data.tgl_lahir
+										tmpt_lahir: _.startCase that if data.tmpt_lahir
+									Meteor.call \import, \pasien, sel, opt
 								if data.digudang
 									sel = nama: data.nama
 									opt =
@@ -194,16 +214,6 @@ if Meteor.isClient
 					m \span.file-cta,
 						m \span.file-icon, m \i.fa.fa-upload
 						m \span.file-label, 'Pilih file .csv'
-				[til 2]map -> m \br
-				m \h5, 'Daftar Pengguna Sistem'
-				m \table.table,
-					oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
-					m \thead, m \tr, <[ Username Peran Aksi ]>map (i) -> m \th, i
-					m \tbody, pagins(Meteor.users.find!fetch!)map (i) -> m \tr,
-						m \td, i.username
-						m \td, JSON.stringify i.roles
-						m \td, m \a, \Reset
-				elem.pagins Meteor.users.find!fetch!
 				[til 2]map -> m \br
 				m \h5, 'Daftar Tarif Tindakan'
 				m \table.table,
