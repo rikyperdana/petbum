@@ -63,7 +63,7 @@ schema.obat =
 		autoValue: -> null
 	hasil: type: String, optional: true, autoform: type: \hidden
 
-schema.rawat =
+schema.rawatRegis =
 	no_mr: type: Number
 	rawat: type: Array
 	'rawat.$': type: Object
@@ -90,8 +90,12 @@ schema.rawat =
 		type: Boolean
 		autoform: type: \hidden
 		autoValue: -> false
+
+schema.rawatNurse =
 	'rawat.$.anamesa_perawat': type: String, autoform: type: \textarea
 	'rawat.$.fisik': type: [new SimpleSchema schema.fisik]
+
+schema.rawatDoctor =
 	'rawat.$.anamesa_dokter': type: String, optional: true, autoform: type: \textarea
 	'rawat.$.diagnosa': type: String, optional: true, autoform: type: \textarea
 	'rawat.$.planning': type: String, optional: true, autoform: type: \textarea
@@ -112,12 +116,6 @@ schema.rawat =
 		autoValue: -> null
 	'rawat.$.pindah': type: Number, optional: true, autoform: options: selects.klinik
 	'rawat.$.keluar': type: Number, optional: true, autoform: options: selects.keluar
-	'rawat.$.petugas':
-		type: String
-		autoform: type: \hidden
-		autoValue: -> null
-
-schema.jalan = _.assign {}, schema.rawat, {}
 
 <[ pasien gudang tarif ]>map (i) ->
 	coll[i] = new Meteor.Collection i

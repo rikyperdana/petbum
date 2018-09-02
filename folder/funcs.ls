@@ -2,6 +2,9 @@
 @coll = {}; @schema = {}; @afState = {};
 @ors = -> it.find -> it
 @ands = -> _.last it if _.every it
+@same = (...args) -> args.reduce do
+	(res, acc) -> res if acc is res
+	args.0
 
 if Meteor.isClient
 	@m = require \mithril

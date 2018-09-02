@@ -23,7 +23,7 @@ if Meteor.isClient
 					m \p.modal-card-title, title
 					m \button.delete, 'aria-label': \close onclick: -> state.modal = null
 				m \section.modal-card-body, m \.content, content
-				m \footer.modal-card-foot, m \button.button.is-success,
+				m \footer.modal-card-foot, if confirm then m \button.button.is-success,
 					(onclick: -> action?!), m \span, confirm
 		pagins: (arr) -> m \nav.pagination, role: \navigation, 'aria-label': \pagination,
 			[[\previous, -1], [\next, 1]]map (i) -> m ".pagination-#{i.0}",

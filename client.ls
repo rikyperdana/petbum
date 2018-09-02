@@ -28,12 +28,11 @@ if Meteor.isClient
 							href: "/#{i.name}"
 							class: \is-active if state.activeMenu is i.name
 							m \span, _.startCase i.full
-							if currentRoute! is \manajemen
-								if i.name is \manajemen
-									m \ul, <[ users imports ]>map (i) ->
-										m \li, m \a,
-											href: "/manajemen/#i"
-											m \span, _.startCase i
+							if same \manajemen, currentRoute!, i.name
+								m \ul, <[ users imports ]>map (i) ->
+									m \li, m \a,
+										href: "/manajemen/#i"
+										m \span, _.startCase i
 				m \.column, if comp then m that
 
 	comp =
@@ -87,7 +86,7 @@ if Meteor.isClient
 						m \.button.is-success, attr.pasien.showForm.rawat, \+Pasien
 					state.showAddRawat and m autoForm do
 						collection: coll.pasien
-						schema: new SimpleSchema schema.jalan
+						schema: new SimpleSchema schema.rawatRegis
 						type: \update-pushArray
 						id: \formJalan
 						scope: \rawat
@@ -118,7 +117,7 @@ if Meteor.isClient
 								{head: \Diagnosa, cell: state.modal?diagnosa}
 								{head: \Planning, cell: state.modal?planning}
 							]map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
-						confirm: \Lanjutkan
+						confirm: \Lanjutkan if currentRoute! is \jalan
 						action: -> null
 		regis: -> this.pasien
 		jalan: -> this.pasien
