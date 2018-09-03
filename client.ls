@@ -10,6 +10,14 @@ if Meteor.isClient
 			headers:
 				patientList: <[ nama_lengkap tanggal_lahir tempat_lahir ]>
 				rawatFields: <[ tanggal klinik cara_bayar bayar_pendaftaran status_bayar cek ]>
+			rawatDetails: (doc) -> arr =
+				{head: \Tanggal, cell: hari doc.tanggal}
+				{head: \Klinik, cell: look(\klinik, doc.klinik)label}
+				{head: 'Cara Bayar', cell: look(\cara_bayar, doc.cara_bayar)label}
+				{head: 'Anamesa Perawat', cell: doc?anamesa_perawat}
+				{head: 'Anamesa Dokter', cell: doc?anamesa_dokter}
+				{head: \Diagnosa, cell: doc?diagnosa}
+				{head: \Planning, cell: doc?planning}
 		manajemen:
 			headers:
 				tarif: <[ nama jenis harga grup active ]>
@@ -96,15 +104,8 @@ if Meteor.isClient
 					state.docRawat and m \.content,
 						m \h5, 'Rincian Rawat'
 						m \table.table,
-							if that.rawat.find(-> it.idrawat is state.docRawat) then [
-								{head: \Tanggal, cell: hari that.tanggal}
-								{head: \Klinik, cell: look(\klinik, that.klinik)label}
-								{head: 'Cara Bayar', cell: look(\cara_bayar, that.cara_bayar)label}
-								{head: 'Anamesa Perawat', cell: that?anamesa_perawat}
-								{head: 'Anamesa Dokter', cell: that?anamesa_dokter}
-								{head: \Diagnosa, cell: that?diagnosa}
-								{head: \Planning, cell: that?planning}
-							]map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
+							attr.pasien.rawatDetails that.rawat.find(-> it.idrawat is state.docRawat)
+							.map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
 					state.docRawat and m autoForm do
 						collection: coll.pasien
 						schema: new SimpleSchema schema.rawatNurse
@@ -133,15 +134,9 @@ if Meteor.isClient
 						title: 'Rincian rawat'
 						content: m \div,
 							m \h1, coll.pasien.findOne!regis.nama_lengkap
-							m \table.table, [
-								{head: \Tanggal, cell: hari state.modal.tanggal}
-								{head: \Klinik, cell: look(\klinik, state.modal.klinik)label}
-								{head: 'Cara Bayar', cell: look(\cara_bayar, state.modal.cara_bayar)label}
-								{head: 'Anamesa Perawat', cell: state.modal?anamesa_perawat}
-								{head: 'Anamesa Dokter', cell: state.modal?anamesa_dokter}
-								{head: \Diagnosa, cell: state.modal?diagnosa}
-								{head: \Planning, cell: state.modal?planning}
-							]map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
+							m \table.table,
+								attr.pasien.rawatDetails state.modal
+								.map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
 						confirm: \Lanjutkan if currentRoute! is \jalan
 						action: ->
 							state.docRawat = state.modal.idrawat
