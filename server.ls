@@ -27,3 +27,7 @@ if Meteor.isServer
 				else coll[name]insert _.merge selector, modifier
 			else coll[name]insert _.merge selector, modifier
 
+		rmRawat: (idpasien, idrawat) -> coll.pasien.update do
+			{_id: idpasien}
+			$set: rawat: coll.pasien.findOne(idpasien)rawat.filter ->
+				it.idrawat isnt idrawat

@@ -67,6 +67,10 @@ schema.rawatRegis =
 	no_mr: type: Number
 	rawat: type: Array
 	'rawat.$': type: Object
+	'rawat.$.idrawat':
+		type: String
+		autoform: type: \hidden
+		autoValue: -> randomId!
 	'rawat.$.tanggal':
 		type: Date
 		autoform: type: \hidden

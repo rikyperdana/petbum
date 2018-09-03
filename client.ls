@@ -39,7 +39,7 @@ if Meteor.isClient
 		welcome: -> view: -> m \.content,
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
-		pasien: -> view: -> m \div,
+		pasien: -> view: -> m \.content,
 			if currentRoute! is \regis then unless m.route.param \idpasien
 				m \.button.is-success, attr.pasien.showForm.patient, \+Pasien
 			state.showAddPatient and  m autoForm do
@@ -92,18 +92,43 @@ if Meteor.isClient
 						scope: \rawat
 						doc: that
 						buttonContent: \Tambahkan
+					[til 2]map -> m \br
+					state.docRawat and m \.content,
+						m \h5, 'Rincian Rawat'
+						m \table.table,
+							if that.rawat.find(-> it.idrawat is state.docRawat) then [
+								{head: \Tanggal, cell: hari that.tanggal}
+								{head: \Klinik, cell: look(\klinik, that.klinik)label}
+								{head: 'Cara Bayar', cell: look(\cara_bayar, that.cara_bayar)label}
+								{head: 'Anamesa Perawat', cell: that?anamesa_perawat}
+								{head: 'Anamesa Dokter', cell: that?anamesa_dokter}
+								{head: \Diagnosa, cell: that?diagnosa}
+								{head: \Planning, cell: that?planning}
+							]map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
+					state.docRawat and m autoForm do
+						collection: coll.pasien
+						schema: new SimpleSchema schema.rawatNurse
+						type: \update-pushArray
+						id: \formNurse
+						scope: \rawat
+						doc: that
+						buttonContent: 'Simpan'
+						hooks: before: (doc, cb) ->
+							Meteor.call \rmRawat, that._id, state.docRawat, (err, res) ->
+								res and cb _.merge doc.rawat.0, that.rawat.find ->
+									it.idrawat is state.docRawat
 					m \table.table,
 						m \thead, m \tr, attr.pasien.headers.rawatFields.map (i) ->
 							m \th, _.startCase i
-						m \tbody, that.rawat?reverse!map (i) -> m \tr,
-							m \td, hari i.tanggal
-							m \td, look(\klinik, i.klinik)label
-							m \td, look(\cara_bayar, i.cara_bayar)label
-							m \td, \-
-							m \td, \-
-							m \td, m \button.button.is-info,
+						m \tbody, that.rawat?reverse!map (i) -> m \tr, [
+							hari i.tanggal
+							look(\klinik, i.klinik)label
+							look(\cara_bayar, i.cara_bayar)label
+							... [til 2]map -> \-
+							m \button.button.is-info,
 								onclick: -> state.modal = i
 								m \span, \Cek
+						]map (j) -> m \td, j
 					if state.modal then elem.modal do
 						title: 'Rincian rawat'
 						content: m \div,
@@ -118,7 +143,9 @@ if Meteor.isClient
 								{head: \Planning, cell: state.modal?planning}
 							]map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
 						confirm: \Lanjutkan if currentRoute! is \jalan
-						action: -> null
+						action: ->
+							state.docRawat = state.modal.idrawat
+							state.modal = null
 		regis: -> this.pasien
 		jalan: -> this.pasien
 		manajemen: -> view: ->
