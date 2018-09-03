@@ -18,6 +18,7 @@ if Meteor.isClient
 				{head: 'Anamesa Dokter', cell: doc?anamesa_dokter}
 				{head: \Diagnosa, cell: doc?diagnosa}
 				{head: \Planning, cell: doc?planning}
+		bayar: header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
 		manajemen:
 			headers:
 				tarif: <[ nama jenis harga grup active ]>
@@ -105,7 +106,7 @@ if Meteor.isClient
 						m \h5, 'Rincian Rawat'
 						m \table.table,
 							attr.pasien.rawatDetails that.rawat.find(-> it.idrawat is state.docRawat)
-							.map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
+							.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
 					state.docRawat and m autoForm do
 						collection: coll.pasien
 						schema: new SimpleSchema schema.rawatNurse
@@ -136,13 +137,38 @@ if Meteor.isClient
 							m \h1, coll.pasien.findOne!regis.nama_lengkap
 							m \table.table,
 								attr.pasien.rawatDetails state.modal
-								.map (i) -> m \tr, [(m \th, i.head), (m \td, i.cell)]
+								.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
 						confirm: \Lanjutkan if currentRoute! is \jalan
 						action: ->
 							state.docRawat = state.modal.idrawat
 							state.modal = null
 		regis: -> this.pasien
 		jalan: -> this.pasien
+		bayar: -> view: -> m \.content,
+			m \table.table,
+				oncreate: -> Meteor.subscribe \coll, \pasien,
+					$elemMatch: $or: [status_bayar: $ne: true]
+					onReady: -> m.redraw!
+				m \thead, m \tr, attr.bayar.header.map (i) -> m \th, _.startCase i
+				m \tbody, coll.pasien.find!fetch!map (i) -> _.compact i.rawat.map (j) ->
+					if !j.status_bayar then m \tr,
+						m \td, i.no_mr
+						m \td, i.regis.nama_lengkap
+						m \td, hari j.tanggal
+						m \td, \-
+						m \td, look(\cara_bayar, j.cara_bayar)label
+						m \td, look(\klinik, j.klinik)label
+						m \td, m \a.button.is-success,
+							onclick: -> state.modal = j
+							m \span, \Bayar
+			if state.modal then elem.modal do
+				title: 'Sudah bayar?'
+				content: m \table.table,
+					m \tr, [(m \th, 'Total Biaya'), (m \td, "Rp #{state.modal.karcis}")]
+				confirm: \Sudah
+				action: ->
+					console.log state.modal
+					state.modal = null
 		manajemen: -> view: ->
 			if \users is m.route.param \subroute then m \.content,
 				oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
@@ -239,7 +265,9 @@ if Meteor.isClient
 				[til 2]map -> m \br
 				m \h5, 'Daftar Tarif Tindakan'
 				m \table.table,
-					oncreate: -> Meteor.subscribe \coll, \tarif, onReady: -> m.redraw!
+					oncreate: ->
+						Meteor.subscribe \coll, \tarif, onReady: -> m.redraw!
+						coll.tarif.find!observe added: -> m.redraw!
 					m \thead, m \tr, attr.manajemen.headers.tarif.map (i) ->
 						m \th, _.startCase i
 					m \tbody, pagins(coll.tarif.find!fetch!)map (i) -> m \tr,
