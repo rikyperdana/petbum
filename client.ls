@@ -146,28 +146,35 @@ if Meteor.isClient
 		jalan: -> this.pasien
 		bayar: -> view: -> m \.content,
 			m \table.table,
-				oncreate: -> Meteor.subscribe \coll, \pasien,
-					$elemMatch: $or: [status_bayar: $ne: true]
-					onReady: -> m.redraw!
+				oncreate: ->
+					Meteor.subscribe \coll, \pasien,
+						$elemMatch: $or: arr =
+							billRegis: $ne: true
+							status_bayar: $ne: true
+						onReady: -> m.redraw!
+					coll.pasien.find!observe changed: -> m.redraw!
 				m \thead, m \tr, attr.bayar.header.map (i) -> m \th, _.startCase i
 				m \tbody, coll.pasien.find!fetch!map (i) -> _.compact i.rawat.map (j) ->
-					if !j.status_bayar then m \tr,
-						m \td, i.no_mr
-						m \td, i.regis.nama_lengkap
-						m \td, hari j.tanggal
-						m \td, \-
-						m \td, look(\cara_bayar, j.cara_bayar)label
-						m \td, look(\klinik, j.klinik)label
-						m \td, m \a.button.is-success,
-							onclick: -> state.modal = j
+					if !j.billRegis or (if j.tindakan then !j.status_bayar) then m \tr, [
+						i.no_mr, i.regis.nama_lengkap,
+						(hari j.tanggal), \-
+						look(\cara_bayar, j.cara_bayar)label
+						look(\klinik, j.klinik)label
+						m \a.button.is-success,
+							onclick: -> state.modal = _.merge j, pasienId: i._id
 							m \span, \Bayar
+					]map (k) -> m \td, k
 			if state.modal then elem.modal do
 				title: 'Sudah bayar?'
 				content: m \table.table,
 					m \tr, [(m \th, 'Total Biaya'), (m \td, "Rp #{state.modal.karcis}")]
 				confirm: \Sudah
 				action: ->
-					console.log state.modal
+					if state.modal then Meteor.call \updateArrayElm,
+						name: \pasien, recId: that.pasienId,
+						scope: \rawat, elmId: that.idrawat, doc: _.merge that,
+							if !that.billRegis then billRegis: true
+							else if !that.status_bayar then status_bayar: true
 					state.modal = null
 		manajemen: -> view: ->
 			if \users is m.route.param \subroute then m \.content,

@@ -31,3 +31,9 @@ if Meteor.isServer
 			{_id: idpasien}
 			$set: rawat: coll.pasien.findOne(idpasien)rawat.filter ->
 				it.idrawat isnt idrawat
+
+		updateArrayElm: ({name, recId, scope, elmId, doc}) ->
+			coll[name]update recId, $set: "#scope":
+				coll[name]findOne(recId)[scope]map (i) ->
+					if i["id#scope"] is elmId then doc
+					else i
