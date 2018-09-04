@@ -63,11 +63,15 @@ if Meteor.isClient
 						Meteor.subscribe \coll, \pasien, onReady: -> m.redraw!
 					m \thead, m \tr, attr.pasien.headers.patientList.map (i) ->
 						m \th, _.startCase i
-					m \tfoot, coll.pasien.find!fetch!map (i) -> m \tr,
-						ondblclick: -> m.route.set "#{m.route.get!}/#{i._id}"
-						m \td, if i.regis.nama_lengkap then _.startCase that
-						m \td, if i.regis.tgl_lahir then moment(that)format 'D MMM YYYY'
-						m \td, if i.regis.tmpt_lahir then _.startCase that
+					m \tfoot, coll.pasien.find!fetch!map (i) ->
+						rows = -> m \tr,
+							ondblclick: -> m.route.set "#{m.route.get!}/#{i._id}"
+							m \td, if i.regis.nama_lengkap then _.startCase that
+							m \td, if i.regis.tgl_lahir then moment(that)format 'D MMM YYYY'
+							m \td, if i.regis.tmpt_lahir then _.startCase that
+						if currentRoute! is \jalan
+							if i.rawat?reverse!?0?billRegis then rows!
+						else rows!
 			else m \div,
 				oncreate: ->
 					Meteor.subscribe \coll, \pasien,
@@ -92,7 +96,7 @@ if Meteor.isClient
 						]
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.data)]
 					if currentRoute! is \regis
-						m \.button.is-success, attr.pasien.showForm.rawat, \+Pasien
+						m \.button.is-success, attr.pasien.showForm.rawat, \+Rawat
 					state.showAddRawat and m autoForm do
 						collection: coll.pasien
 						schema: new SimpleSchema schema.rawatRegis
@@ -138,7 +142,9 @@ if Meteor.isClient
 							m \table.table,
 								attr.pasien.rawatDetails state.modal
 								.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
-						confirm: \Lanjutkan if currentRoute! is \jalan
+						confirm: \Lanjutkan if ands arr =
+							currentRoute! is \jalan
+							!state.modal.anamesa_perawat
 						action: ->
 							state.docRawat = state.modal.idrawat
 							state.modal = null

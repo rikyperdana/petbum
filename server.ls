@@ -35,5 +35,4 @@ if Meteor.isServer
 		updateArrayElm: ({name, recId, scope, elmId, doc}) ->
 			coll[name]update recId, $set: "#scope":
 				coll[name]findOne(recId)[scope]map (i) ->
-					if i["id#scope"] is elmId then doc
-					else i
+					if i["id#scope"] is elmId then doc else i
