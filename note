@@ -1,3 +1,8 @@
-5 Juli 2018
-1. On update, unless checkbox changed it'll return error
-# 2. Empty siblings will save null
+5 Sept 2018
+1. Menu pendaftaran dipecah: pasien, rawat jalan, rawat inap, igd
+2. Rupiah kan semua angka uang
+3. Isi fields disesuaikan dengan sirsak
+4. Tandai wajib/opsional dengan bintang merah
+5. Perbaiki field umur pada view pasien
+6. Login untuk tiap user
+7. Remove number of array
