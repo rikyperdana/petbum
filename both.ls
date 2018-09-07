@@ -121,6 +121,14 @@ schema.rawatDoctor =
 	'rawat.$.pindah': type: Number, optional: true, autoform: options: selects.klinik
 	'rawat.$.keluar': type: Number, optional: true, autoform: options: selects.keluar
 
+schema.addRole =
+	roles: type: String, optional: true, autoform: type: \select, options: ->
+		<[ admin petugas ]>map -> value: it, label: _.startCase it
+	group: type: String, autoform: type: \select, options: ->
+		modules.map -> value: it.name, label: _.startCase it.name
+	poli: type: String, optional: true, autoform: type: \select, options: ->
+		selects.klinik.map -> label: it.label, value: _.snakeCase it.label
+
 <[ pasien gudang tarif ]>map (i) ->
 	coll[i] = new Meteor.Collection i
 	coll[i]allow _.merge ... <[ insert update ]>map -> "#it": -> true

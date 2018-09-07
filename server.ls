@@ -36,3 +36,8 @@ if Meteor.isServer
 			coll[name]update recId, $set: "#scope":
 				coll[name]findOne(recId)[scope]map (i) ->
 					if i["id#scope"] is elmId then doc else i
+
+		addRole: ({id, roles, group, poli}) ->
+			Roles.addUsersToRoles id, (poli or roles), group
+
+		rmRole: (id) -> Meteor.users.update {_id: id}, $set: roles: {}

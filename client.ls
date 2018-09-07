@@ -211,12 +211,21 @@ if Meteor.isClient
 						ondblclick: -> state.modal = i
 						m \td, i.username
 						m \td, JSON.stringify i.roles
-						m \td, m \a, \Reset
+						m \td, m \.button.is-danger,
+							onclick: -> Meteor.call \rmRole, i._id
+							m \span, \Reset
 					if state.modal then elem.modal do
 						title: 'Berikan Peranan'
-						content: m \p, \coba
-						confirm: \Beri
-						action: -> null
+						content: m autoForm do
+							schema: new SimpleSchema schema.addRole
+							type: \method
+							meteormethod: \addRole
+							id: \formAddRole
+							buttonContent: \Beri
+							hooks:
+								before: (doc, cb) ->
+									cb _.merge doc, id: state.modal._id
+								after: -> state.modal = null
 				elem.pagins Meteor.users.find!fetch!
 			else if \imports is m.route.param \subroute then m \.content,
 				m \h1, 'Importer Data'
