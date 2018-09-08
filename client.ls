@@ -250,56 +250,54 @@ if Meteor.isClient
 				m \h1, 'Importer Data'
 				m \h5, 'Unggah data csv'
 				m \.file, m \label.file-label,
-					m \input.file-input,
-						type: \file, name: \csv,
-						onchange: (e) -> Papa.parse e.target.files.0,
-							header: true, step: (result) ->
-								data = result.data.0
-								if data.no_mr
-									sel = no_mr: data.no_mr
-									opt = regis:
-										nama_lengkap: _.startCase data.nama_lengkap
-										alamat: _.startCase that if data.alamat
-										agama: +that if data.agama
-										ayah: _.startCase that if data.ayah
-										nikah: +that if data.nikah
-										pekerjaan: +that if data.pekerjaan
-										pendidikan: +that if data.pendidikan
-										tgl_lahir: new Date that if Date.parse that if data.tgl_lahir
-										tmpt_lahir: _.startCase that if data.tmpt_lahir
-									Meteor.call \import, \pasien, sel, opt
-								if data.digudang
-									sel = nama: data.nama
-									opt =
-										jenis: +data.jenis
-										satuan: +data.satuan
-										nobatch: that if data.nobatch
-										merek: that if data.merek
-										masuk: new Date that if data.masuk
-										kadaluarsa: new Date that if data.kadaluarsa
-										digudang: +data.digudang
-										diapotik: +that if data.diapotik
-										diretur: +that if data.diretur
-										beli: +that if data.beli
-										jual: +that if data.jual
-										suplier: that if data.suplier
-										returnable: !!that if data.returnable
-										anggaran: +that if data.anggaran
-										pengadaan: that if data.pengadaan
-										no_spk: that if data.no_spk
-										tanggal_spk: new Date that if data.tanggal_spk
-									Meteor.call \import, \gudang, sel, opt
-								if data.harga
-									sel = nama: _.snakeCase data.nama
-									opt =
-										harga: +data.harga
-										jenis: _.snakeCase data.jenis
-										grup: _.startCase that if data.grup
-										active: true
-									Meteor.call \import, \tarif, sel, opt
-								if data.password
-									<[ newUser addRoles ]>map (i) ->
-										Meteor.call i, data
+					m \input.file-input, type: \file, name: \csv, onchange: (e) ->
+						Papa.parse e.target.files.0, header: true, step: (result) ->
+							data = result.data.0
+							if data.no_mr
+								sel = no_mr: data.no_mr
+								opt = regis:
+									nama_lengkap: _.startCase data.nama_lengkap
+									alamat: _.startCase that if data.alamat
+									agama: +that if data.agama
+									ayah: _.startCase that if data.ayah
+									nikah: +that if data.nikah
+									pekerjaan: +that if data.pekerjaan
+									pendidikan: +that if data.pendidikan
+									tgl_lahir: new Date that if Date.parse that if data.tgl_lahir
+									tmpt_lahir: _.startCase that if data.tmpt_lahir
+								Meteor.call \import, \pasien, sel, opt
+							if data.digudang
+								sel = nama: data.nama
+								opt =
+									jenis: +data.jenis
+									satuan: +data.satuan
+									nobatch: that if data.nobatch
+									merek: that if data.merek
+									masuk: new Date that if data.masuk
+									kadaluarsa: new Date that if data.kadaluarsa
+									digudang: +data.digudang
+									diapotik: +that if data.diapotik
+									diretur: +that if data.diretur
+									beli: +that if data.beli
+									jual: +that if data.jual
+									suplier: that if data.suplier
+									returnable: !!that if data.returnable
+									anggaran: +that if data.anggaran
+									pengadaan: that if data.pengadaan
+									no_spk: that if data.no_spk
+									tanggal_spk: new Date that if data.tanggal_spk
+								Meteor.call \import, \gudang, sel, opt
+							if data.harga
+								sel = nama: _.snakeCase data.nama
+								opt =
+									harga: +data.harga
+									jenis: _.snakeCase data.jenis
+									grup: _.startCase that if data.grup
+									active: true
+								Meteor.call \import, \tarif, sel, opt
+							if data.password
+								<[ newUser addRoles ]>map (i) ->
+									Meteor.call i, data
 					m \span.file-cta,
 						m \span.file-icon, m \i.fa.fa-upload
 						m \span.file-label, 'Pilih file .csv'
