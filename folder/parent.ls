@@ -12,6 +12,7 @@ if Meteor.isClient
 	@state = pagins: limit: 5, page: 0
 	@hari = -> moment it .format 'D MMM YYYY'
 	@currentRoute = -> m.route.get!split(\/).1
+	@isDr = -> _.split Meteor.user!?username, \. .0 in <[ dr drg ]>
 	@pagins = ->
 		position = state.pagins.page * state.pagins.limit
 		_.slice it, position, (position + state.pagins.limit)

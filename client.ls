@@ -3,7 +3,8 @@ if Meteor.isClient
 	attr =
 		layout:
 			rights: -> modules.filter (i) ->
-				i.name in _.keys Meteor.user!?roles
+				i.name in _.flatMap (_.keys Meteor.user!?roles), (j) ->
+					(.list) rights.find -> it.group is j
 		pasien:
 			showForm:
 				patient: onclick: ->
@@ -127,7 +128,9 @@ if Meteor.isClient
 							.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
 					state.docRawat and m autoForm do
 						collection: coll.pasien
-						schema: new SimpleSchema schema.rawatNurse
+						schema: new SimpleSchema do
+							if isDr! then schema.rawatDoctor
+							else schema.rawatNurse
 						type: \update-pushArray
 						id: \formNurse
 						scope: \rawat
@@ -158,7 +161,9 @@ if Meteor.isClient
 								.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
 						confirm: \Lanjutkan if ands arr =
 							currentRoute! is \jalan
-							!state.modal.anamesa_perawat
+							if !isDr! then !state.modal.anamesa_perawat else true
+							if isDr! then state.modal.anamesa_perawat else true
+							if isDr! then !state.modal.anamesa_dokter else true
 						action: ->
 							state.docRawat = state.modal.idrawat
 							state.modal = null
