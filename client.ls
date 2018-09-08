@@ -1,6 +1,9 @@
 if Meteor.isClient
 
 	attr =
+		layout:
+			rights: -> modules.filter (i) ->
+				i.name in _.keys Meteor.user!?roles
 		pasien:
 			showForm:
 				patient: onclick: ->
@@ -23,28 +26,39 @@ if Meteor.isClient
 			headers:
 				tarif: <[ nama jenis harga grup active ]>
 
-	layout = (comp) ->
-		view: -> m \div,
-			m \link, rel: \stylesheet, href: 'https:/maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
-			m \nav.navbar.is-info,
-				role: \navigation, 'aria-label': 'main navigation',
-				m \.navbar-brand, m \a.navbar-item, href: \#, \RSPB
-			m \.columns,
-				m \.column.is-2, m \aside.menu.box,
-					m \p.menu-label, 'Admin Menu'
-					m \ul.menu-list, modules.map (i) ->
-						m \li, m "a##{i.name}",
-							href: "/#{i.name}"
-							class: \is-active if state.activeMenu is i.name
-							m \span, _.startCase i.full
-							if same \manajemen, currentRoute!, i.name
-								m \ul, <[ users imports ]>map (i) ->
-									m \li, m \a,
-										href: "/manajemen/#i"
-										m \span, _.startCase i
-				m \.column, if comp then m that
-
 	comp =
+		layout: (comp) ->
+			view: -> m \div,
+				unless Meteor.userId! then m.route.set \/login
+				m \link, rel: \stylesheet, href: 'https:/maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
+				m \nav.navbar.is-info,
+					role: \navigation, 'aria-label': 'main navigation',
+					m \.navbar-brand, m \a.navbar-item, href: \#, \RSPB
+				m \.columns,
+					Meteor.userId! and m \.column.is-2, m \aside.menu.box,
+						m \p.menu-label, 'Admin Menu'
+						m \ul.menu-list, attr.layout.rights!map (i) ->
+							m \li, m "a##{i.name}",
+								href: "/#{i.name}"
+								class: \is-active if state.activeMenu is i.name
+								m \span, _.startCase i.full
+								if same \manajemen, currentRoute!, i.name
+									m \ul, <[ users imports ]>map (i) ->
+										m \li, m \a,
+											href: "/manajemen/#i"
+											m \span, _.startCase i
+					m \.column, if comp then m that
+		login: -> view: -> m \.container,
+			m \.content, m \h5, \Login
+			m \form,
+				onsubmit: (e) ->
+					e.preventDefault!
+					vals = _.initial _.map e.target, -> it.value
+					Meteor.loginWithPassword ...vals, (err) ->
+						unless err then m.route.set \/dashboard
+				m \input.input, type: \text, placeholder: \Username
+				m \input.input, type: \password, placeholder: \Password
+				m \input.button.is-success, type: \submit, value: \Login
 		welcome: -> view: -> m \.content,
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
@@ -226,7 +240,7 @@ if Meteor.isClient
 								before: (doc, cb) ->
 									cb _.merge doc, id: state.modal._id
 								after: -> state.modal = null
-				elem.pagins Meteor.users.find!fetch!
+				elem.pagins!
 			else if \imports is m.route.param \subroute then m \.content,
 				m \h1, 'Importer Data'
 				m \h5, 'Unggah data csv'
@@ -279,8 +293,8 @@ if Meteor.isClient
 										active: true
 									Meteor.call \import, \tarif, sel, opt
 								if data.password
-									Meteor.call \newUser, data
-									Meteor.call \addRoles, data
+									<[ newUser addRoles ]>map (i) ->
+										Meteor.call i, data
 					m \span.file-cta,
 						m \span.file-icon, m \i.fa.fa-upload
 						m \span.file-label, 'Pilih file .csv'
@@ -294,12 +308,13 @@ if Meteor.isClient
 						m \th, _.startCase i
 					m \tbody, pagins(coll.tarif.find!fetch!)map (i) -> m \tr,
 						attr.manajemen.headers.tarif.map (j) -> m \td, _.startCase i[j]
-				elem.pagins coll.tarif.find!fetch!
+				elem.pagins!
 
 	m.route.prefix ''
 	m.route document.body, \/dashboard,
-		_.merge '/dashboard': layout(comp.welcome!),
-			... modules.map ({name}) -> "/#name": layout comp[name]?!
-			'/regis/:idpasien': layout comp.pasien!
-			'/jalan/:idpasien': layout comp.pasien!
-			'/manajemen/:subroute': layout comp.manajemen!
+		_.merge '/dashboard': comp.layout(comp.welcome!),
+			... modules.map ({name}) -> "/#name": comp.layout comp[name]?!
+			'/regis/:idpasien': comp.layout comp.pasien!
+			'/jalan/:idpasien': comp.layout comp.pasien!
+			'/manajemen/:subroute': comp.layout comp.manajemen!
+			'/login': comp.layout comp.login!
