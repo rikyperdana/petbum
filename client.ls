@@ -23,9 +23,7 @@ if Meteor.isClient
 				{head: \Diagnosa, cell: doc?diagnosa}
 				{head: \Planning, cell: doc?planning}
 		bayar: header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
-		manajemen:
-			headers:
-				tarif: <[ nama jenis harga grup active ]>
+		manajemen: headers: tarif: <[ nama jenis harga grup active ]>
 
 	comp =
 		layout: (comp) ->
@@ -89,9 +87,10 @@ if Meteor.isClient
 						else rows!
 			else m \div,
 				oncreate: ->
+					Meteor.subscribe \coll, \tarif
 					Meteor.subscribe \coll, \pasien,
 						{_id: m.route.param \idpasien}, onReady: -> m.redraw!
-					Meteor.subscribe \coll, \tarif
+					isDr! and Meteor.subscribe \users, username: $options: \-i, $regex: '^dr'
 				m \.content, m \h5, 'Rincian Pasien'
 				if coll.pasien.findOne(_id: m.route.param \idpasien) then m \div,
 					m \table.table, [
@@ -296,7 +295,7 @@ if Meteor.isClient
 									active: true
 								Meteor.call \import, \tarif, sel, opt
 							if data.password
-								<[ newUser addRoles ]>map (i) ->
+								<[ newUser importRoles ]>map (i) ->
 									Meteor.call i, data
 					m \span.file-cta,
 						m \span.file-icon, m \i.fa.fa-upload

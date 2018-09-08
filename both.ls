@@ -39,7 +39,8 @@ schema.tindakan =
 		autoform: type: \hidden
 		autoValue: -> randomId!
 	nama: type: String, autoform: options: selects.tindakan
-	dokter: type: String, autoform: options: null
+	dokter: type: String, autoform: options: -> if Meteor.isClient
+		Meteor.users.find!fetch!map -> value: it._id, label: it.username
 
 schema.obat =
 	idobat:
@@ -97,7 +98,7 @@ schema.rawatRegis =
 
 schema.rawatNurse =
 	'rawat.$.anamesa_perawat': type: String, autoform: type: \textarea
-	'rawat.$.fisik': type: [new SimpleSchema schema.fisik]
+	'rawat.$.fisik': type: [new SimpleSchema schema.fisik], optional: true
 
 schema.rawatDoctor =
 	'rawat.$.anamesa_dokter': type: String, optional: true, autoform: type: \textarea
