@@ -130,6 +130,37 @@ schema.addRole =
 	poli: type: String, optional: true, autoform: type: \select, options: ->
 		selects.klinik.map -> label: it.label, value: _.snakeCase it.label
 
+schema.gudang =
+	idbarang:
+		type: String
+		autoform: type: \hidden
+		autoValue: -> randomId!
+	jenis: type: Number, autoform: options: selects.barang
+	nama: type: String
+
+schema.farmasi = _.assign {}, schema.gudang,
+	kandungan: type: String
+	satuan: type: Number, autoform: options: selects.satuan
+	batch: type: Array
+	'batch.$': type: Object
+	'batch.$.idbatch':
+		type: String
+		autoform: type: \hidden
+		autoValue: -> randomId!
+	'batch.$.nobatch': type: String
+	'batch.$.merek': type: String
+	'batch.$.masuk': type: Date
+	'batch.$.kadaluarsa': type: Date
+	'batch.$.digudang': type: Number
+	'batch.$.diapotik': type: Number, autoValue: -> 0
+	'batch.$.diretur': type: Boolean, optional: true
+	'batch.$.beli': type: Number, decimal: true
+	'batch.$.jual': type: Number, decimal: true
+	'batch.$.suplier': type: String
+	'batch.$.returnable': type: Boolean, optional: true
+	'batch.$.anggaran': type: Number, autoform: options: selects.anggaran
+	'batch.$.pengadaan': type: Number
+
 <[ pasien gudang tarif ]>map (i) ->
 	coll[i] = new Meteor.Collection i
 	coll[i]allow _.merge ... <[ insert update ]>map -> "#it": -> true

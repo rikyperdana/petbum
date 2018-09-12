@@ -2,7 +2,7 @@ if Meteor.isClient
 
 	@rights = [
 		group: \regis
-		list: <[ regis jalan ]>
+		list: <[ regis ]>
 	,
 		group: \bayar
 		list: [\bayar]

@@ -33,6 +33,18 @@ if Meteor.isClient
 				m \nav.navbar.is-info,
 					role: \navigation, 'aria-label': 'main navigation',
 					m \.navbar-brand, m \a.navbar-item, href: \#, \RSPB
+					m \.navbar-end, m \.navbar-item.has-dropdown,
+						class: \is-active if state.userMenu
+						m \a.navbar-link,
+							onclick: -> state.userMenu = not state.userMenu
+							m \span, Meteor.user!?username
+						m \.navbar-dropdown.is-right, do ->
+							arr =
+								[JSON.stringify Meteor.user!?roles]
+								[\Login, -> m.route.set \/login]
+								[\Logout, -> Meteor.logout!]
+							arr.map (i) -> m \a.navbar-item,
+								onclick: i?1, i.0
 				m \.columns,
 					Meteor.userId! and m \.column.is-2, m \aside.menu.box,
 						m \p.menu-label, 'Admin Menu'
@@ -54,10 +66,15 @@ if Meteor.isClient
 					e.preventDefault!
 					vals = _.initial _.map e.target, -> it.value
 					Meteor.loginWithPassword ...vals, (err) ->
-						unless err then m.route.set \/dashboard
+						if err
+							state.error = 'Salah Password atau Username'
+							m.redraw!
+						else m.route.set \/dashboard
 				m \input.input, type: \text, placeholder: \Username
 				m \input.input, type: \password, placeholder: \Password
 				m \input.button.is-success, type: \submit, value: \Login
+				if state.error then m \article.message, m \.message-header,
+					(m \p, that), m \button.delete, 'aria-label': \delete
 		welcome: -> view: -> m \.content,
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
@@ -200,6 +217,18 @@ if Meteor.isClient
 							if !that.billRegis then billRegis: true
 							else if !that.status_bayar then status_bayar: true
 					state.modal = null
+		farmasi: -> view: -> m \.content,
+			m \button.button.is-success,
+				onclick: -> state.showForm = not state.showForm
+				m \span, '+Tambah Jenis Obat'
+			if state.showForm
+				m \h5, 'Form Barang Farmasi'
+				m autoForm do
+					collection: coll.gudang
+					schema: new SimpleSchema schema.farmasi
+					type: \insert
+					id: \formFarmasi
+					buttonContent: \Simpan
 		manajemen: -> view: ->
 			if \users is m.route.param \subroute then m \.content,
 				oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
@@ -320,3 +349,4 @@ if Meteor.isClient
 			'/jalan/:idpasien': comp.layout comp.pasien!
 			'/manajemen/:subroute': comp.layout comp.manajemen!
 			'/login': comp.layout comp.login!
+			'/farmasi/:idbarang': comp.layout comp.farmasi!
