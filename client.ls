@@ -23,6 +23,9 @@ if Meteor.isClient
 				{head: \Diagnosa, cell: doc?diagnosa}
 				{head: \Planning, cell: doc?planning}
 		bayar: header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
+		gudang: headers:
+			farmasi: <[ jenis_barang nama_barang stok_gudang stok_diapotik hapus ]>
+			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
 		manajemen: headers: tarif: <[ nama jenis harga grup active ]>
 
 	comp =
@@ -218,17 +221,64 @@ if Meteor.isClient
 							else if !that.status_bayar then status_bayar: true
 					state.modal = null
 		farmasi: -> view: -> m \.content,
-			m \button.button.is-success,
-				onclick: -> state.showForm = not state.showForm
-				m \span, '+Tambah Jenis Obat'
-			if state.showForm
-				m \h5, 'Form Barang Farmasi'
-				m autoForm do
+			unless m.route.param(\idbarang) then m \div,
+				m \button.button.is-success,
+					onclick: -> state.showForm = not state.showForm
+					m \span, '+Tambah Jenis Obat'
+				if state.showForm
+					m \h5, 'Form Barang Farmasi'
+					m autoForm do
+						collection: coll.gudang
+						schema: new SimpleSchema schema.farmasi
+						type: \insert
+						id: \formFarmasi
+						buttonContent: \Simpan
+				m \table.table,
+					oncreate: -> Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
+					m \thead, m \tr, attr.gudang.headers.farmasi.map (i) ->
+						m \th, _.startCase i
+					m \tbody, coll.gudang.find!fetch!map (i) -> m \tr,
+						ondblclick: -> m.route.set "/farmasi/#{i._id}"
+						m \td, look(\barang, i.jenis)label
+						m \td, i.nama
+						[til 2]map -> m \td, \-
+						userRole! is \admin and m \td, m \.button.is-danger, \Hapus
+			else m \div,
+				oncreate: -> Meteor.subscribe do
+					\coll, \gudang,
+					_id: m.route.param \idbarang
+					onReady: -> m.redraw!
+				m \h5, 'Rincian Obat'
+				m \table.table,
+					if coll.gudang.findOne! then [
+						[
+							{name: 'Nama Barang', cell: that.nama}
+							{name: 'Jenis Barang', cell: look(\barang, that.jenis)label}
+						]
+					,
+						[
+							{name: \Kandungan, cell: that.kandungan}
+							{name: \Satuan, cell: look(\satuan, that.satuan)label}
+						]
+					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.cell)]
+				m \.button.is-warning,
+					onclick: -> state.showForm = not state.showForm
+					m \span,'Tambahkan Batch'
+				if state.showForm then m autoForm do
 					collection: coll.gudang
 					schema: new SimpleSchema schema.farmasi
-					type: \insert
-					id: \formFarmasi
-					buttonContent: \Simpan
+					type: \update-pushArray
+					scope: \batch
+					doc: coll.gudang.findOne!
+					id: \formTambahObat
+					buttonContent: \Tambahkan
+				m \table.table,
+					m \thead, attr.gudang.headers.rincian.map (i) ->
+						m \th, _.startCase i
+					m \tbody, coll.gudang.findOne!?batch.map (i) -> m \tr, [
+						i.nobatch, i.digudang, i.diapotik,
+						(hari i.masuk), (hari i.kadaluarsa)
+					]map (j) -> m \td, j
 		manajemen: -> view: ->
 			if \users is m.route.param \subroute then m \.content,
 				oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!

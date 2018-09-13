@@ -1,8 +1,18 @@
+SIMRS
+2. Pendaftaran buatkan anak menunya (pasien baru, daftar berobat)
+4. Rawat Jalan (Perawat, Dokter)
+5. Gudang Farmasi (list & rincian obat)
+6. Logika pengurangan obat pasca serah apotik
+7. Daftar obat yg harus diserahkan apotik ke pasien
+8. Fungsi pencarian pasien
+9. Update data pasien pada halaman rincian pasien
+10. Label resep pada bungkus obat
+
 5 Sept 2018
-1. Menu pendaftaran dipecah: pasien, rawat jalan, rawat inap, igd
+rev 1. Menu pendaftaran dipecah: pasien, rawat jalan, rawat inap, igd
 2. Rupiah kan semua angka uang
 3. Isi fields disesuaikan dengan sirsak
 4. Tandai wajib/opsional dengan bintang merah
-5. Perbaiki field umur pada view pasien
-6. Login untuk tiap user
+oke 5. Perbaiki field umur pada view pasien
+oke 6. Login untuk tiap user
 7. Remove number of array
