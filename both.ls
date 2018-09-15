@@ -139,7 +139,7 @@ schema.gudang =
 	nama: type: String
 
 schema.farmasi = _.assign {}, schema.gudang,
-	kandungan: type: String
+	kandungan: type: String, optional: true
 	satuan: type: Number, autoform: options: selects.satuan
 	batch: type: Array
 	'batch.$': type: Object
@@ -163,4 +163,4 @@ schema.farmasi = _.assign {}, schema.gudang,
 
 <[ pasien gudang tarif ]>map (i) ->
 	coll[i] = new Meteor.Collection i
-	coll[i]allow _.merge ... <[ insert update ]>map -> "#it": -> true
+	coll[i]allow _.merge ... <[ insert update remove ]>map -> "#it": -> true

@@ -1,10 +1,10 @@
 if Meteor.isServer
 
-	Meteor.publish \coll, (name, sel = {}, mod = {}) ->
-		coll[name]find sel, mod
+	Meteor.publish \coll, (name, sel = {}, opt = {}) ->
+		coll[name]find sel, opt
 
-	Meteor.publish \users, (sel = {}, opts = {}) ->
-		Meteor.users.find sel, opts
+	Meteor.publish \users, (sel = {}, opt = {}) ->
+		Meteor.users.find sel, opt
 
 	Meteor.methods do
 
@@ -41,3 +41,7 @@ if Meteor.isServer
 			coll[name]update recId, $set: "#scope":
 				coll[name]findOne(recId)[scope]map (i) ->
 					if i["id#scope"] is elmId then doc else i
+
+		antrianObat: ->
+			coll.pasien.find!fetch!map -> it.rawat.map (i) ->
+				i if i.anamesa_dokter

@@ -22,7 +22,10 @@ if Meteor.isClient
 				{head: 'Anamesa Dokter', cell: doc?anamesa_dokter}
 				{head: \Diagnosa, cell: doc?diagnosa}
 				{head: \Planning, cell: doc?planning}
+			poliFilter: (arr) -> _.compact arr.map (i) ->
+				i if userRole! is _.snakeCase look(\klinik, i.klinik)label
 		bayar: header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
+		apotik: header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
 		gudang: headers:
 			farmasi: <[ jenis_barang nama_barang stok_gudang stok_diapotik hapus ]>
 			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
@@ -162,11 +165,12 @@ if Meteor.isClient
 					m \table.table,
 						m \thead, m \tr, attr.pasien.headers.rawatFields.map (i) ->
 							m \th, _.startCase i
-						m \tbody, that.rawat?reverse!map (i) -> m \tr, [
+						m \tbody, attr.pasien.poliFilter(that.rawat?reverse!)map (i) -> m \tr, [
 							hari i.tanggal
 							look(\klinik, i.klinik)label
 							look(\cara_bayar, i.cara_bayar)label
-							... [til 2]map -> \-
+							... <[ billRegis status_bayar ]>map ->
+								if i[it] then \Sudah else \Belum
 							m \button.button.is-info,
 								onclick: -> state.modal = i
 								m \span, \Cek
@@ -220,6 +224,10 @@ if Meteor.isClient
 							if !that.billRegis then billRegis: true
 							else if !that.status_bayar then status_bayar: true
 					state.modal = null
+		obat: -> view: -> m \.content,
+			m \h5, \Apotik
+			m \table.table,
+				m \thead, attr.apotik.header.map (i) -> m \th, _.startCase i
 		farmasi: -> view: -> m \.content,
 			unless m.route.param(\idbarang) then m \div,
 				m \button.button.is-success,
@@ -241,8 +249,15 @@ if Meteor.isClient
 						ondblclick: -> m.route.set "/farmasi/#{i._id}"
 						m \td, look(\barang, i.jenis)label
 						m \td, i.nama
-						[til 2]map -> m \td, \-
-						userRole! is \admin and m \td, m \.button.is-danger, \Hapus
+						<[ digudang diapotik ]>map (j) ->
+							m \td, _.sumBy i.batch, j
+						userRole! is \admin and m \td, m \.button.is-danger,
+							onclick: -> state.modal = i
+							m \span, \Hapus
+					if state.modal then elem.modal do
+						title: 'Yakin hapus Obat ini?'
+						confirm: \Yakin
+						action: -> coll.gudang.remove _id: state.modal._id
 			else m \div,
 				oncreate: -> Meteor.subscribe do
 					\coll, \gudang,
