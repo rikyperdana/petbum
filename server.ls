@@ -32,8 +32,7 @@ if Meteor.isServer
 				else coll[name]insert _.merge selector, modifier
 			else coll[name]insert _.merge selector, modifier
 
-		rmRawat: (idpasien, idrawat) -> coll.pasien.update do
-			{_id: idpasien}
+		rmRawat: (idpasien, idrawat) -> coll.pasien.update idpasien,
 			$set: rawat: coll.pasien.findOne(idpasien)rawat.filter ->
 				it.idrawat isnt idrawat
 
@@ -42,6 +41,13 @@ if Meteor.isServer
 				coll[name]findOne(recId)[scope]map (i) ->
 					if i["id#scope"] is elmId then doc else i
 
-		antrianObat: ->
-			coll.pasien.find!fetch!map -> it.rawat.map (i) ->
-				i if i.anamesa_dokter
+		serahObat: ({_id, idrawat, obat}) ->
+			batches = []
+			for i in obat
+				coll.gudang.update i.nama, $set: batch:
+					coll.gudang.findOne(i.nama)batch.map (i) ->
+						if i.diapotik > 0
+							batches.push idbatch: i.idbatch, amount: 1
+							_.assign i, diapotik: i.diapotik-1
+						else i
+			batches

@@ -111,6 +111,7 @@ if Meteor.isClient
 			else m \div,
 				oncreate: ->
 					Meteor.subscribe \coll, \tarif
+					Meteor.subscribe \coll, \gudang
 					Meteor.subscribe \coll, \pasien,
 						{_id: m.route.param \idpasien}, onReady: -> m.redraw!
 					isDr! and Meteor.subscribe \users, username: $options: \-i, $regex: '^dr'
@@ -225,9 +226,35 @@ if Meteor.isClient
 							else if !that.status_bayar then status_bayar: true
 					state.modal = null
 		obat: -> view: -> m \.content,
-			m \h5, \Apotik
+			m \h5, \Apotik,
 			m \table.table,
+				oncreate: -> Meteor.subscribe \coll, \pasien,
+					{rawat: $elemMatch: obat: $elemMatch: hasil: $exists: false}
+					onReady: -> m.redraw!
 				m \thead, attr.apotik.header.map (i) -> m \th, _.startCase i
+				m \tbody, coll.pasien.find!fetch!map (i) -> i.rawat.map (j) ->
+					j.obat?map (k) -> unless k.hasil then m \tr,
+						m \td, i.no_mr
+						m \td, i.regis.nama_lengkap
+						m \td, hari j.tanggal
+						m \td, \-
+						m \td, look(\cara_bayar, j.cara_bayar)label
+						m \td, look(\klinik, j.klinik)label
+						m \td, m \.button.is-success,
+							onclick: -> state.modal = _.merge k, j, i
+							m \span, \Bayar
+			if state.modal then elem.modal do
+				title: 'Yakin sudah bayar?'
+				confirm: \Sudah
+				action: ->
+					Meteor.call \serahObat, state.modal, (err, res) -> if res
+						coll.pasien.update state.modal._id, $set: rawat:
+							coll.pasien.findOne(state.modal._id)rawat.map (i) ->
+								if i.idrawat is state.modal.idrawat
+									_.assign i, obat: i.obat.map ->
+										_.merge it, hasil: true
+								else i
+						console.log res
 		farmasi: -> view: -> m \.content,
 			unless m.route.param(\idbarang) then m \div,
 				m \button.button.is-success,

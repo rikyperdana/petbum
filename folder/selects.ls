@@ -23,3 +23,7 @@ _.map selects, (i, j) -> selects[j] = _.map selects[j], (m, n) -> value: n+1, la
 selects.tindakan = -> if Meteor.isClient
 	coll.tarif?find!fetch!map ->
 		value: it._id, label: it.nama
+
+selects.obat = -> if Meteor.isClient
+	coll.gudang.find!fetch!map ->
+		value: it._id, label: it.nama
