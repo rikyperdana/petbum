@@ -47,7 +47,11 @@ if Meteor.isServer
 				coll.gudang.update i.nama, $set: batch:
 					coll.gudang.findOne(i.nama)batch.map (i) ->
 						if i.diapotik > 0
-							batches.push idbatch: i.idbatch, amount: 1
+							batches.push do
+								idbatch: i.idbatch
+								amount: 1
+								idpasien: _id
+								idrawat: idrawat
 							_.assign i, diapotik: i.diapotik-1
 						else i
 			batches

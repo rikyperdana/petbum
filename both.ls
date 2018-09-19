@@ -39,8 +39,6 @@ schema.tindakan =
 		autoform: type: \hidden
 		autoValue: -> randomId!
 	nama: type: String, autoform: options: selects.tindakan
-	dokter: type: String, autoform: options: -> if Meteor.isClient
-		Meteor.users.find!fetch!map -> value: it._id, label: it.username
 
 schema.obat =
 	idobat:
@@ -161,6 +159,6 @@ schema.farmasi = _.assign {}, schema.gudang,
 	'batch.$.anggaran': type: Number, autoform: options: selects.anggaran
 	'batch.$.pengadaan': type: Number
 
-<[ pasien gudang tarif ]>map (i) ->
+<[ pasien gudang tarif rekap ]>map (i) ->
 	coll[i] = new Meteor.Collection i
 	coll[i]allow _.merge ... <[ insert update remove ]>map -> "#it": -> true

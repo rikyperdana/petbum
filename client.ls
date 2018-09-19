@@ -12,7 +12,7 @@ if Meteor.isClient
 				rawat: onclick: ->
 					state.showAddRawat = not state.showAddRawat
 			headers:
-				patientList: <[ nama_lengkap tanggal_lahir tempat_lahir ]>
+				patientList: <[ nama_lengkap tanggal_lahir tempat_lahir poliklinik ]>
 				rawatFields: <[ tanggal klinik cara_bayar bayar_pendaftaran status_bayar cek ]>
 			rawatDetails: (doc) -> arr =
 				{head: \Tanggal, cell: hari doc.tanggal}
@@ -22,13 +22,16 @@ if Meteor.isClient
 				{head: 'Anamesa Dokter', cell: doc?anamesa_dokter}
 				{head: \Diagnosa, cell: doc?diagnosa}
 				{head: \Planning, cell: doc?planning}
-			poliFilter: (arr) -> _.compact arr.map (i) ->
-				i if userRole! is _.snakeCase look(\klinik, i.klinik)label
+			poliFilter: (arr) -> if arr then _.compact arr.map (i) ->
+				if userRole! is _.snakeCase look(\klinik, i.klinik)label then i
+				else if \regis is userGroup! then i
 		bayar: header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
-		apotik: header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
+		apotik:
+			header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
 		gudang: headers:
 			farmasi: <[ jenis_barang nama_barang stok_gudang stok_diapotik hapus ]>
 			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
+		farmasi: fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
 		manajemen: headers: tarif: <[ nama jenis harga grup active ]>
 
 	comp =
@@ -48,7 +51,11 @@ if Meteor.isClient
 							arr =
 								[JSON.stringify Meteor.user!?roles]
 								[\Login, -> m.route.set \/login]
-								[\Logout, -> Meteor.logout!]
+								[\Logout, -> [
+									Meteor.logout!
+									(m.route.set \/login)
+									m.redraw!
+								]]
 							arr.map (i) -> m \a.navbar-item,
 								onclick: i?1, i.0
 				m \.columns,
@@ -59,6 +66,9 @@ if Meteor.isClient
 								href: "/#{i.name}"
 								class: \is-active if state.activeMenu is i.name
 								m \span, _.startCase i.full
+								if \regis is currentRoute!
+									m \ul, <[ lama baru ]>map (i) ->
+										m \li, m \a, "Pasien #i"
 								if same \manajemen, currentRoute!, i.name
 									m \ul, <[ users imports ]>map (i) ->
 										m \li, m \a,
@@ -105,6 +115,7 @@ if Meteor.isClient
 							m \td, if i.regis.nama_lengkap then _.startCase that
 							m \td, if i.regis.tgl_lahir then moment(that)format 'D MMM YYYY'
 							m \td, if i.regis.tmpt_lahir then _.startCase that
+							m \td, _.startCase userRole!
 						if currentRoute! is \jalan
 							if i.rawat?reverse!?0?billRegis then rows!
 						else rows!
@@ -116,7 +127,7 @@ if Meteor.isClient
 						{_id: m.route.param \idpasien}, onReady: -> m.redraw!
 					isDr! and Meteor.subscribe \users, username: $options: \-i, $regex: '^dr'
 				m \.content, m \h5, 'Rincian Pasien'
-				if coll.pasien.findOne(_id: m.route.param \idpasien) then m \div,
+				if coll.pasien.findOne m.route.param \idpasien then m \div,
 					m \table.table, [
 						[
 							{name: 'No. MR', data: that.no_mr}
@@ -143,6 +154,7 @@ if Meteor.isClient
 						scope: \rawat
 						doc: that
 						buttonContent: \Tambahkan
+						hooks: after: -> state.showForm = false
 					[til 2]map -> m \br
 					state.docRawat and m \.content,
 						m \h5, 'Rincian Rawat'
@@ -159,20 +171,22 @@ if Meteor.isClient
 						scope: \rawat
 						doc: that
 						buttonContent: 'Simpan'
-						hooks: before: (doc, cb) ->
-							Meteor.call \rmRawat, that._id, state.docRawat, (err, res) ->
-								res and cb _.merge doc.rawat.0, that.rawat.find ->
-									it.idrawat is state.docRawat
+						hooks:
+							before: (doc, cb) ->
+								Meteor.call \rmRawat, that._id, state.docRawat, (err, res) ->
+									res and cb _.merge doc.rawat.0, that.rawat.find ->
+										it.idrawat is state.docRawat
+							after: -> console.log \sudah
 					m \table.table,
 						m \thead, m \tr, attr.pasien.headers.rawatFields.map (i) ->
 							m \th, _.startCase i
-						m \tbody, attr.pasien.poliFilter(that.rawat?reverse!)map (i) -> m \tr, [
+						m \tbody, attr.pasien.poliFilter(that?rawat?reverse!)?map (i) -> m \tr, [
 							hari i.tanggal
 							look(\klinik, i.klinik)label
 							look(\cara_bayar, i.cara_bayar)label
 							... <[ billRegis status_bayar ]>map ->
 								if i[it] then \Sudah else \Belum
-							m \button.button.is-info,
+							if \jalan is userGroup! then m \button.button.is-info,
 								onclick: -> state.modal = i
 								m \span, \Cek
 						]map (j) -> m \td, j
@@ -228,9 +242,11 @@ if Meteor.isClient
 		obat: -> view: -> m \.content,
 			m \h5, \Apotik,
 			m \table.table,
-				oncreate: -> Meteor.subscribe \coll, \pasien,
-					{rawat: $elemMatch: obat: $elemMatch: hasil: $exists: false}
-					onReady: -> m.redraw!
+				oncreate: ->
+					Meteor.subscribe \coll, \rekap
+					Meteor.subscribe \coll, \pasien,
+						{rawat: $elemMatch: obat: $elemMatch: hasil: $exists: false}
+						onReady: -> m.redraw!
 				m \thead, attr.apotik.header.map (i) -> m \th, _.startCase i
 				m \tbody, coll.pasien.find!fetch!map (i) -> i.rawat.map (j) ->
 					j.obat?map (k) -> unless k.hasil then m \tr,
@@ -242,10 +258,18 @@ if Meteor.isClient
 						m \td, look(\klinik, j.klinik)label
 						m \td, m \.button.is-success,
 							onclick: -> state.modal = _.merge k, j, i
-							m \span, \Bayar
+							m \span, \Serah
 			if state.modal then elem.modal do
-				title: 'Yakin sudah bayar?'
-				confirm: \Sudah
+				title: 'Serahkan Obat?'
+				content: m \table.table,
+					m \tr, attr.farmasi.fieldSerah.map (i) ->
+						m \th, _.startCase i
+					m \tr,
+						m \td, state.modal.nama
+						m \td, "#{state.modal.jumlah} unit"
+						m \td, "#{state.modal.aturan.kali} kali sehari"
+						m \td, "#{state.modal.aturan.dosis} unit per konsumsi"
+				confirm: \Serah
 				action: ->
 					Meteor.call \serahObat, state.modal, (err, res) -> if res
 						coll.pasien.update state.modal._id, $set: rawat:
@@ -254,7 +278,7 @@ if Meteor.isClient
 									_.assign i, obat: i.obat.map ->
 										_.merge it, hasil: true
 								else i
-						console.log res
+						coll.rekap.insert batches: res
 		farmasi: -> view: -> m \.content,
 			unless m.route.param(\idbarang) then m \div,
 				m \button.button.is-success,
