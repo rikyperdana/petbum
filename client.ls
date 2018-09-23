@@ -103,6 +103,7 @@ if Meteor.isClient
 				type: \insert
 				id: \formRegis
 				buttonContent: \Simpan
+				hooks: after: -> state.showAddPatient = null
 			unless m.route.param \idpasien
 				m \table.table,
 					oncreate: ->
@@ -154,7 +155,7 @@ if Meteor.isClient
 						scope: \rawat
 						doc: that
 						buttonContent: \Tambahkan
-						hooks: after: -> state.showForm = false
+						hooks: after: -> state.showAddRawat = false
 					[til 2]map -> m \br
 					state.docRawat and m \.content,
 						m \h5, 'Rincian Rawat'
@@ -262,14 +263,16 @@ if Meteor.isClient
 			if state.modal then elem.modal do
 				title: 'Serahkan Obat?'
 				content: m \table.table,
+					oncreate: -> Meteor.subscribe \coll, \gudang,
+						onReady: -> m.redraw!
 					m \tr, attr.farmasi.fieldSerah.map (i) ->
 						m \th, _.startCase i
 					m \tr,
-						m \td, state.modal.nama
+						m \td, look2(\gudang, state.modal.nama)?nama
 						m \td, "#{state.modal.jumlah} unit"
 						m \td, "#{state.modal.aturan.kali} kali sehari"
 						m \td, "#{state.modal.aturan.dosis} unit per konsumsi"
-				confirm: \Serah
+				confirm: \Serahkan
 				action: ->
 					Meteor.call \serahObat, state.modal, (err, res) -> if res
 						coll.pasien.update state.modal._id, $set: rawat:
@@ -279,6 +282,16 @@ if Meteor.isClient
 										_.merge it, hasil: true
 								else i
 						coll.rekap.insert batches: res
+						state.modal = null
+			m \.button.is-warning,
+				onclick: ->
+					rows = _.flatten coll.rekap.find!fetch!map (i) ->
+						i.batches.map (j) -> [
+							j.idpasien, j.idbatch, j.amount
+						]map -> it.toString!
+					pdfMake.createPdf content: [table: body: rows]
+					.download \something.pdf
+				m \span, 'Cetak Rekap'
 		farmasi: -> view: -> m \.content,
 			unless m.route.param(\idbarang) then m \div,
 				m \button.button.is-success,
@@ -292,6 +305,7 @@ if Meteor.isClient
 						type: \insert
 						id: \formFarmasi
 						buttonContent: \Simpan
+						hooks: after: -> state.showForm = null
 				m \table.table,
 					oncreate: -> Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
 					m \thead, m \tr, attr.gudang.headers.farmasi.map (i) ->

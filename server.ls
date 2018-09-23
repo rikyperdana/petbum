@@ -41,17 +41,21 @@ if Meteor.isServer
 				coll[name]findOne(recId)[scope]map (i) ->
 					if i["id#scope"] is elmId then doc else i
 
-		serahObat: ({_id, idrawat, obat}) ->
+		serahObat: ({_id, obat}) ->
 			batches = []
 			for i in obat
-				coll.gudang.update i.nama, $set: batch:
-					coll.gudang.findOne(i.nama)batch.map (i) ->
-						if i.diapotik > 0
-							batches.push do
-								idbatch: i.idbatch
-								amount: 1
-								idpasien: _id
-								idrawat: idrawat
-							_.assign i, diapotik: i.diapotik-1
-						else i
-			batches
+				find = coll.gudang.findOne i.nama
+				for j in [til i.jumlah]
+					coll.gudang.update find._id, $set: batch:
+						find.batch.map (k) ->
+							unless k.diapotik > 0 then k
+							else
+								batches.push _.merge k, jumlah: 1
+								_.assign k, diapotik: k.diapotik-1
+			reducer = (res, inc) ->
+				find = res.find -> it.idbatch is inc.idbatch
+				if find then res.map (i) ->
+					unless i.idbatch is inc.idbatch then i
+					else _.assign i, jumlah: i.jumlah+1
+				else res.push(inc) and res
+			batches.reduce reducer, []
