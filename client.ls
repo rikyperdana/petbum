@@ -244,7 +244,7 @@ if Meteor.isClient
 			m \h5, \Apotik,
 			m \table.table,
 				oncreate: ->
-					Meteor.subscribe \coll, \rekap
+					Meteor.subscribe \coll, \rekap, printed: $exists: false
 					Meteor.subscribe \coll, \pasien,
 						{rawat: $elemMatch: obat: $elemMatch: hasil: $exists: false}
 						onReady: -> m.redraw!
@@ -285,12 +285,13 @@ if Meteor.isClient
 						state.modal = null
 			m \.button.is-warning,
 				onclick: ->
+					fields = <[ nama_pasien nama_obat nobatch jumlah ]>
 					rows = _.flatten coll.rekap.find!fetch!map (i) ->
-						i.batches.map (j) -> [
-							j.idpasien, j.idbatch, j.amount
-						]map -> it.toString!
-					pdfMake.createPdf content: [table: body: rows]
+						i.batches.map (i) -> fields.map -> i[it]toString!
+					headers = [fields.map -> _.startCase it]
+					pdfMake.createPdf content: [table: body: [...headers, ...rows]]
 					.download \something.pdf
+					Meteor.call \doneRekap
 				m \span, 'Cetak Rekap'
 		farmasi: -> view: -> m \.content,
 			unless m.route.param(\idbarang) then m \div,

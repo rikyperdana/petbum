@@ -50,7 +50,9 @@ if Meteor.isServer
 						find.batch.map (k) ->
 							unless k.diapotik > 0 then k
 							else
-								batches.push _.merge k, jumlah: 1
+								batches.push _.merge k,
+									jumlah: 1, nama_obat: find.nama, nama_pasien:
+										coll.pasien.findOne(_id)regis.nama_lengkap
 								_.assign k, diapotik: k.diapotik-1
 			reducer = (res, inc) ->
 				find = res.find -> it.idbatch is inc.idbatch
@@ -59,3 +61,7 @@ if Meteor.isServer
 					else _.assign i, jumlah: i.jumlah+1
 				else res.push(inc) and res
 			batches.reduce reducer, []
+
+		doneRekap: -> coll.rekap.update do
+			{printed: $exists: false}
+			{$set: printed: new Date!}
