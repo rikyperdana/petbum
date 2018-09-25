@@ -50,8 +50,9 @@ if Meteor.isServer
 						find.batch.map (k) ->
 							unless k.diapotik > 0 then k
 							else
-								batches.push _.merge k,
-									jumlah: 1, nama_obat: find.nama, nama_pasien:
+								batches.push do
+									jumlah: 1, nama_obat: find.nama,
+									nobatch: k.nobatch, nama_pasien:
 										coll.pasien.findOne(_id)regis.nama_lengkap
 								_.assign k, diapotik: k.diapotik-1
 			reducer = (res, inc) ->
@@ -65,3 +66,9 @@ if Meteor.isServer
 		doneRekap: -> coll.rekap.update do
 			{printed: $exists: false}
 			{$set: printed: new Date!}
+
+		sortByDate: (idbarang) ->
+			coll.gudang.update idbarang, $set: batch: do ->
+				source = coll.gudang.findOne idbarang .batch
+				sortedIn = _.sortBy source, (i) -> new Date i.masuk .getTime!
+				sortedEd = _.sortBy sortedIn, (i) -> new Date i.kadaluarsa .getTime!

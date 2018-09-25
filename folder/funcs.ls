@@ -76,7 +76,10 @@ if Meteor.isClient
 		stateTempGet = (field) -> if state.temp[opts.id]
 			_.findLast state.temp[opts.id], (i) -> i.name is field
 
-		abnDoc = abnormalize opts.doc if opts.doc
+		abnDoc = do ->
+			if opts.type is \update-pushArray
+				_.assign opts.doc, "#{opts.scope}": []
+			else if opts.doc then abnormalize that
 		normed = -> it.replace /\d/g, \$
 
 		attr =

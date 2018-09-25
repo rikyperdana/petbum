@@ -63,7 +63,8 @@ if Meteor.isClient
 						m \p.menu-label, 'Admin Menu'
 						m \ul.menu-list, attr.layout.rights!map (i) ->
 							m \li, m "a##{i.name}",
-								href: "/#{i.name}"
+								# href: "/#{i.name}"
+								onclick: -> m.route.set "/#{i.name}"
 								class: \is-active if state.activeMenu is i.name
 								m \span, _.startCase i.full
 								if \regis is currentRoute!
@@ -145,7 +146,13 @@ if Meteor.isClient
 							{name: 'Umur', data: moment!diff(that.regis.tgl_lahir, \years) + ' tahun'}
 						]
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.data)]
-					if currentRoute! is \regis
+					if currentRoute! is \regis then m \div,
+						m \.button.is-info,
+							onclick: -> makePdf.card!
+							m \span, \Kartu
+						m \.button.is-info,
+							onclick: -> makePdf.consent!
+							m \span, \Consent
 						m \.button.is-success, attr.pasien.showForm.rawat, \+Rawat
 					state.showAddRawat and m autoForm do
 						collection: coll.pasien
@@ -284,14 +291,7 @@ if Meteor.isClient
 						coll.rekap.insert batches: res
 						state.modal = null
 			m \.button.is-warning,
-				onclick: ->
-					fields = <[ nama_pasien nama_obat nobatch jumlah ]>
-					rows = _.flatten coll.rekap.find!fetch!map (i) ->
-						i.batches.map (i) -> fields.map -> i[it]toString!
-					headers = [fields.map -> _.startCase it]
-					pdfMake.createPdf content: [table: body: [...headers, ...rows]]
-					.download \something.pdf
-					Meteor.call \doneRekap
+				onclick: -> makePdf.rekap!
 				m \span, 'Cetak Rekap'
 		farmasi: -> view: -> m \.content,
 			unless m.route.param(\idbarang) then m \div,
@@ -353,6 +353,9 @@ if Meteor.isClient
 					doc: coll.gudang.findOne!
 					id: \formTambahObat
 					buttonContent: \Tambahkan
+					hooks: after: ->
+						Meteor.call \sortByDate, m.route.param \idbarang
+						state.showForm = null
 				m \table.table,
 					m \thead, attr.gudang.headers.rincian.map (i) ->
 						m \th, _.startCase i

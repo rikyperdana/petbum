@@ -1,0 +1,113 @@
+if Meteor.isClient
+
+	@makePdf =
+		card: ->
+			doc = coll.pasien.findOne!
+			pdf = pdfMake.createPdf do
+				content:
+					"Nama : #{doc.regis.nama_lengkap}"
+					"No. MR: #{zeros doc.no_mr}"
+				pageSize: \B8
+				pageMargins: [110 50 0 0]
+				pageOrientation: \landscape
+			pdf.download "#{zeros doc.no_mr}_card.pdf"
+
+		consent: ->
+			doc = coll.pasien.findOne!
+			pdf = pdfMake.createPdf do
+				content: [
+					{text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. Dr. Soetomo No. 65, Telp. (0761) 23024', alignment: 'center'}
+					{text: '\nDATA UMUM PASIEN', alignment: \center}
+					{columns: [
+						['NO. MR', 'NAMA LENGKAP', 'TEMPAT & TANGGAL LAHIR', 'GOLONGAN DARAH', 'JENIS KELAMIN', 'AGAMA', 'PENDIDIKAN', 'PEKERJAAN', 'NAMA AYAH', 'NAMA IBU', 'NAMA SUAMI / ISTRI', 'ALAMAT', 'NO. TELP / HP']
+						[
+							zeros doc.no_mr
+							doc.regis.nama_lengkap
+							"#{doc.regis.tmpt_lahir or \-}, #{moment doc.regis.tgl_lahir .format 'D/MM/YYYY'}"
+							... _.map <[ darah kelamin agama pendidikan pekerjaan ]>, (i) ->
+								look(i, doc.regis[i])?label or \-
+							... _.map <[ ayah ibu pasangan alamat kontak ]>, (i) ->
+								doc.regis[i] or \-
+						]map -> ": #it"
+					]}
+					{text: '\nPERSETUJUAN UMUM (GENERAL CONSENT)', alignment: \center}
+					{table: body: [
+						[\S, \TS, {text: \Keterangan, alignment: \center}]
+						... [
+							['Saya akan mentaati peraturan yang berlaku di RSUD Petala Bumi']
+							['Saya memberi kuasa kepada dokter dan semua tenaga kesehatan untuk melakukan pemeriksaan / pengobatan / tindakan yang diperlakukan upaya kesembuhan saya / pasien tersebut diatas']
+							['Saya memberi kuasa kepada dokter dan semua tenaga kesehatan yang ikut merawat saya untuk memberikan keterangan medis saya kepada yang bertanggung jawab atas biaya perawatan saya.']
+							['Saya memberi kuasa kepada RSUD Petala Bumi untuk menginformasikan identitas sosial saya kepada keluarga / rekan / masyarakat']
+							['Saya mengatakan bahwa informasi hasil pemeriksaan / rekam medis saya dapat digunakan untuk pendidikan / penelitian demi kemajuan ilmu kesehatan']
+						]map -> [' ', ' ', ...it]
+					]}
+					'\nPetunjuk :'
+					'S: Setuju'
+					'TS: Tidak Setuju'
+					{alignment: \justify, columns: [
+						{text: '\n\n\n\n__________________\n'+(_.startCase Meteor.user().username), alignment: \center}
+						{text: 'Pekanbaru, '+moment!format('DD/MM/YYYY')+'\n\n\n\n__________________\n'+(_.startCase doc.regis.nama_lengkap), alignment: \center}
+					]}
+				]
+			pdf.download "#{zeros doc.no_mr}_consent.pdf"
+
+		payRawat: (no_mr, doc) ->
+			pasien = coll.pasien.findOne no_mr: +no_mr
+			rows = [[\Uraian \Harga]]
+			for i in <[ tindakan labor radio ]>
+				if doc[i] then for j in doc[i]
+					find = coll.tarif.find!fetch!find -> it._id is j.nama
+					rows.push [_.startCase(find.nama), _.toString(find.harga)]
+			table = table: widths: [\*, \auto], body: rows
+			pdf = pdfMake.createPdf do
+				content: [
+					{text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. DR. SOETOMO NO. 65, TELP. (0761) 23024, PEKANBARU', alignment: 'center'}
+					{text: '\nRINCIAN BIAYA RAWAT JALAN\n', alignment: 'center'}
+					{columns: [
+						['NO. MR', 'NAMA PASIEN', 'JENIS KELAMIN', 'TANGGAL LAHIR', 'UMUR', 'KLINIK']
+						[
+							zeros pasien.no_mr
+							_.startCase pasien.regis.nama_lengkap
+							look(\kelamin, pasien.regis.kelamin)?label or \-
+							moment!format 'D/MM/YYYY'
+							"#{moment!diff pasien.regis.tgl_lahir, \years} tahun"
+							look(\klinik, doc.klinik)?label or \-
+						]map -> ": #it"
+					]}
+					{text: '\n\nRINCIAN PEMBAYARAN', alignment: \center}
+					table
+					"\nTOTAL BIAYA Rp #{_.toString(numeral doc.total.semua .format '0,0')}"
+					{text: '\nPEKANBARU, ' + moment!format('D/MM/YYYY') +
+					'\n\n\n\n\n' + (_.startCase Meteor.user!username), alignment: \right}
+				]
+			pdf.download "#{zeros pasien.no_mr}_payRawat.pdf"
+
+		payRegCard: (no_mr, idbayar, amount, words) ->
+			doc = coll.pasien.findOne no_mr: +no_mr
+			pdf = pdfMake.createPdf do
+				content: [
+					{text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. DR. SOETOMO NO. 65, TELP. (0761) 23024, PEKANBARU', alignment: 'center'}
+					{text: '\n\nKARCIS', alignment: \center}
+					{columns: [
+						['TANGGAL', 'NO. MR', 'NAMA PASIEN', 'TARIF', '\n\nPETUGAS']
+						[
+							moment!format 'DD/MM/YYYY'
+							zeros no_mr
+							_.startCase doc.regis.nama_lengkap
+							"Rp #amount"
+							"\n\n #{_.startCase Meteor.user!username}"
+						]map -> ": #it"
+					]}
+				]
+			pdf.download "#{zeros no_mr}_payRegCard.pdf"
+
+		rekap: ->
+			fields = <[ nama_pasien nama_obat nobatch jumlah ]>
+			rows = _.flatten coll.rekap.find!fetch!map (i) ->
+				i.batches.map (i) -> fields.map -> i[it]toString!
+			headers = [fields.map -> _.startCase it]
+			if rows.length > 0
+				pdfMake.createPdf content:
+					[table: body: [...headers, ...rows]]
+				.download \cetak_rekap.pdf
+				Meteor.call \doneRekap
