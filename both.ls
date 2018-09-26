@@ -39,6 +39,13 @@ schema.tindakan =
 		autoform: type: \hidden
 		autoValue: -> randomId!
 	nama: type: String, autoform: options: selects.tindakan
+	harga:
+		type: Number
+		autoform: type: \hidden
+		autoValue: (name, doc) -> if Meteor.isClient
+			string = "#{_.initial(name.split \.).join \.}.nama"
+			sel = doc.find -> it.name is string
+			if sel?value then look2 \tarif, that .harga
 
 schema.obat =
 	idobat:
@@ -104,19 +111,10 @@ schema.rawatDoctor =
 	'rawat.$.planning': type: String, optional: true, autoform: type: \textarea
 	'rawat.$.tindakan': type: [new SimpleSchema schema.tindakan], optional: true
 	'rawat.$.obat': type: [new SimpleSchema schema.obat], optional: true
-	'rawat.$.total': type: Object, autoform: type: \hidden
-	'rawat.$.total.tindakan':
-		type: Number, optional: true,
-		autoform: type: \hidden
-		autoValue: -> null
-	'rawat.$.total.obat':
-		type: Number, optional: true,
-		autoform: type: \hidden
-		autoValue: -> nul
 	'rawat.$.spm':
 		type: Number
 		autoform: type: \hidden
-		autoValue: -> null
+		autoValue: -> moment!diff state.spm, \minutes
 	'rawat.$.pindah': type: Number, optional: true, autoform: options: selects.klinik
 	'rawat.$.keluar': type: Number, optional: true, autoform: options: selects.keluar
 

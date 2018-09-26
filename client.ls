@@ -212,6 +212,7 @@ if Meteor.isClient
 							if isDr! then !state.modal.anamesa_dokter else true
 						action: ->
 							state.docRawat = state.modal.idrawat
+							state.spm = new Date!
 							state.modal = null
 		regis: -> this.pasien
 		jalan: -> this.pasien

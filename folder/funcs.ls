@@ -76,10 +76,7 @@ if Meteor.isClient
 		stateTempGet = (field) -> if state.temp[opts.id]
 			_.findLast state.temp[opts.id], (i) -> i.name is field
 
-		abnDoc = do ->
-			if opts.type is \update-pushArray
-				_.assign opts.doc, "#{opts.scope}": []
-			else if opts.doc then abnormalize that
+		abnDoc = abnormalize that if opts.doc
 		normed = -> it.replace /\d/g, \$
 
 		attr =
@@ -169,7 +166,7 @@ if Meteor.isClient
 			hidden: -> m \input,
 				type: \hidden, name: name, id: name,
 				value: schema.autoValue? name, _.map state.form[opts.id],
-					(val, key) -> name: key, value: val
+					(val, key) -> value: val, name: key
 
 			textarea: -> m \div,
 				m \textarea.textarea,
