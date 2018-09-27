@@ -25,7 +25,7 @@ if Meteor.isClient
 			poliFilter: (arr) -> if arr then _.compact arr.map (i) ->
 				if userRole! is _.snakeCase look(\klinik, i.klinik)label then i
 				else if \regis is userGroup! then i
-		bayar: header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
+		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		apotik:
 			header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
 		gudang: headers:
@@ -219,6 +219,7 @@ if Meteor.isClient
 		bayar: -> view: -> m \.content,
 			m \table.table,
 				oncreate: ->
+					Meteor.subscribe \coll, \tarif
 					Meteor.subscribe \coll, \pasien,
 						$elemMatch: $or: arr =
 							billRegis: $ne: true
@@ -229,7 +230,7 @@ if Meteor.isClient
 				m \tbody, coll.pasien.find!fetch!map (i) -> _.compact i.rawat.map (j) ->
 					if !j.billRegis or (if j.tindakan then !j.status_bayar) then m \tr, [
 						i.no_mr, i.regis.nama_lengkap,
-						(hari j.tanggal), \-
+						hari j.tanggal
 						look(\cara_bayar, j.cara_bayar)label
 						look(\klinik, j.klinik)label
 						m \a.button.is-success,
@@ -238,11 +239,20 @@ if Meteor.isClient
 					]map (k) -> m \td, k
 			if state.modal then elem.modal do
 				title: 'Sudah bayar?'
-				content: m \table.table,
-					m \tr, [(m \th, 'Total Biaya'), (m \td, "Rp #{state.modal.karcis}")]
+				content: do ->
+					tindakans = state.modal.tindakan?map -> arr =
+						_.startCase look2(\tarif, it.nama)nama
+						it.harga
+					arr =
+						['Daftar Baru', 10000] unless coll.pasien.findOne(state.modal.pasienId)rawat?1
+						['Daftar Rawat', 30000] unless state.modal.billRegis
+						... tindakans or []
+					if arr then m \table.table,
+						that.map (i) -> if i then m \tr, [(m \th, i.0), (m \td, "Rp #{i.1}")]
+						m \tr, [(m \th, 'Total Biaya'), (m \td, "Rp #{_.sum arr.map -> it.1}")]
 				confirm: \Sudah
 				action: ->
-					if state.modal then Meteor.call \updateArrayElm,
+					Meteor.call \updateArrayElm,
 						name: \pasien, recId: that.pasienId,
 						scope: \rawat, elmId: that.idrawat, doc: _.merge that,
 							if !that.billRegis then billRegis: true
