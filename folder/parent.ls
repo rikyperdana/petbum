@@ -14,6 +14,7 @@ if Meteor.isClient
 	@currentRoute = -> m.route.get!split \/ .1
 	@isDr = -> _.split Meteor.user!?username, \. .0 in <[ dr drg ]>
 	@roles = -> Meteor.user!?roles
+	@rupiah = -> "Rp #{numeral(+it or 0)format '0,0'}"
 	@userRole = ->
 		if it then roles!?[currentRoute!]?0 is that
 		else (.0.0) _.values roles!

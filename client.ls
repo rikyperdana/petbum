@@ -59,22 +59,21 @@ if Meteor.isClient
 							arr.map (i) -> m \a.navbar-item,
 								onclick: i?1, i.0
 				m \.columns,
+					oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
 					Meteor.userId! and m \.column.is-2, m \aside.menu.box,
 						m \p.menu-label, 'Admin Menu'
 						m \ul.menu-list, attr.layout.rights!map (i) ->
 							m \li, m "a##{i.name}",
-								# href: "/#{i.name}"
-								onclick: -> m.route.set "/#{i.name}"
+								href: "/#{i.name}"
 								class: \is-active if state.activeMenu is i.name
 								m \span, _.startCase i.full
 								if \regis is currentRoute!
-									m \ul, <[ lama baru ]>map (i) ->
-										m \li, m \a, "Pasien #i"
+									m \ul, <[ baru lama ]>map (i) -> m \li, m \a,
+										href: "/regis/#i", oncreate: m.route.link, "Pasien #i"
 								if same \manajemen, currentRoute!, i.name
-									m \ul, <[ users imports ]>map (i) ->
-										m \li, m \a,
-											href: "/manajemen/#i"
-											m \span, _.startCase i
+									m \ul, <[ users imports ]>map (i) -> m \li, m \a,
+										href: "/manajemen/#i", oncreate: m.route.link,
+										m \span, _.startCase i
 					m \.column, if comp then m that
 		login: -> view: -> m \.container,
 			m \.content, m \h5, \Login
@@ -96,19 +95,22 @@ if Meteor.isClient
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
 		pasien: -> view: -> m \.content,
-			if currentRoute! is \regis then unless m.route.param \idpasien
-				m \.button.is-success, attr.pasien.showForm.patient, \+Pasien
-			state.showAddPatient and  m autoForm do
+			if \baru is m.route.param \jenis then m autoForm do
 				collection: coll.pasien
 				schema: new SimpleSchema schema.regis
 				type: \insert
 				id: \formRegis
 				buttonContent: \Simpan
 				hooks: after: -> state.showAddPatient = null
-			unless m.route.param \idpasien
+			unless m.route.param \idpasien then m \div,
+				m \form,
+					onsubmit: (e) ->
+						e.preventDefault!
+						Meteor.subscribe \coll, \pasien,
+							{'regis.nama_lengkap': $options: \-i, $regex: ".*#{e.target.0.value}.*"}
+							onReady: -> m.redraw!
+					m \input.input, type: \text, placeholder: \Pencarian
 				m \table.table,
-					oncreate: ->
-						Meteor.subscribe \coll, \pasien, onReady: -> m.redraw!
 					m \thead, m \tr, attr.pasien.headers.patientList.map (i) ->
 						m \th, _.startCase i
 					m \tfoot, coll.pasien.find!fetch!map (i) ->
@@ -248,8 +250,8 @@ if Meteor.isClient
 						['Daftar Rawat', 30000] unless state.modal.billRegis
 						... tindakans or []
 					if arr then m \table.table,
-						that.map (i) -> if i then m \tr, [(m \th, i.0), (m \td, "Rp #{i.1}")]
-						m \tr, [(m \th, 'Total Biaya'), (m \td, "Rp #{_.sum arr.map -> it.1}")]
+						that.map (i) -> if i then m \tr, [(m \th, i.0), (m \td, rupiah i.1)]
+						m \tr, [(m \th, 'Total Biaya'), (m \td, rupiah _.sum arr.map -> it.1)]
 				confirm: \Sudah
 				action: ->
 					Meteor.call \updateArrayElm,
@@ -490,7 +492,8 @@ if Meteor.isClient
 	m.route document.body, \/dashboard,
 		_.merge '/dashboard': comp.layout(comp.welcome!),
 			... modules.map ({name}) -> "/#name": comp.layout comp[name]?!
-			'/regis/:idpasien': comp.layout comp.pasien!
+			'/regis/:jenis': comp.layout comp.pasien!
+			'/regis/:jenis/:idpasien': comp.layout comp.pasien!
 			'/jalan/:idpasien': comp.layout comp.pasien!
 			'/manajemen/:subroute': comp.layout comp.manajemen!
 			'/login': comp.layout comp.login!
