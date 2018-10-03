@@ -245,13 +245,14 @@ if Meteor.isClient
 					tindakans = state.modal.tindakan?map -> arr =
 						_.startCase look2(\tarif, it.nama)nama
 						it.harga
+					console.log tindakans
 					arr =
-						['Daftar Baru', 10000] unless coll.pasien.findOne(state.modal.pasienId)rawat?1
+						['Daftar Baru', 10000] unless coll.pasien.findOne(state.modal.pasienId)rawat?0?billRegis
 						['Daftar Rawat', 30000] unless state.modal.billRegis
 						... tindakans or []
 					if arr then m \table.table,
 						that.map (i) -> if i then m \tr, [(m \th, i.0), (m \td, rupiah i.1)]
-						m \tr, [(m \th, 'Total Biaya'), (m \td, rupiah _.sum arr.map -> it.1)]
+						m \tr, [(m \th, 'Total Biaya'), (m \td, rupiah _.sum arr.map -> it?1)]
 				confirm: \Sudah
 				action: ->
 					Meteor.call \updateArrayElm,
@@ -259,6 +260,7 @@ if Meteor.isClient
 						scope: \rawat, elmId: that.idrawat, doc: _.merge that,
 							if !that.billRegis then billRegis: true
 							else if !that.status_bayar then status_bayar: true
+					makePdf.payRegCard that.pasienId, that.idrawat
 					state.modal = null
 		obat: -> view: -> m \.content,
 			m \h5, \Apotik,

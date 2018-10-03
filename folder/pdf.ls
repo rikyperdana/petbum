@@ -51,14 +51,15 @@ if Meteor.isClient
 				]
 			pdf.download "#{zeros doc.no_mr}_consent.pdf"
 
-		payRawat: (no_mr, doc) ->
-			pasien = coll.pasien.findOne no_mr: +no_mr
-			rows = [[\Uraian \Harga]]
-			for i in <[ tindakan labor radio ]>
-				if doc[i] then for j in doc[i]
-					find = coll.tarif.find!fetch!find -> it._id is j.nama
-					rows.push [_.startCase(find.nama), _.toString(find.harga)]
-			table = table: widths: [\*, \auto], body: rows
+		payRawat: (idpasien, rows) ->
+			pasien = coll.pasien.findOne idpasien
+			/*
+				for i in <[ tindakan labor radio ]>
+					if doc[i] then for j in doc[i]
+						find = coll.tarif.find!fetch!find -> it._id is j.nama
+						rows.push [_.startCase(find.nama), _.toString(find.harga)]
+			*/
+			table = table: widths: [\*, \auto], body: [[\Uraian \Harga], ... rows]
 			pdf = pdfMake.createPdf do
 				content: [
 					{text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. DR. SOETOMO NO. 65, TELP. (0761) 23024, PEKANBARU', alignment: 'center'}
@@ -82,8 +83,8 @@ if Meteor.isClient
 				]
 			pdf.download "#{zeros pasien.no_mr}_payRawat.pdf"
 
-		payRegCard: (no_mr, idbayar, amount, words) ->
-			doc = coll.pasien.findOne no_mr: +no_mr
+		payRegCard: (idpasien, idrawat) ->
+			doc = coll.pasien.findOne idpasien
 			pdf = pdfMake.createPdf do
 				content: [
 					{text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. DR. SOETOMO NO. 65, TELP. (0761) 23024, PEKANBARU', alignment: 'center'}
@@ -92,14 +93,14 @@ if Meteor.isClient
 						['TANGGAL', 'NO. MR', 'NAMA PASIEN', 'TARIF', '\n\nPETUGAS']
 						[
 							moment!format 'DD/MM/YYYY'
-							zeros no_mr
+							zeros doc.no_mr
 							_.startCase doc.regis.nama_lengkap
-							"Rp #amount"
+							"Rp 40.000,-"
 							"\n\n #{_.startCase Meteor.user!username}"
 						]map -> ": #it"
 					]}
 				]
-			pdf.download "#{zeros no_mr}_payRegCard.pdf"
+			pdf.download "#{zeros doc.no_mr}_payRegCard.pdf"
 
 		rekap: ->
 			fields = <[ nama_pasien nama_obat nobatch jumlah ]>
