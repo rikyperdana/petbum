@@ -25,6 +25,10 @@ if Meteor.isClient
 			poliFilter: (arr) -> if arr then _.compact arr.map (i) ->
 				if userRole! is _.snakeCase look(\klinik, i.klinik)label then i
 				else if \regis is userGroup! then i
+			ownKliniks: -> roles!?jalan.map (i) ->
+				(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
+			lastKlinik: (klinik, arr) -> arr.filter (i) ->
+				i.rawat[rawat.length-1]klinik is klinik
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		apotik:
 			header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
@@ -111,6 +115,9 @@ if Meteor.isClient
 							onReady: -> m.redraw!
 					m \input.input, type: \text, placeholder: \Pencarian
 				m \table.table,
+					oncreate: -> Meteor.subscribe \users, onReady: ->
+						onKlinik = rawat: $elemMatch: klinik: $in: attr.pasien.ownKliniks!
+						Meteor.subscribe \coll, \pasien, onKlinik, onReady: -> m.redraw!
 					m \thead, m \tr, attr.pasien.headers.patientList.map (i) ->
 						m \th, _.startCase i
 					m \tfoot, coll.pasien.find!fetch!map (i) ->
@@ -239,29 +246,30 @@ if Meteor.isClient
 							onclick: -> state.modal = _.merge j, pasienId: i._id
 							m \span, \Bayar
 					]map (k) -> m \td, k
-			if state.modal then elem.modal do
-				title: 'Sudah bayar?'
-				content: do ->
-					tindakans = state.modal.tindakan?map -> arr =
-						_.startCase look2(\tarif, it.nama)nama
-						it.harga
-					console.log tindakans
-					arr =
-						['Daftar Baru', 10000] unless coll.pasien.findOne(state.modal.pasienId)rawat?0?billRegis
-						['Daftar Rawat', 30000] unless state.modal.billRegis
-						... tindakans or []
-					if arr then m \table.table,
-						that.map (i) -> if i then m \tr, [(m \th, i.0), (m \td, rupiah i.1)]
-						m \tr, [(m \th, 'Total Biaya'), (m \td, rupiah _.sum arr.map -> it?1)]
-				confirm: \Sudah
-				action: ->
-					Meteor.call \updateArrayElm,
-						name: \pasien, recId: that.pasienId,
-						scope: \rawat, elmId: that.idrawat, doc: _.merge that,
-							if !that.billRegis then billRegis: true
-							else if !that.status_bayar then status_bayar: true
-					makePdf.payRegCard that.pasienId, that.idrawat
-					state.modal = null
+			if state.modal
+				tindakans = state.modal.tindakan?map -> arr =
+					_.startCase look2(\tarif, it.nama)nama
+					it.harga
+				uraian =
+					['Cetak Kartu', 10000] unless coll.pasien.findOne(state.modal.pasienId)rawat?0?billRegis
+					['Daftar Rawat', 30000] unless state.modal.billRegis
+					... tindakans or []
+				params = <[ pasienId idrawat ]>map -> state.modal[it]
+				elem.modal do
+					title: 'Sudah bayar?'
+					content: m \table.table,
+						uraian.map (i) -> if i then m \tr, [(m \th, i.0), (m \td, rupiah i.1)]
+						m \tr, [(m \th, 'Total Biaya'), (m \td, rupiah _.sum uraian.map -> it?1)]
+					confirm: \Sudah
+					action: ->
+						Meteor.call \updateArrayElm,
+							name: \pasien, recId: that.pasienId,
+							scope: \rawat, elmId: that.idrawat, doc: _.merge that,
+								if !that.billRegis then billRegis: true
+								else if !that.status_bayar then status_bayar: true
+						unless that.anamesa_perawat then makePdf.payRegCard ...params
+						else makePdf.payRawat ...params, _.compact uraian
+						state.modal = null
 		obat: -> view: -> m \.content,
 			m \h5, \Apotik,
 			m \table.table,

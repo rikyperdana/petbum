@@ -51,15 +51,11 @@ if Meteor.isClient
 				]
 			pdf.download "#{zeros doc.no_mr}_consent.pdf"
 
-		payRawat: (idpasien, rows) ->
+		payRawat: (idpasien, idrawat, rows) ->
 			pasien = coll.pasien.findOne idpasien
-			/*
-				for i in <[ tindakan labor radio ]>
-					if doc[i] then for j in doc[i]
-						find = coll.tarif.find!fetch!find -> it._id is j.nama
-						rows.push [_.startCase(find.nama), _.toString(find.harga)]
-			*/
-			table = table: widths: [\*, \auto], body: [[\Uraian \Harga], ... rows]
+			rawat = pasien.rawat.find -> it.idrawat is idrawat
+			items = rows.map (i) -> [i.0, rupiah i.1]
+			table = table: widths: [\*, \auto], body: [[\Uraian \Harga], ...items]
 			pdf = pdfMake.createPdf do
 				content: [
 					{text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. DR. SOETOMO NO. 65, TELP. (0761) 23024, PEKANBARU', alignment: 'center'}
@@ -72,12 +68,12 @@ if Meteor.isClient
 							look(\kelamin, pasien.regis.kelamin)?label or \-
 							moment!format 'D/MM/YYYY'
 							"#{moment!diff pasien.regis.tgl_lahir, \years} tahun"
-							look(\klinik, doc.klinik)?label or \-
+							look(\klinik, rawat.klinik)?label or \-
 						]map -> ": #it"
 					]}
 					{text: '\n\nRINCIAN PEMBAYARAN', alignment: \center}
 					table
-					"\nTOTAL BIAYA Rp #{_.toString(numeral doc.total.semua .format '0,0')}"
+					"\nTOTAL BIAYA #{rupiah _.sum rows.map -> it.1}"
 					{text: '\nPEKANBARU, ' + moment!format('D/MM/YYYY') +
 					'\n\n\n\n\n' + (_.startCase Meteor.user!username), alignment: \right}
 				]
