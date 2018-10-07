@@ -38,7 +38,10 @@ schema.tindakan =
 		type: String
 		autoform: type: \hidden
 		autoValue: -> randomId!
-	nama: type: String, autoform: options: selects.tindakan
+	nama: type: String, autoform: options: -> if Meteor.isClient
+		_.compact coll.tarif.find!fetch!map (i) ->
+			if i.jenis in roles!?jalan
+				value: i._id, label: _.startCase i.nama
 	harga:
 		type: Number
 		autoform: type: \hidden

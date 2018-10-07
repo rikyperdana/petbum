@@ -230,9 +230,10 @@ if Meteor.isClient
 				oncreate: ->
 					Meteor.subscribe \coll, \tarif
 					Meteor.subscribe \coll, \pasien,
-						$elemMatch: $or: arr =
-							billRegis: $ne: true
-							status_bayar: $ne: true
+						{rawat: $elemMatch: $or: [
+							{billRegis: $ne: true}
+							{status_bayar: $ne: true}
+						]}
 						onReady: -> m.redraw!
 					coll.pasien.find!observe changed: -> m.redraw!
 				m \thead, m \tr, attr.bayar.header.map (i) -> m \th, _.startCase i
