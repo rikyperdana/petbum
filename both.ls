@@ -3,6 +3,7 @@ schema.regis =
 	regis: type: Object
 	'regis.alias': type: Number, optional: true, autoform: options: selects.alias
 	'regis.nama_lengkap': type: String
+	'regis.no_ktp': type: Number, max: 9999999999999999, optional: true
 	'regis.tgl_lahir': type: Date
 	'regis.tmpt_lahir': type: String, optional: true
 	'regis.kelamin': type: Number, autoform: options: selects.kelamin
@@ -92,9 +93,12 @@ schema.rawatRegis =
 		autoValue: (name, doc) -> 30000
 	'rawat.$.rujukan': type: Number, autoform: options: selects.rujukan
 	'rawat.$.billRegis':
-		type: Boolean
+		type: Number
 		autoform: type: \hidden
-		autoValue: -> false
+		autoValue: (name, docs) -> if Meteor.isClient
+			sel = docs.find -> \cara_bayar is _.last it.name.split \.
+			if sel?value is \1 then 0
+			else 1
 	'rawat.$.nobill':
 		type: Number
 		autoform: type: \hidden

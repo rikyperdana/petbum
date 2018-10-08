@@ -27,11 +27,8 @@ if Meteor.isClient
 				else if \regis is userGroup! then i
 			ownKliniks: -> roles!?jalan.map (i) ->
 				(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
-			lastKlinik: (klinik, arr) -> arr.filter (i) ->
-				i.rawat[rawat.length-1]klinik is klinik
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
-		apotik:
-			header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
+		apotik: header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
 		gudang: headers:
 			farmasi: <[ jenis_barang nama_barang stok_gudang stok_diapotik hapus ]>
 			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
@@ -71,9 +68,9 @@ if Meteor.isClient
 								href: "/#{i.name}"
 								class: \is-active if state.activeMenu is i.name
 								m \span, _.startCase i.full
-								if \regis is currentRoute!
-									m \ul, <[ baru lama ]>map (i) -> m \li, m \a,
-										href: "/regis/#i", oncreate: m.route.link, "Pasien #i"
+								if \regis is currentRoute! then m \ul,
+									[[\baru, 'Pasien Baru'], [\lama, 'Cari Pasien']]map (i) ->
+										m \li, m \a, href: "/regis/#{i.0}", oncreate: m.route.link, i.1
 								if same \manajemen, currentRoute!, i.name
 									m \ul, <[ users imports ]>map (i) -> m \li, m \a,
 										href: "/manajemen/#i", oncreate: m.route.link,
@@ -110,9 +107,10 @@ if Meteor.isClient
 				m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
-						Meteor.subscribe \coll, \pasien,
-							{'regis.nama_lengkap': $options: \-i, $regex: ".*#{e.target.0.value}.*"}
-							onReady: -> m.redraw!
+						if e.target.0.value.length > 3
+							Meteor.subscribe \coll, \pasien,
+								{'regis.nama_lengkap': $options: \-i, $regex: ".*#{e.target.0.value}.*"}
+								onReady: -> m.redraw!
 					m \input.input, type: \text, placeholder: \Pencarian
 				m \table.table,
 					oncreate: -> Meteor.subscribe \users, onReady: ->
@@ -193,7 +191,7 @@ if Meteor.isClient
 								Meteor.call \rmRawat, that._id, state.docRawat, (err, res) ->
 									res and cb _.merge doc.rawat.0, that.rawat.find ->
 										it.idrawat is state.docRawat
-							after: -> console.log \sudah
+							after: -> state.docRawat = null; m.redraw!
 					m \table.table,
 						m \thead, m \tr, attr.pasien.headers.rawatFields.map (i) ->
 							m \th, _.startCase i
@@ -271,6 +269,7 @@ if Meteor.isClient
 						unless that.anamesa_perawat then makePdf.payRegCard ...params
 						else makePdf.payRawat ...params, _.compact uraian
 						state.modal = null
+						m.redraw!
 		obat: -> view: -> m \.content,
 			m \h5, \Apotik,
 			m \table.table,

@@ -99,7 +99,7 @@ if Meteor.isClient
 			pdf.download "#{zeros doc.no_mr}_payRegCard.pdf"
 
 		rekap: ->
-			fields = <[ nama_pasien nama_obat nobatch jumlah ]>
+			fields = <[ no_mr nama_pasien nama_obat nobatch jumlah ]>
 			rows = _.flatten coll.rekap.find!fetch!map (i) ->
 				i.batches.map (i) -> fields.map -> i[it]toString!
 			headers = [fields.map -> _.startCase it]

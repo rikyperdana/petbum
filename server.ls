@@ -51,9 +51,9 @@ if Meteor.isServer
 							unless k.diapotik > 0 then k
 							else
 								batches.push do
-									jumlah: 1, nama_obat: find.nama,
-									nobatch: k.nobatch, nama_pasien:
-										coll.pasien.findOne(_id)regis.nama_lengkap
+									jumlah: 1, nama_obat: find.nama, nobatch: k.nobatch,
+									nama_pasien: coll.pasien.findOne(_id)regis.nama_lengkap
+									no_mr: coll.pasien.findOne(_id)no_mr
 								_.assign k, diapotik: k.diapotik-1
 			reducer = (res, inc) ->
 				find = res.find -> it.idbatch is inc.idbatch

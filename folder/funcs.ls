@@ -113,7 +113,7 @@ if Meteor.isClient
 						... context._invalidKeys.map (i) -> "#{i.name}": i.type
 
 					formTypes = (doc) ->
-						insert: -> opts.collection.insert (doc or obj)
+						insert: (cb) -> opts.collection.insert (doc or obj)
 						update: -> opts.collection.update do
 							{_id: abnDoc._id}, {$set: (doc or obj)}
 						method: -> Meteor.call opts.meteormethod, (doc or obj)
