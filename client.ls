@@ -102,14 +102,18 @@ if Meteor.isClient
 				type: \insert
 				id: \formRegis
 				buttonContent: \Simpan
-				hooks: after: -> state.showAddPatient = null
+				hooks: after: (id) ->
+					state.showAddPatient = null
+					m.route.set "/regis/lama/#id"
 			unless m.route.param \idpasien then m \div,
 				m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
 						if e.target.0.value.length > 3
-							Meteor.subscribe \coll, \pasien,
-								{'regis.nama_lengkap': $options: \-i, $regex: ".*#{e.target.0.value}.*"}
+							byName = 'regis.nama_lengkap':
+								$options: \-i, $regex: ".*#{e.target.0.value}.*"
+							byNoMR = no_mr: +e.target.0.value
+							Meteor.subscribe \coll, \pasien, {$or: [byName, byNoMR]},
 								onReady: -> m.redraw!
 					m \input.input, type: \text, placeholder: \Pencarian
 				m \table.table,

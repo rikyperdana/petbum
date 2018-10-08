@@ -112,19 +112,19 @@ if Meteor.isClient
 					state.errors[opts.id] = _.assign {},
 						... context._invalidKeys.map (i) -> "#{i.name}": i.type
 
+					after = (err, res) -> opts.hooks?after? res if res
 					formTypes = (doc) ->
-						insert: (cb) -> opts.collection.insert (doc or obj)
+						insert: -> opts.collection.insert (doc or obj), after
 						update: -> opts.collection.update do
-							{_id: abnDoc._id}, {$set: (doc or obj)}
+							{_id: abnDoc._id}, {$set: (doc or obj)}, after
 						method: -> Meteor.call opts.meteormethod, (doc or obj)
 						'update-pushArray': -> opts.collection.update do
 							{_id: abnDoc._id}, $push: "#{opts.scope}":
 								$each: _.values obj[opts.scope]
 
-					after = -> opts.hooks?after? obj
 					if opts.hooks?before then that obj, (moded) ->
-						formTypes(moded)[opts.type]! and after!
-					else formTypes![opts.type]! and after!
+						formTypes(moded)[opts.type]!
+					else formTypes![opts.type]!
 
 			radio: (name, value) ->
 				type: \radio, name: name, id: "#name#value"
