@@ -60,6 +60,7 @@ if Meteor.isClient
 				content: [
 					{text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. DR. SOETOMO NO. 65, TELP. (0761) 23024, PEKANBARU', alignment: 'center'}
 					{text: '\nRINCIAN BIAYA RAWAT JALAN\n', alignment: 'center'}
+					"\n"
 					{columns: [
 						['NO. MR', 'NAMA PASIEN', 'JENIS KELAMIN', 'TANGGAL LAHIR', 'UMUR', 'KLINIK']
 						[

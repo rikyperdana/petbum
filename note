@@ -1,9 +1,21 @@
+Oct 9th, 2018
+oke 1. List pada dokter seharusnya yg sudah dihandle perawat
+2. Tampilkan tindakan + obat pada cek rincian rawat
+3. Kadang muncul nama lain pada cek rincian rawat
+4. Adopsi format payRawat untuk payRegCard
+oke 5. Pasien yg sudah selesai seharusnya hilang dari daftar
+oke 6. Jika hanya obat, seharusnya status bayar true (temporer)
+7. Horizontal layout for every forms
+oke 8. Hilangkan tombol tambah obat & batch pada selain farmasi
+pen 9. Tambahkan search farmasi
+10. Form autoclose after
+
 Oct 8th, 2018
 1. Reroute after login
 2. Dashboard pendaftaran, kosong
 oke 3. Info curent page
 oke 4. Search by no_mr
-oke 5. No more free lunch
+oke 5. No more free billing
 oke 6. Route to profil pasien after register
 oke 7. Uraian rincian pembayaran registrasi
 

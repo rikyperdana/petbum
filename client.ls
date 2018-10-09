@@ -27,6 +27,10 @@ if Meteor.isClient
 				else if \regis is userGroup! then i
 			ownKliniks: -> roles!?jalan.map (i) ->
 				(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
+			lastKlinik: (arr) -> unless roles!?jalan then arr else
+				notHandled = (name, doc) -> not (_.last doc.rawat)[name]
+				if isDr! then arr.filter -> notHandled \anamesa_dokter, it
+				else arr.filter -> notHandled \anamesa_perawat, it
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		apotik: header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
 		gudang: headers:
@@ -123,13 +127,14 @@ if Meteor.isClient
 						Meteor.subscribe \coll, \pasien, onKlinik, onReady: -> m.redraw!
 					m \thead, m \tr, attr.pasien.headers.patientList.map (i) ->
 						m \th, _.startCase i
-					m \tfoot, coll.pasien.find!fetch!map (i) ->
+					m \tfoot, attr.pasien.lastKlinik(coll.pasien.find!fetch!)map (i) ->
 						rows = -> m \tr,
 							ondblclick: -> m.route.set "#{m.route.get!}/#{i._id}"
-							m \td, if i.regis.nama_lengkap then _.startCase that
-							m \td, if i.regis.tgl_lahir then moment(that)format 'D MMM YYYY'
-							m \td, if i.regis.tmpt_lahir then _.startCase that
-							m \td, _.startCase userRole!
+							tds arr =
+								if i.regis.nama_lengkap then _.startCase that
+								if i.regis.tgl_lahir then moment(that)format 'D MMM YYYY'
+								if i.regis.tmpt_lahir then _.startCase that
+								_.startCase userRole!
 						if currentRoute! is \jalan
 							if i.rawat?reverse!?0?billRegis then rows!
 						else rows!
@@ -192,10 +197,12 @@ if Meteor.isClient
 						doc: that
 						buttonContent: 'Simpan'
 						hooks:
-							before: (doc, cb) ->
-								Meteor.call \rmRawat, that._id, state.docRawat, (err, res) ->
-									res and cb _.merge doc.rawat.0, that.rawat.find ->
-										it.idrawat is state.docRawat
+							before: (doc, cb) -> Meteor.call \rmRawat, that._id, state.docRawat,
+								(err, res) -> res and cb _.merge doc.rawat.0,
+									(that.rawat.find -> it.idrawat is state.docRawat),
+									status_bayar: true if ands arr =
+										doc.rawat.0.obat
+										not doc.rawat.0.tindakan
 							after: -> state.docRawat = null; m.redraw!
 					m \table.table,
 						m \thead, m \tr, attr.pasien.headers.rawatFields.map (i) ->
@@ -217,6 +224,20 @@ if Meteor.isClient
 							m \table.table,
 								attr.pasien.rawatDetails state.modal
 								.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
+							m \h5, \Tindakan
+							m \table.table,
+								state.modal.tindakan.map (i) -> m \tr, tds arr =
+									_.startCase look2(\tarif, i.nama)nama
+									rupiah i.harga
+								m \tr, (m \th, \Total), m \td,
+									rupiah _.sum state.modal.tindakan.map -> it.harga
+							m \h5, \Obat
+							m \table.table, state.modal.obat.map (i) -> m \tr, tds arr =
+								_.startCase look2(\gudang, i.nama)nama
+								"#{i.aturan.kali} kali"
+								"#{i.aturan.dosis} dosis"
+								"#{i.jumlah} unit"
+								i.puyer
 						confirm: \Lanjutkan if ands arr =
 							currentRoute! is \jalan
 							if !isDr! then !state.modal.anamesa_perawat else true
@@ -286,15 +307,15 @@ if Meteor.isClient
 						onReady: -> m.redraw!
 				m \thead, attr.apotik.header.map (i) -> m \th, _.startCase i
 				m \tbody, coll.pasien.find!fetch!map (i) -> i.rawat.map (j) ->
-					j.obat?map (k) -> unless k.hasil then m \tr,
-						m \td, i.no_mr
-						m \td, i.regis.nama_lengkap
-						m \td, hari j.tanggal
-						m \td, \-
-						m \td, look(\cara_bayar, j.cara_bayar)label
-						m \td, look(\klinik, j.klinik)label
-						m \td, m \.button.is-success,
-							onclick: -> state.modal = _.merge k, j, i
+					j.obat?map (k) -> unless k.hasil then m \tr, tds arr =
+						i.no_mr
+						i.regis.nama_lengkap
+						hari j.tanggal
+						\-
+						look(\cara_bayar, j.cara_bayar)label
+						look(\klinik, j.klinik)label
+						m \.button.is-success,
+							onlick: -> state.modal = _.merge k, j, i
 							m \span, \Serah
 			if state.modal then elem.modal do
 				title: 'Serahkan Obat?'
@@ -303,11 +324,11 @@ if Meteor.isClient
 						onReady: -> m.redraw!
 					m \tr, attr.farmasi.fieldSerah.map (i) ->
 						m \th, _.startCase i
-					m \tr,
-						m \td, look2(\gudang, state.modal.nama)?nama
-						m \td, "#{state.modal.jumlah} unit"
-						m \td, "#{state.modal.aturan.kali} kali sehari"
-						m \td, "#{state.modal.aturan.dosis} unit per konsumsi"
+					m \tr, tds arr =
+						look2(\gudang, state.modal.nama)?nama
+						"#{state.modal.jumlah} unit"
+						"#{state.modal.aturan.kali} kali sehari"
+						"#{state.modal.aturan.dosis} unit per konsumsi"
 				confirm: \Serahkan
 				action: ->
 					Meteor.call \serahObat, state.modal, (err, res) -> if res
@@ -324,7 +345,7 @@ if Meteor.isClient
 				m \span, 'Cetak Rekap'
 		farmasi: -> view: -> m \.content,
 			unless m.route.param(\idbarang) then m \div,
-				m \button.button.is-success,
+				if roles!?farmasi then m \button.button.is-success,
 					onclick: -> state.showForm = not state.showForm
 					m \span, '+Tambah Jenis Obat'
 				if state.showForm
@@ -371,7 +392,7 @@ if Meteor.isClient
 							{name: \Satuan, cell: look(\satuan, that.satuan)label}
 						]
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.cell)]
-				m \.button.is-warning,
+				if roles!?farmasi then m \.button.is-warning,
 					onclick: -> state.showForm = not state.showForm
 					m \span,'Tambahkan Batch'
 				if state.showForm then m autoForm do
