@@ -54,7 +54,7 @@ if Meteor.isClient
 		payRawat: (idpasien, idrawat, rows) ->
 			pasien = coll.pasien.findOne idpasien
 			rawat = pasien.rawat.find -> it.idrawat is idrawat
-			items = rows.map (i) -> [i.0, rupiah i.1]
+			items = rows.map -> [it.0, rupiah it.1]
 			table = table: widths: [\*, \auto], body: [[\Uraian \Harga], ...items]
 			pdf = pdfMake.createPdf do
 				content: [
@@ -79,7 +79,7 @@ if Meteor.isClient
 				]
 			pdf.download "#{zeros pasien.no_mr}_payRawat.pdf"
 
-		payRegCard: (idpasien, idrawat) ->
+		payRegCard: (idpasien, idrawat, rows) ->
 			doc = coll.pasien.findOne idpasien
 			pdf = pdfMake.createPdf do
 				content: [
@@ -91,7 +91,8 @@ if Meteor.isClient
 							moment!format 'DD/MM/YYYY'
 							zeros doc.no_mr
 							_.startCase doc.regis.nama_lengkap
-							"Rp 40.000,-"
+							...rows.map -> "#{it.0} #{rupiah it.1}"
+							"Total: #{rupiah _.sum rows.map -> it.1}"
 							"\n\n #{_.startCase Meteor.user!username}"
 						]map -> ": #it"
 					]}

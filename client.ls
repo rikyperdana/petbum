@@ -42,7 +42,8 @@ if Meteor.isClient
 				m \link, rel: \stylesheet, href: 'https:/maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
 				m \nav.navbar.is-info,
 					role: \navigation, 'aria-label': 'main navigation',
-					m \.navbar-brand, m \a.navbar-item, href: \#, \RSPB
+					m \.navbar-brand, m \a.navbar-item, href: \#,
+						_.upperCase(m.route.get!) or \RSPB
 					m \.navbar-end, m \.navbar-item.has-dropdown,
 						class: \is-active if state.userMenu
 						m \a.navbar-link,
@@ -270,7 +271,8 @@ if Meteor.isClient
 							scope: \rawat, elmId: that.idrawat, doc: _.merge that,
 								if !that.billRegis then billRegis: true
 								else if !that.status_bayar then status_bayar: true
-						unless that.anamesa_perawat then makePdf.payRegCard ...params
+						unless that.anamesa_perawat
+							makePdf.payRegCard ...params, _.compact uraian
 						else makePdf.payRawat ...params, _.compact uraian
 						state.modal = null
 						m.redraw!
