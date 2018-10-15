@@ -1,6 +1,12 @@
+Oct 15th, 2018
+1. Tanggal rawat pasien pada daftar perawat & dokter
+2. Hapus rawat pasien pada perawat & dokter, bila hari sebelumnya
+3. Beri garis divisi pada kartu rincian obat dan tindakan
+oke 4. Pasien jaminan jangan tampil di daftar bayar
+
 Oct 9th, 2018
 oke 1. List pada dokter seharusnya yg sudah dihandle perawat
-2. Tampilkan tindakan + obat pada cek rincian rawat
+oke 2. Tampilkan tindakan + obat pada cek rincian rawat
 3. Kadang muncul nama lain pada cek rincian rawat
 4. Adopsi format payRawat untuk payRegCard
 oke 5. Pasien yg sudah selesai seharusnya hilang dari daftar

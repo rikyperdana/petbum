@@ -224,20 +224,22 @@ if Meteor.isClient
 							m \table.table,
 								attr.pasien.rawatDetails state.modal
 								.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
-							m \h5, \Tindakan
-							m \table.table,
-								state.modal.tindakan.map (i) -> m \tr, tds arr =
-									_.startCase look2(\tarif, i.nama)nama
-									rupiah i.harga
-								m \tr, (m \th, \Total), m \td,
-									rupiah _.sum state.modal.tindakan.map -> it.harga
-							m \h5, \Obat
-							m \table.table, state.modal.obat.map (i) -> m \tr, tds arr =
-								_.startCase look2(\gudang, i.nama)nama
-								"#{i.aturan.kali} kali"
-								"#{i.aturan.dosis} dosis"
-								"#{i.jumlah} unit"
-								i.puyer
+							if state.modal.tindakan then m \div,
+								m \h5, \Tindakan
+								m \table.table,
+									that?map (i) -> m \tr, tds arr =
+										_.startCase look2(\tarif, i.nama)nama
+										rupiah i.harga
+									m \tr, (m \th, \Total), m \td,
+										rupiah _.sum that.map -> it.harga
+							if state.modal.obat then m \div,
+								m \h5, \Obat
+								m \table.table, that.map (i) -> m \tr, tds arr =
+									_.startCase look2(\gudang, i.nama)nama
+									"#{i.aturan.kali} kali"
+									"#{i.aturan.dosis} dosis"
+									"#{i.jumlah} unit"
+									"puyer #{i.puyer}"
 						confirm: \Lanjutkan if ands arr =
 							currentRoute! is \jalan
 							if !isDr! then !state.modal.anamesa_perawat else true
@@ -262,7 +264,10 @@ if Meteor.isClient
 					coll.pasien.find!observe changed: -> m.redraw!
 				m \thead, m \tr, attr.bayar.header.map (i) -> m \th, _.startCase i
 				m \tbody, coll.pasien.find!fetch!map (i) -> _.compact i.rawat.map (j) ->
-					if !j.billRegis or (if j.tindakan then !j.status_bayar) then m \tr, [
+					conds = ors arr =
+						not j.billRegis
+						if j.tindakan then not j.status_bayar
+					if j.cara_bayar is 1 then if conds then m \tr, [
 						i.no_mr, i.regis.nama_lengkap,
 						hari j.tanggal
 						look(\cara_bayar, j.cara_bayar)label
@@ -466,7 +471,7 @@ if Meteor.isClient
 						Papa.parse e.target.files.0, header: true, step: (result) ->
 							data = result.data.0
 							if data.no_mr
-								sel = no_mr: data.no_mr
+								sel = no_mr: +data.no_mr
 								opt = regis:
 									nama_lengkap: _.startCase data.nama_lengkap
 									alamat: _.startCase that if data.alamat

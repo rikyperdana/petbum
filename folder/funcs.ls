@@ -237,12 +237,10 @@ if Meteor.isClient
 						_.every conds =
 							_.includes j.name, "#{normed name}."
 							getLen(name)+1 is getLen(j.name)
-					m \.box,
-						m \h5.subtitle, label
-						filtered.map (j) ->
-							type = j?autoform?type or \other
-							last = _.last _.split j.name, \.
-							inputTypes "#name.#last", j .[type]!
+					m \box, filtered.map (j) ->
+						type = j?autoform?type or \other
+						last = _.last _.split j.name, \.
+						inputTypes "#name.#last", j .[type]!
 
 				else if schema.type is Array
 					found = maped.find -> it.name is "#{normed name}.$"
