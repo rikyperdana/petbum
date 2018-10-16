@@ -107,6 +107,7 @@ if Meteor.isClient
 				type: \insert
 				id: \formRegis
 				buttonContent: \Simpan
+				columns: 3
 				hooks: after: (id) ->
 					state.showAddPatient = null
 					m.route.set "/regis/lama/#id"

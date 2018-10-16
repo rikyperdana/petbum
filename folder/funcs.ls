@@ -74,8 +74,9 @@ if Meteor.isClient
 		state.temp ?= {}; state.errors ?= {}
 		state.form[opts.id] ?= {}; state.temp[opts.id] ?= []
 		stateTempGet = (field) -> if state.temp[opts.id]
-			_.findLast state.temp[opts.id], (i) -> i.name is field
+			_.findLast state.temp[opts.id], -> it.name is field
 
+		if opts.scope then opts.doc[that] = []
 		abnDoc = abnormalize that if opts.doc
 		normed = -> it.replace /\d/g, \$
 
@@ -237,7 +238,10 @@ if Meteor.isClient
 						_.every conds =
 							_.includes j.name, "#{normed name}."
 							getLen(name)+1 is getLen(j.name)
-					m \box, filtered.map (j) ->
+					structure = -> _.chunk(it, opts.columns)map (i) ->
+						m \.columns, i.map (j) -> m \.column j
+					console.log filtered, structure filtered
+					m \box, structure filtered.map (j) ->
 						type = j?autoform?type or \other
 						last = _.last _.split j.name, \.
 						inputTypes "#name.#last", j .[type]!
