@@ -101,7 +101,7 @@ if Meteor.isClient
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
 		pasien: -> view: -> m \.content,
-			if \baru is m.route.param \jenis then m autoForm do
+			if m.route.get! is '/regis/baru' then m autoForm do
 				collection: coll.pasien
 				schema: new SimpleSchema schema.regis
 				type: \insert
@@ -111,7 +111,7 @@ if Meteor.isClient
 				hooks: after: (id) ->
 					state.showAddPatient = null
 					m.route.set "/regis/lama/#id"
-			unless m.route.param \idpasien then m \div,
+			if m.route.get! is '/regis/lama' then m \div,
 				m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
@@ -139,7 +139,7 @@ if Meteor.isClient
 						if currentRoute! is \jalan
 							if i.rawat?reverse!?0?billRegis then rows!
 						else rows!
-			else m \div,
+			else if m.route.param \idpasien then m \div,
 				oncreate: ->
 					Meteor.subscribe \coll, \tarif
 					Meteor.subscribe \coll, \gudang
@@ -180,7 +180,9 @@ if Meteor.isClient
 						scope: \rawat
 						doc: that
 						buttonContent: \Tambahkan
-						hooks: after: -> state.showAddRawat = false
+						hooks: after: ->
+							state.showAddRawat = false
+							m.redraw!
 					[til 2]map -> m \br
 					state.docRawat and m \.content,
 						m \h5, 'Rincian Rawat'
@@ -204,7 +206,9 @@ if Meteor.isClient
 									status_bayar: true if ands arr =
 										doc.rawat.0.obat
 										not doc.rawat.0.tindakan
-							after: -> state.docRawat = null; m.redraw!
+							after: ->
+								state.docRawat = null
+								m.redraw!
 					m \table.table,
 						m \thead, m \tr, attr.pasien.headers.rawatFields.map (i) ->
 							m \th, _.startCase i
@@ -250,6 +254,7 @@ if Meteor.isClient
 							state.docRawat = state.modal.idrawat
 							state.spm = new Date!
 							state.modal = null
+			else m \div
 		regis: -> this.pasien
 		jalan: -> this.pasien
 		bayar: -> view: -> m \.content,
@@ -362,7 +367,9 @@ if Meteor.isClient
 						type: \insert
 						id: \formFarmasi
 						buttonContent: \Simpan
-						hooks: after: -> state.showForm = null
+						hooks: after: ->
+							state.showForm = null
+							m.redraw!
 				m \table.table,
 					oncreate: -> Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
 					m \thead, m \tr, attr.gudang.headers.farmasi.map (i) ->
@@ -412,6 +419,7 @@ if Meteor.isClient
 					hooks: after: ->
 						Meteor.call \sortByDate, m.route.param \idbarang
 						state.showForm = null
+						m.redraw!
 				m \table.table,
 					m \thead, attr.gudang.headers.rincian.map (i) ->
 						m \th, _.startCase i
@@ -462,7 +470,9 @@ if Meteor.isClient
 							hooks:
 								before: (doc, cb) ->
 									cb _.merge doc, id: state.modal._id
-								after: -> state.modal = null
+								after: ->
+									state.modal = null
+									m.redraw!
 				elem.pagins!
 			else if \imports is m.route.param \subroute then m \.content,
 				m \h1, 'Importer Data'
