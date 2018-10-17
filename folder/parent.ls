@@ -26,15 +26,18 @@ if Meteor.isClient
 		position = state.pagins.page * state.pagins.limit
 		_.slice it, position, (position + state.pagins.limit)
 	@elem =
-		modal: ({title, content, confirm, action}) -> m \.modal.is-active,
+		modal: (obj) -> m \.modal.is-active,
 			m \.modal-background
 			m \.modal-card,
 				m \header.modal-card-head,
-					m \p.modal-card-title, title
+					m \p.modal-card-title, obj.title
 					m \button.delete, 'aria-label': \close onclick: -> state.modal = null
-				if content then m \section.modal-card-body, m \.content, that
-				m \footer.modal-card-foot, if confirm then m \button.button.is-success,
-					(onclick: -> action?!), m \span, confirm
+				if obj.content then m \section.modal-card-body, m \.content, that
+				m \footer.modal-card-foot,
+					if obj.confirm then m \button.button.is-success,
+						(onclick: -> obj.action?!), m \span, that
+					if obj.danger then m \button.button.is-danger,
+						(onclick: -> obj.dangerAction?!), that
 		pagins: (arr) -> m \nav.pagination, role: \navigation, 'aria-label': \pagination,
 			[[\previous, -1], [\next, 1]]map (i) -> m ".pagination-#{i.0}",
 				onclick: -> state.pagins.page += i.1

@@ -1,10 +1,9 @@
 if Meteor.isClient
 
 	attr =
-		layout:
-			rights: -> modules.filter (i) ->
-				i.name in _.flatMap (_.keys Meteor.user!?roles), (j) ->
-					(.list) rights.find -> it.group is j
+		layout: rights: -> modules.filter -> it.name in
+			_.flatMap (_.keys Meteor.user!?roles), (i) ->
+				(.list) rights.find -> it.group is i
 		pasien:
 			showForm:
 				patient: onclick: ->
@@ -12,7 +11,7 @@ if Meteor.isClient
 				rawat: onclick: ->
 					state.showAddRawat = not state.showAddRawat
 			headers:
-				patientList: <[ nama_lengkap tanggal_lahir tempat_lahir poliklinik ]>
+				patientList: <[ tanggal nama_lengkap tanggal_lahir tempat_lahir poliklinik ]>
 				rawatFields: <[ tanggal klinik cara_bayar bayar_pendaftaran status_bayar cek ]>
 			rawatDetails: (doc) -> arr =
 				{head: \Tanggal, cell: hari doc.tanggal}
@@ -132,7 +131,8 @@ if Meteor.isClient
 						rows = -> m \tr,
 							ondblclick: -> m.route.set "#{m.route.get!}/#{i._id}"
 							tds arr =
-								if i.regis.nama_lengkap then _.startCase that
+								hari i.rawat[i.rawat.length-1]tanggal
+								i.regis.nama_lengkap
 								if i.regis.tgl_lahir then moment(that)format 'D MMM YYYY'
 								if i.regis.tmpt_lahir then _.startCase that
 								_.startCase userRole!
@@ -256,6 +256,10 @@ if Meteor.isClient
 							state.docRawat = state.modal.idrawat
 							state.spm = new Date!
 							state.modal = null
+						danger: \Hapus if isDr!
+						dangerAction: -> Meteor.call \rmRawat,
+							m.route.param(\idpasien), state.modal.idrawat, (err, res) ->
+								state.modal = null; m.redraw!
 			else m \div
 		regis: -> this.pasien
 		jalan: -> this.pasien
