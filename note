@@ -1,23 +1,30 @@
+Oct 17th, 2018
+1. Background login png
+2. Pasien yg batal berobat hari sebelumnya dihiddenkan
+3. Daftar antrian pasien dalam poli bagi perawat
+   Bila sudah dihandle perawat tapi belum oleh dokter
+4. Bugs pada status_bayar seharusnya setelah dokter
+5. Bila ada tindakan, bayar dulu sebelum muncul di apotik
+
 Oct 15th, 2018
 oke 1. Tanggal rawat pasien pada daftar perawat & dokter
 oke 2. Hapus rawat pasien pada perawat & dokter, bila hari sebelumnya
-3. Beri garis divisi pada kartu rincian obat dan tindakan
+oke 3. Beri garis divisi pada kartu rincian obat dan tindakan
 oke 4. Pasien jaminan jangan tampil di daftar bayar
 
 Oct 9th, 2018
 oke 1. List pada dokter seharusnya yg sudah dihandle perawat
 oke 2. Tampilkan tindakan + obat pada cek rincian rawat
 oke 3. Kadang muncul nama lain pada cek rincian rawat
-4. Adopsi format payRawat untuk payRegCard
 oke 5. Pasien yg sudah selesai seharusnya hilang dari daftar
 oke 6. Jika hanya obat, seharusnya status bayar true (temporer)
-pen 7. Horizontal layout for every forms
+7. Horizontal layout for every forms (pasien baru aja dulu)
 oke 8. Hilangkan tombol tambah obat & batch pada selain farmasi
-pen 9. Tambahkan search farmasi
-10. Form autoclose after
+9. Tambahkan search farmasi (bisa)
+10. Form autoclose after (urgen+penting dan ???)
 
 Oct 8th, 2018
-1. Reroute after login
+1. Reroute after login (???)
 oke 2. Dashboard pendaftaran, kosong
 oke 3. Info curent page
 oke 4. Search by no_mr
@@ -40,8 +47,8 @@ oke 5. Gudang Farmasi (list & rincian obat)
 oke 6. Logika pengurangan obat pasca serah apotik
 oke 7. Daftar obat yg harus diserahkan apotik ke pasien
 oke 8. Fungsi pencarian pasien
-pen 9. Update data pasien pada halaman rincian pasien
-pen 10. Label resep pada bungkus obat
+9. Update data pasien pada halaman rincian pasien
+10. Label resep pada bungkus obat
 
 5 Sept 2018
 rev 1. Menu pendaftaran dipecah: pasien, rawat jalan, rawat inap, igd
@@ -50,4 +57,4 @@ oke 3. Isi fields disesuaikan dengan sirsak
 4. Tandai wajib/opsional dengan bintang merah
 oke 5. Perbaiki field umur pada view pasien
 oke 6. Login untuk tiap user
-7. Remove number of array
+oke 7. Remove number of array

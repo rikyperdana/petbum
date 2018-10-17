@@ -1,5 +1,5 @@
 schema.regis =
-	no_mr: type: Number, max: 999999
+	no_mr: type: Number, min: 100000, max: 999999
 	regis: type: Object
 	'regis.alias': type: Number, optional: true, autoform: options: selects.alias
 	'regis.nama_lengkap': type: String
@@ -12,14 +12,13 @@ schema.regis =
 	'regis.pendidikan': type: Number, optional: true, autoform: options: selects.pendidikan
 	'regis.darah': type: Number, optional: true, autoform: options: selects.darah
 	'regis.pekerjaan': type: Number, optional: true, autoform: options: selects.pekerjaan
-	'regis.kabupaten': type: String, optional: true
+	'regis.kabupaten': type: String, optional: true, label: 'Kabupaten/Kota'
 	'regis.kecamatan': type: String, optional: true
 	'regis.kelurahan': type: String, optional: true
 	'regis.alamat': type: String, optional: true
 	'regis.kontak': type: String, optional: true
 	'regis.ayah': type: String, optional: true
 	'regis.ibu': type: String, optional: true
-	'regis.pasangan': type: String, optional: true
 	'regis.tanggal':
 		type: Date
 		autoform: type: \hidden

@@ -131,7 +131,7 @@ if Meteor.isClient
 						rows = -> m \tr,
 							ondblclick: -> m.route.set "#{m.route.get!}/#{i._id}"
 							tds arr =
-								hari i.rawat[i.rawat.length-1]tanggal
+								if i.rawat[i.rawat.length-1]?tanggal then hari that
 								i.regis.nama_lengkap
 								if i.regis.tgl_lahir then moment(that)format 'D MMM YYYY'
 								if i.regis.tmpt_lahir then _.startCase that
@@ -232,7 +232,8 @@ if Meteor.isClient
 								attr.pasien.rawatDetails state.modal
 								.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
 							if state.modal.tindakan then m \div,
-								m \h5, \Tindakan
+								m \br
+								m \table, m \tr, m \th, \Tindakan
 								m \table.table,
 									that?map (i) -> m \tr, tds arr =
 										_.startCase look2(\tarif, i.nama)nama
@@ -240,13 +241,14 @@ if Meteor.isClient
 									m \tr, (m \th, \Total), m \td,
 										rupiah _.sum that.map -> it.harga
 							if state.modal.obat then m \div,
-								m \h5, \Obat
+								m \br
+								m \table, m \tr, m \th, \Obat
 								m \table.table, that.map (i) -> m \tr, tds arr =
 									_.startCase look2(\gudang, i.nama)nama
 									"#{i.aturan.kali} kali"
 									"#{i.aturan.dosis} dosis"
 									"#{i.jumlah} unit"
-									"puyer #{i.puyer}"
+									if i.puyer then "puyer #that"
 						confirm: \Lanjutkan if ands arr =
 							currentRoute! is \jalan
 							if !isDr! then !state.modal.anamesa_perawat else true
@@ -256,10 +258,6 @@ if Meteor.isClient
 							state.docRawat = state.modal.idrawat
 							state.spm = new Date!
 							state.modal = null
-						danger: \Hapus if isDr!
-						dangerAction: -> Meteor.call \rmRawat,
-							m.route.param(\idpasien), state.modal.idrawat, (err, res) ->
-								state.modal = null; m.redraw!
 			else m \div
 		regis: -> this.pasien
 		jalan: -> this.pasien
@@ -332,7 +330,7 @@ if Meteor.isClient
 						look(\cara_bayar, j.cara_bayar)label
 						look(\klinik, j.klinik)label
 						m \.button.is-success,
-							onlick: -> state.modal = _.merge k, j, i
+							onclick: -> state.modal = _.merge k, j, i
 							m \span, \Serah
 			if state.modal then elem.modal do
 				title: 'Serahkan Obat?'
