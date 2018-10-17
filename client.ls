@@ -25,7 +25,7 @@ if Meteor.isClient
 			poliFilter: (arr) -> if arr then _.compact arr.map (i) ->
 				if userRole! is _.snakeCase look(\klinik, i.klinik)label then i
 				else if \regis is userGroup! then i
-			ownKliniks: -> roles!?jalan.map (i) ->
+			ownKliniks: -> roles!?jalan?map (i) ->
 				(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
 			lastKlinik: (arr) -> unless roles!?jalan then arr else
 				notHandled = (name, doc) -> not (_.last doc.rawat)[name]
@@ -47,7 +47,7 @@ if Meteor.isClient
 				m \nav.navbar.is-info,
 					role: \navigation, 'aria-label': 'main navigation',
 					m \.navbar-brand, m \a.navbar-item, href: \#,
-						_.upperCase(m.route.get!) or \RSPB
+						(?full or \RSPB) modules.find -> it.name is m.route.get!split(\/)[1]
 					m \.navbar-end, m \.navbar-item.has-dropdown,
 						class: \is-active if state.userMenu
 						m \a.navbar-link,
@@ -111,7 +111,7 @@ if Meteor.isClient
 				hooks: after: (id) ->
 					state.showAddPatient = null
 					m.route.set "/regis/lama/#id"
-			if m.route.get! is '/regis/lama' then m \div,
+			if m.route.get! in ['/regis/lama', '/jalan'] then m \div,
 				m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
@@ -203,9 +203,11 @@ if Meteor.isClient
 							before: (doc, cb) -> Meteor.call \rmRawat, that._id, state.docRawat,
 								(err, res) -> res and cb _.merge doc.rawat.0,
 									(that.rawat.find -> it.idrawat is state.docRawat),
-									status_bayar: true if ands arr =
-										doc.rawat.0.obat
-										not doc.rawat.0.tindakan
+									status_bayar: true if ors arr =
+										ands arr2 =
+											doc.rawat.0.obat
+											not doc.rawat.0.tindakan
+										state.docRawat.cara_bayar isnt 1
 							after: ->
 								state.docRawat = null
 								m.redraw!

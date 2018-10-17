@@ -7,11 +7,11 @@ oke 4. Pasien jaminan jangan tampil di daftar bayar
 Oct 9th, 2018
 oke 1. List pada dokter seharusnya yg sudah dihandle perawat
 oke 2. Tampilkan tindakan + obat pada cek rincian rawat
-3. Kadang muncul nama lain pada cek rincian rawat
+oke 3. Kadang muncul nama lain pada cek rincian rawat
 4. Adopsi format payRawat untuk payRegCard
 oke 5. Pasien yg sudah selesai seharusnya hilang dari daftar
 oke 6. Jika hanya obat, seharusnya status bayar true (temporer)
-7. Horizontal layout for every forms
+pen 7. Horizontal layout for every forms
 oke 8. Hilangkan tombol tambah obat & batch pada selain farmasi
 pen 9. Tambahkan search farmasi
 10. Form autoclose after

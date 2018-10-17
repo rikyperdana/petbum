@@ -76,7 +76,7 @@ if Meteor.isClient
 		stateTempGet = (field) -> if state.temp[opts.id]
 			_.findLast state.temp[opts.id], -> it.name is field
 
-		if opts.scope then opts.doc[that] = []
+		# if opts.scope then opts.doc[that] = []
 		abnDoc = abnormalize that if opts.doc
 		normed = -> it.replace /\d/g, \$
 
