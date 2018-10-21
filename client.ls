@@ -103,7 +103,7 @@ if Meteor.isClient
 			if m.route.param(\jenis) in <[baru edit]> then m autoForm do
 				collection: coll.pasien
 				schema: new SimpleSchema schema.regis
-				type: if m.route.param(\idpasien) then \insert else \update
+				type: if m.route.param(\idpasien) then \update else \insert
 				id: \formRegis
 				doc: coll.pasien.findOne!
 				buttonContent: \Simpan
@@ -132,7 +132,7 @@ if Meteor.isClient
 						rows = -> m \tr,
 							ondblclick: -> m.route.set "#{m.route.get!}/#{i._id}"
 							tds arr =
-								if i.rawat[i.rawat.length-1]?tanggal then hari that
+								if i.rawat?[i.rawat?length-1]?tanggal then hari that
 								i.regis.nama_lengkap
 								if i.regis.tgl_lahir then moment(that)format 'D MMM YYYY'
 								if i.regis.tmpt_lahir then _.startCase that
@@ -364,6 +364,13 @@ if Meteor.isClient
 				m \span, 'Cetak Rekap'
 		farmasi: -> view: -> m \.content,
 			unless m.route.param(\idbarang) then m \div,
+				m \form,
+					onsubmit: (e) ->
+						e.preventDefault!
+						if e.target.0.value.length > 3 then Meteor.subscribe \coll, \gudang,
+							{nama: $options: \-i, $regex: ".*#{e.target.0.value}.*"}
+							onReady: -> m.redraw!
+					m \input.input, type: \text, placeholder: \Pencarian
 				if roles!?farmasi then m \button.button.is-success,
 					onclick: -> state.showForm = not state.showForm
 					m \span, '+Tambah Jenis Obat'
@@ -379,7 +386,7 @@ if Meteor.isClient
 							state.showForm = null
 							m.redraw!
 				m \table.table,
-					oncreate: -> Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
+					# oncreate: -> Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
 					m \thead, m \tr, attr.gudang.headers.farmasi.map (i) ->
 						m \th, _.startCase i
 					m \tbody, coll.gudang.find!fetch!map (i) -> m \tr,

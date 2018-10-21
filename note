@@ -20,7 +20,7 @@ oke 5. Pasien yg sudah selesai seharusnya hilang dari daftar
 oke 6. Jika hanya obat, seharusnya status bayar true (temporer)
 7. Horizontal layout for every forms (pasien baru aja dulu)
 oke 8. Hilangkan tombol tambah obat & batch pada selain farmasi
-9. Tambahkan search farmasi (bisa)
+oke 9. Tambahkan search farmasi (bisa)
 10. Form autoclose after (urgen+penting dan ???)
 
 Oct 8th, 2018
@@ -47,7 +47,7 @@ oke 5. Gudang Farmasi (list & rincian obat)
 oke 6. Logika pengurangan obat pasca serah apotik
 oke 7. Daftar obat yg harus diserahkan apotik ke pasien
 oke 8. Fungsi pencarian pasien
-9. Update data pasien pada halaman rincian pasien
+oke 9. Update data pasien pada halaman rincian pasien
 10. Label resep pada bungkus obat
 
 5 Sept 2018
