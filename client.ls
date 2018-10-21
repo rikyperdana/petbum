@@ -185,7 +185,6 @@ if Meteor.isClient
 						doc: that
 						buttonContent: \Tambahkan
 						hooks: after: ->
-							console.log it
 							state.showAddRawat = false
 							m.redraw!
 					[til 2]map -> m \br
@@ -208,11 +207,9 @@ if Meteor.isClient
 							before: (doc, cb) -> Meteor.call \rmRawat, that._id, state.docRawat,
 								(err, res) -> res and cb _.merge doc.rawat.0,
 									(that.rawat.find -> it.idrawat is state.docRawat),
-									status_bayar: true if ors arr =
-										ands arr2 =
-											doc.rawat.0.obat
-											not doc.rawat.0.tindakan
-										state.docRawat.cara_bayar isnt 1
+									status_bayar: true if ands arr =
+										doc.rawat.0.obat
+										not doc.rawat.0.tindakan
 							after: ->
 								state.docRawat = null
 								m.redraw!
@@ -326,17 +323,21 @@ if Meteor.isClient
 						{rawat: $elemMatch: obat: $elemMatch: hasil: $exists: false}
 						onReady: -> m.redraw!
 				m \thead, attr.apotik.header.map (i) -> m \th, _.startCase i
-				m \tbody, coll.pasien.find!fetch!map (i) -> i.rawat.map (j) ->
-					j.obat?map (k) -> unless k.hasil then m \tr, tds arr =
-						i.no_mr
-						i.regis.nama_lengkap
-						hari j.tanggal
-						\-
-						look(\cara_bayar, j.cara_bayar)label
-						look(\klinik, j.klinik)label
-						m \.button.is-success,
-							onclick: -> state.modal = _.merge k, j, i
-							m \span, \Serah
+				m \tbody, coll.pasien.find!fetch!map (i) ->
+					i.rawat.map (j) -> j.obat?map (k) ->
+						okay = ->
+							if j.cara_bayar is 1 then !k.hasil and j.status_bayar
+							else !	k.hasil
+						okay! and m \tr, tds arr =
+							i.no_mr
+							i.regis.nama_lengkap
+							hari j.tanggal
+							\-
+							look(\cara_bayar, j.cara_bayar)label
+							look(\klinik, j.klinik)label
+							m \.button.is-success,
+								onclick: -> state.modal = _.merge k, j, i
+								m \span, \Serah
 			if state.modal then elem.modal do
 				title: 'Serahkan Obat?'
 				content: m \table.table,
