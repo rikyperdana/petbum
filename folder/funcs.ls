@@ -222,7 +222,9 @@ if Meteor.isClient
 					inputTypes name, defaultType!0 .radio!
 
 				else if defaultType!?0 then m \.field,
-					m \label.label, label
+					m \label.label,
+						m \span, label
+						m \span.has-text-danger, \* unless schema.optional
 					m \.control, m \input.input,
 						class: \is-danger if error
 						type: schema.autoform?type or that
@@ -240,7 +242,6 @@ if Meteor.isClient
 							getLen(name)+1 is getLen(j.name)
 					structure = -> _.chunk(it, opts.columns)map (i) ->
 						m \.columns, i.map (j) -> m \.column j
-					console.log filtered, structure filtered
 					m \box, structure filtered.map (j) ->
 						type = j?autoform?type or \other
 						last = _.last _.split j.name, \.

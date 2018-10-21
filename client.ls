@@ -100,11 +100,12 @@ if Meteor.isClient
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
 		pasien: -> view: -> m \.content,
-			if m.route.get! is '/regis/baru' then m autoForm do
+			if m.route.param(\jenis) in <[baru edit]> then m autoForm do
 				collection: coll.pasien
 				schema: new SimpleSchema schema.regis
-				type: \insert
+				type: if m.route.param(\idpasien) then \insert else \update
 				id: \formRegis
+				doc: coll.pasien.findOne!
 				buttonContent: \Simpan
 				columns: 3
 				hooks: after: (id) ->
@@ -171,6 +172,9 @@ if Meteor.isClient
 						m \.button.is-info,
 							onclick: -> makePdf.consent!
 							m \span, \Consent
+						m \.button.is-warning,
+							onclick: -> m.route.set "/regis/edit/#{m.route.param \idpasien}"
+							m \span, \Edit
 						m \.button.is-success, attr.pasien.showForm.rawat, \+Rawat
 					state.showAddRawat and m autoForm do
 						collection: coll.pasien

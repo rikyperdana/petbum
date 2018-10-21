@@ -54,7 +54,7 @@ oke 8. Fungsi pencarian pasien
 rev 1. Menu pendaftaran dipecah: pasien, rawat jalan, rawat inap, igd
 oke 2. Rupiah kan semua angka uang
 oke 3. Isi fields disesuaikan dengan sirsak
-4. Tandai wajib/opsional dengan bintang merah
+oke 4. Tandai wajib/opsional dengan bintang merah
 oke 5. Perbaiki field umur pada view pasien
 oke 6. Login untuk tiap user
 oke 7. Remove number of array
