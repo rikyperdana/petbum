@@ -185,6 +185,7 @@ if Meteor.isClient
 						doc: that
 						buttonContent: \Tambahkan
 						hooks: after: ->
+							console.log it
 							state.showAddRawat = false
 							m.redraw!
 					[til 2]map -> m \br

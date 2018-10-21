@@ -111,17 +111,18 @@ if Meteor.isClient
 					context = usedSchema.newContext!
 					context.validate _.merge {}, obj, (opts.doc or {})
 					state.errors[opts.id] = _.assign {},
-						... context._invalidKeys.map (i) -> "#{i.name}": i.type
+						... context._invalidKeys.map -> "#{it.name}": it.type
 
-					after = (err, res) -> opts.hooks?after? res if res
+					after = (err, res) -> opts.hooks?after res if res
 					formTypes = (doc) ->
 						insert: -> opts.collection.insert (doc or obj), after
 						update: -> opts.collection.update do
 							{_id: abnDoc._id}, {$set: (doc or obj)}, after
 						method: -> Meteor.call opts.meteormethod, (doc or obj)
 						'update-pushArray': -> opts.collection.update do
-							{_id: abnDoc._id}, $push: "#{opts.scope}":
-								$each: _.values obj[opts.scope]
+							{_id: abnDoc._id}
+							{$push: "#{opts.scope}": $each: _.values obj[opts.scope]}
+							after
 
 					if opts.hooks?before then that obj, (moded) ->
 						formTypes(moded)[opts.type]!
