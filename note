@@ -1,10 +1,10 @@
 Oct 17th, 2018
-1. Background login png
-2. Pasien yg batal berobat hari sebelumnya dihiddenkan
-3. Daftar antrian pasien dalam poli bagi perawat
-   Bila sudah dihandle perawat tapi belum oleh dokter
+1. Background login png (susah)
+oke 2. Pasien yg batal berobat hari sebelumnya dihiddenkan
+oke 3. Daftar antrian pasien dalam poli bagi perawat
+       Bila sudah dihandle perawat tapi belum oleh dokter
 oke 4. Bugs pada status_bayar seharusnya setelah dokter
-5. Bila ada tindakan, bayar dulu sebelum muncul di apotik
+oke 5. Bila ada tindakan, bayar dulu sebelum muncul di apotik
 
 Oct 15th, 2018
 oke 1. Tanggal rawat pasien pada daftar perawat & dokter
@@ -40,7 +40,6 @@ oke 4. Simulasi import pada simrs-baru
 5. Lengkapi menu amprah
 oke 6. Insurance seharusnya skip
 
-SIMRS
 oke 2. Pendaftaran buatkan anak menunya (pasien baru, daftar berobat)
 oke 4. Rawat Jalan (Perawat, Dokter)
 oke 5. Gudang Farmasi (list & rincian obat)

@@ -27,7 +27,9 @@ if Meteor.isClient
 			ownKliniks: -> roles!?jalan?map (i) ->
 				(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
 			lastKlinik: (arr) -> unless roles!?jalan then arr else
-				notHandled = (name, doc) -> not (_.last doc.rawat)[name]
+				notHandled = (name, doc) -> ands arr =
+					not (_.last doc.rawat)[name]
+					0 is dayDiff (.tanggal) _.last doc.rawat
 				if isDr! then arr.filter -> notHandled \anamesa_dokter, it
 				else arr.filter -> notHandled \anamesa_perawat, it
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
@@ -128,7 +130,7 @@ if Meteor.isClient
 						Meteor.subscribe \coll, \pasien, onKlinik, onReady: -> m.redraw!
 					m \thead, m \tr, attr.pasien.headers.patientList.map (i) ->
 						m \th, _.startCase i
-					m \tfoot, attr.pasien.lastKlinik(coll.pasien.find!fetch!)map (i) ->
+					m \tbody, attr.pasien.lastKlinik(coll.pasien.find!fetch!)map (i) ->
 						rows = -> m \tr,
 							ondblclick: -> m.route.set "#{m.route.get!}/#{i._id}"
 							tds arr =
@@ -140,6 +142,21 @@ if Meteor.isClient
 						if currentRoute! is \jalan
 							if i.rawat?reverse!?0?billRegis then rows!
 						else rows!
+				if userGroup(\jalan) and !isDr! then m \div,
+					m \h5, 'Daftar Antrian Panggilan Dokter'
+					m \table.table,
+						m \thead, m \tr, attr.pasien.headers.patientList.map (i) ->
+							m \th, _.startCase i
+						m \tbody, coll.pasien.find!fetch!map (i) ->
+							doneByNurse = -> ands arr =
+								i.rawat[i.rawat.length-1]anamesa_perawat
+								not i.rawat[i.rawat.length-1]anamesa_dokter
+							if doneByNurse! then m \tr, tds arr =
+								hari i.rawat[i.rawat.length-1]tanggal
+								i.regis.nama_lengkap
+								hari i.regis.tgl_lahir
+								i.regis.tmpt_lahir
+								_.startCase userRole!
 			else if m.route.param \idpasien then m \div,
 				oncreate: ->
 					Meteor.subscribe \coll, \tarif
