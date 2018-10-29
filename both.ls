@@ -90,7 +90,6 @@ schema.rawatRegis =
 		type: Number
 		autoform: type: \hidden
 		autoValue: (name, doc) -> 30000
-	'rawat.$.rujukan': type: Number, autoform: options: selects.rujukan
 	'rawat.$.billRegis':
 		type: Number
 		autoform: type: \hidden
@@ -106,10 +105,49 @@ schema.rawatRegis =
 		type: Boolean
 		autoform: type: \hidden
 		autoValue: -> false
+	'rawat.$.tinggal':
+		type: Number, optional: true,
+		label: 'Pasien Tinggal'
+		autoform: options: selects.tinggal
+	'rawat.$.tanggung_jawab': type: String
 
 schema.rawatNurse =
 	'rawat.$.anamesa_perawat': type: String, autoform: type: \textarea
 	'rawat.$.fisik': type: [new SimpleSchema schema.fisik], optional: true
+	'rawat.$.cara_masuk': type: Number, autoform: options: selects.cara_masuk
+	'rawat.$.rujukan': type: Number, autoform: options: selects.rujukan
+	'rawat.$.riwayat': type: Object, optional: true
+	'rawat.$.riwayat.kesehatan': type: Object, optional: true
+	'rawat.$.riwayat.kesehatan.penyakit_sebelumnya': type: String, optional: true
+	'rawat.$.riwayat.kesehatan.operasi': type: String, optional: true
+	'rawat.$.riwayat.kesehatan.dirawat': type: String, optional: true
+	'rawat.$.riwayat.kesehatan.pengobatan_dirumah': type: String, optional: true
+	'rawat.$.riwayat.kesehatan.alergi': type: String, optional: true
+	'rawat.$.riwayat.kesehatan.transfusi_darah': type: String, optional: true
+	'rawat.$.riwayat.kesehatan.merokok': type: String, optional: true
+	'rawat.$.riwayat.kesehatan.minuman_keras': type: String, optional: true
+	'rawat.$.riwayat.kesehatan.obat_terlarang': type: String, optional: true
+	'rawat.$.riwayat.kesehatan.imunisasi': type: String, optional: true, autoform: options: selects.imunisasi
+	'rawat.$.riwayat.keluarga': type: Object, optional: true
+	'rawat.$.riwayat.keluarga.penyakit': type: Number, optional: true, autoform: options:  selects.penyakit
+	'rawat.$.riwayat.keluarga.hubungan': type: String, optional: true
+	'rawat.$.riwayat.reproduksi': type: Object, optional: true
+	'rawat.$.riwayat.reproduksi.wanita_hamil': type: Boolean, optional: true
+	'rawat.$.riwayat.reproduksi.pria_prostat': type: Boolean, optional: true
+	'rawat.$.riwayat.reproduksi.keikutsertaan_kb': type: Number, optional: true, autoform: options: selects.kb
+	'rawat.$.kenyamanan': type: Object, optional: true
+	'rawat.$.kenyamanan.nyeri': type: Boolean, optional: true
+	'rawat.$.kenyamanan.lokasi': type: String, optional: true
+	'rawat.$.kenyamanan.frekuensi': type: Number, optional: true, autoform: options: selects.frekuensi
+	'rawat.$.kenyamanan.karakteristik_nyeri': type: Number, optional: true, autoform: options: selects.nyeri
+	'rawat.$.status_psikologi': type: Number, optional: true, autoform: options: selects.psikologi
+	'rawat.$.eliminasi': type: Object, optional: true
+	'rawat.$.eliminasi.bab': type: Number, optional: true, autoform: options: selects.bab
+	'rawat.$.eliminasi.bak': type: Number, optional: true, autoform: options: selects.bak
+	'rawat.$.komunikasi': type: Object, optional: true
+	'rawat.$.komunikasi.bicara': type: Number, optional: true, autoform: options: selects.bicara
+	'rawat.$.komunikasi.hambatan': type: Number, optional: true, autoform: options: selects.hambatan
+	'rawat.$.komunikasi.potensial': type: Number, optional: true, autoform: options: selects.potensial
 
 schema.rawatDoctor =
 	'rawat.$.anamesa_dokter': type: String, optional: true, autoform: type: \textarea
@@ -124,9 +162,12 @@ schema.rawatDoctor =
 	'rawat.$.pindah': type: Number, optional: true, autoform: options: selects.klinik
 	'rawat.$.keluar': type: Number, optional: true, autoform: options: selects.keluar
 
+schema.rawatMR =
+	'rawat.$.icdX': type: String
+
 schema.addRole =
 	roles: type: String, optional: true, autoform: type: \select, options: ->
-		<[ admin petugas ]>map -> value: it, label: _.startCase it
+		<[ admin petugas perawat dokter mr ]>map -> value: it, label: _.startCase it
 	group: type: String, autoform: type: \select, options: ->
 		modules.map -> value: it.name, label: it.full
 	poli: type: String, optional: true, autoform: type: \select, options: ->

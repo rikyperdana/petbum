@@ -13,6 +13,7 @@ if Meteor.isClient
 			headers:
 				patientList: <[ tanggal nama_lengkap tanggal_lahir tempat_lahir poliklinik ]>
 				rawatFields: <[ tanggal klinik cara_bayar bayar_pendaftaran status_bayar cek ]>
+				icdFields: <[ nama_pasien tanggal klinik dokter diagnosis nama_perawat cek ]>
 			rawatDetails: (doc) -> arr =
 				{head: \Tanggal, cell: hari doc.tanggal}
 				{head: \Klinik, cell: look(\klinik, doc.klinik)label}
@@ -48,7 +49,8 @@ if Meteor.isClient
 				m \nav.navbar.is-info,
 					role: \navigation, 'aria-label': 'main navigation',
 					m \.navbar-brand, m \a.navbar-item, href: \#,
-						(?full or \RSPB) modules.find -> it.name is m.route.get!split(\/)[1]
+						_.upperCase (?full or \RSPB) modules.find ->
+							it.name is m.route.get!split(\/)[1]
 					m \.navbar-end, m \.navbar-item.has-dropdown,
 						class: \is-active if state.userMenu
 						m \a.navbar-link,
@@ -113,7 +115,13 @@ if Meteor.isClient
 				hooks: after: (id) ->
 					state.showAddPatient = null
 					m.route.set "/regis/lama/#id"
-			if m.route.get! in ['/regis/lama', '/jalan'] then m \div,
+			if userRole(\mr) then m \div,
+				m \h5, 'Kodifikasi ICD 10'
+				m \table.table,
+					oncreate: -> Meteor.subscribe \coll, \pasien, onReady: -> m.redraw!
+					m \thead, attr.pasien.headers.icdFields.map (i) -> m \th, _.startCase i
+					m \tbody # PR
+			else if m.route.get! in ['/regis/lama', '/jalan'] then m \div,
 				m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
@@ -378,6 +386,7 @@ if Meteor.isClient
 								else i
 						coll.rekap.insert batches: res
 						state.modal = null
+						m.redraw!
 			m \.button.is-warning,
 				onclick: -> makePdf.rekap!
 				m \span, 'Cetak Rekap'

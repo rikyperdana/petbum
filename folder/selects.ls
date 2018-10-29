@@ -17,6 +17,19 @@
 	satuan: <[ botol vial ampul pcs sachet tube supp tablet minidose pot turbuhaler kaplet kapsul bag pen rectal flash cream nebu galon lembar roll liter cup pasang bungkus ]>
 	anggaran: <[ blud apbd kemenkes dinkes ]>
 	alias: <[ tn ny nn an by ]>
+	tinggal: <[ orang_tua keluarga sendiri panti_asuhan ]>
+	cara_masuk: <[ jalan kursi_roda lainnya ]>
+	imunisasi: <[ dpt1 dpt2 dpt3 bcg campak polio1 polio2 polio3 hepatitis mmr ]>
+	penyakit: <[ asma diabetes hipertensi cancer anemia jantung lainnya ]>
+	kb: <[ iud susuk suntik pil steril vasectomi ]>
+	frekuensi: <[ sering kadang jarang ]>
+	nyeri: <[ terbakar tertindih menyebar tajam tumpul berdenyut lainnya ]>
+	psikologi: <[ tenang marah cemas gelisah takut lainnya ]>
+	bab: <[ asma diare konstipasi colostomy ]>
+	bak: <[ normal retensia inkontinesia poliuria disuria lainnya ]>
+	bicara: <[ normal gangguan_bicara lainnya ]>
+	hambatan: <[ tidak_ada pendengaran cemas motivasi_memburuk bahasa lainnya ]>
+	potensial: <[ proses_penyakit pengobatan nutrisi tindakan lainnya ]>
 
 _.map selects, (i, j) -> selects[j] = _.map selects[j], (m, n) -> value: n+1, label: _.startCase m
 

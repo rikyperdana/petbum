@@ -243,10 +243,12 @@ if Meteor.isClient
 							getLen(name)+1 is getLen(j.name)
 					structure = -> _.chunk(it, opts.columns)map (i) ->
 						m \.columns, i.map (j) -> m \.column j
-					m \box, structure filtered.map (j) ->
-						type = j?autoform?type or \other
-						last = _.last _.split j.name, \.
-						inputTypes "#name.#last", j .[type]!
+					m \.box,
+						m \h5, label
+						m \box, structure filtered.map (j) ->
+							type = j?autoform?type or \other
+							last = _.last _.split j.name, \.
+							inputTypes "#name.#last", j .[type]!
 
 				else if schema.type is Array
 					found = maped.find -> it.name is "#{normed name}.$"
@@ -267,12 +269,12 @@ if Meteor.isClient
 				type = theSchema(i)?autoform?type or \other
 				inputTypes(i, theSchema i)[type]!
 
-			m \.row,
-				m \.col, m \input.button.is-primary,
+			m \.row, m \.columns,
+				m \.column.is-1, m \input.button.is-primary,
 					type: \submit
 					value: opts?buttonContent
 					class: opts?buttonClasses
-				m \.col, m \input.button.is-warning,
+				m \.column.is-1, m \input.button.is-warning,
 					type: \reset
 					value: opts?reset?content
 					class: opts?reset?classes

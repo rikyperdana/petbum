@@ -1,3 +1,7 @@
+Oct 28th, 2018
+pen 1. Bugs pada serah obat yg double
+2. Tampilkan semua pasien yang sudah dihandle dokter dan belum ada icd x
+
 Oct 17th, 2018
 1. Background login png (susah)
 oke 2. Pasien yg batal berobat hari sebelumnya dihiddenkan
@@ -50,7 +54,7 @@ oke 9. Update data pasien pada halaman rincian pasien
 10. Label resep pada bungkus obat
 
 5 Sept 2018
-rev 1. Menu pendaftaran dipecah: pasien, rawat jalan, rawat inap, igd
+1. Menu pendaftaran dipecah: pasien, rawat jalan, rawat inap, igd
 oke 2. Rupiah kan semua angka uang
 oke 3. Isi fields disesuaikan dengan sirsak
 oke 4. Tandai wajib/opsional dengan bintang merah
