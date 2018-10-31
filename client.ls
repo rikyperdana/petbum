@@ -118,9 +118,40 @@ if Meteor.isClient
 			if userRole(\mr) then m \div,
 				m \h5, 'Kodifikasi ICD 10'
 				m \table.table,
-					oncreate: -> Meteor.subscribe \coll, \pasien, onReady: -> m.redraw!
+					oncreate: -> Meteor.subscribe \coll, \pasien,
+						{rawat: $elemMatch: $and: [
+							{'anamesa_dokter': $exists: true}
+							{icdx: $exists: false}
+						]}
+						onReady: -> m.redraw!
 					m \thead, attr.pasien.headers.icdFields.map (i) -> m \th, _.startCase i
-					m \tbody # PR
+					m \tbody, coll.pasien.find!fetch!map (i) -> i.rawat.map (j) ->
+						if j.anamesa_dokter and not j.icdx then m \tr, tds arr =
+							i.regis.nama_lengkap
+							hari j.tanggal
+							look(\klinik, j.klinik)label
+							\-
+							j.anamesa_dokter
+							\-
+							m \.button.is-info,
+								onclick: -> state.modal = _.merge rawat: j, pasien: i
+								m \span, \Cek
+				if state.modal then elem.modal do
+					title: 'Kodekan ICD 10'
+					content: m \div,
+						m \p, "Diagnosa: #{that.rawat.anamesa_dokter}"
+						m \form,
+							onchange: -> state.modal.icdx = it.target.value
+							m \input.input, name: \icdx
+					confirm: \Simpan
+					action: ->
+						doc =
+							name: \pasien, recId: that.pasien._id,
+							scope: \rawat, elmId: that.rawat.idrawat,
+							doc: _.merge that.rawat, icdx: that.icdx
+						Meteor.call \updateArrayElm, doc, (err, res) -> if res
+							state.modal = null
+							m.redraw!
 			else if m.route.get! in ['/regis/lama', '/jalan'] then m \div,
 				m \form,
 					onsubmit: (e) ->
