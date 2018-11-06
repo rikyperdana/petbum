@@ -114,7 +114,7 @@ if Meteor.isClient
 				columns: 3
 				hooks:
 					before: (doc, cb) ->
-						cb _.merge doc, petugas: #{userGroup!}: Meteor.userId!
+						cb _.merge doc, petugas: "#{userGroup!}": Meteor.userId!
 					after: (id) ->
 						state.showAddPatient = null
 						m.route.set "/regis/lama/#id"
@@ -244,7 +244,7 @@ if Meteor.isClient
 						buttonContent: \Tambahkan
 						hooks:
 							before: (doc, cb) ->
-								cb _.merge doc, petugas: #{userGroup!}: Meteor.userId!
+								cb _.merge doc, petugas: "#{userGroup!}": Meteor.userId!
 							after: ->
 								state.showAddRawat = false
 								m.redraw!
@@ -271,7 +271,7 @@ if Meteor.isClient
 									status_bayar: true if ands arr =
 										doc.rawat.0.obat
 										not doc.rawat.0.tindakan
-									petugas: #{if isDr! then \dokter else \perawat}: Meteor.userId!
+									petugas: "#{if isDr! then \dokter else \perawat}": Meteor.userId!
 							after: ->
 								state.docRawat = null
 								m.redraw!
