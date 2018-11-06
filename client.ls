@@ -112,9 +112,12 @@ if Meteor.isClient
 				doc: coll.pasien.findOne!
 				buttonContent: \Simpan
 				columns: 3
-				hooks: after: (id) ->
-					state.showAddPatient = null
-					m.route.set "/regis/lama/#id"
+				hooks:
+					before: (doc, cb) ->
+						cb _.merge doc, petugas: #{userGroup!}: Meteor.userId!
+					after: (id) ->
+						state.showAddPatient = null
+						m.route.set "/regis/lama/#id"
 			if userRole(\mr) then m \div,
 				m \h5, 'Kodifikasi ICD 10'
 				m \table.table,
@@ -131,7 +134,7 @@ if Meteor.isClient
 							hari j.tanggal
 							look(\klinik, j.klinik)label
 							\-
-							j.anamesa_dokter
+							j.diagnosa?0
 							\-
 							m \.button.is-info,
 								onclick: -> state.modal = _.merge rawat: j, pasien: i
@@ -139,19 +142,18 @@ if Meteor.isClient
 				if state.modal then elem.modal do
 					title: 'Kodekan ICD 10'
 					content: m \div,
-						m \p, "Diagnosa: #{that.rawat.anamesa_dokter}"
-						m \form,
-							onchange: -> state.modal.icdx = it.target.value
-							m \input.input, name: \icdx
-					confirm: \Simpan
-					action: ->
-						doc =
-							name: \pasien, recId: that.pasien._id,
-							scope: \rawat, elmId: that.rawat.idrawat,
-							doc: _.merge that.rawat, icdx: that.icdx
-						Meteor.call \updateArrayElm, doc, (err, res) -> if res
-							state.modal = null
-							m.redraw!
+						m \table.table, that.rawat.diagnosa.map (i, j) ->
+							m \tr, [(m \td, j+1), (m \td, _.startCase i)]
+						m autoForm do
+							schema: new SimpleSchema icdx: type: [String]
+							type: \method
+							meteormethod: \icdX
+							hooks:
+								before: (doc, cb) ->
+									cb _.merge {}, state.modal, doc
+								after: ->
+									state.modal = null
+									m.redraw!
 			else if m.route.get! in ['/regis/lama', '/jalan'] then m \div,
 				m \form,
 					onsubmit: (e) ->
@@ -240,9 +242,12 @@ if Meteor.isClient
 						scope: \rawat
 						doc: that
 						buttonContent: \Tambahkan
-						hooks: after: ->
-							state.showAddRawat = false
-							m.redraw!
+						hooks:
+							before: (doc, cb) ->
+								cb _.merge doc, petugas: #{userGroup!}: Meteor.userId!
+							after: ->
+								state.showAddRawat = false
+								m.redraw!
 					[til 2]map -> m \br
 					state.docRawat and m \.content,
 						m \h5, 'Rincian Rawat'
@@ -266,6 +271,7 @@ if Meteor.isClient
 									status_bayar: true if ands arr =
 										doc.rawat.0.obat
 										not doc.rawat.0.tindakan
+									petugas: #{if isDr! then \dokter else \perawat}: Meteor.userId!
 							after: ->
 								state.docRawat = null
 								m.redraw!

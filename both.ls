@@ -151,7 +151,7 @@ schema.rawatNurse =
 
 schema.rawatDoctor =
 	'rawat.$.anamesa_dokter': type: String, optional: true, autoform: type: \textarea
-	'rawat.$.diagnosa': type: String, optional: true, autoform: type: \textarea
+	'rawat.$.diagnosa': type: [String], optional: true
 	'rawat.$.planning': type: String, optional: true, autoform: type: \textarea
 	'rawat.$.tindakan': type: [new SimpleSchema schema.tindakan], optional: true
 	'rawat.$.obat': type: [new SimpleSchema schema.obat], optional: true

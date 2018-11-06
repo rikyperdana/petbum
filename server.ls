@@ -55,6 +55,7 @@ if Meteor.isServer
 								nama_pasien: coll.pasien.findOne(_id)regis.nama_lengkap
 								no_mr: coll.pasien.findOne(_id)no_mr
 							_.assign batch, diapotik: batch.diapotik-1
+			# logika yg lebih ringan, hasil harapannya tetap sama
 			reducer = (res, inc) ->
 				find = res.find -> it.idbatch is inc.idbatch
 				if find then res.map (i) ->
@@ -72,3 +73,9 @@ if Meteor.isServer
 				source = coll.gudang.findOne idbarang .batch
 				sortedIn = _.sortBy source, (i) -> new Date i.masuk .getTime!
 				sortedEd = _.sortBy sortedIn, (i) -> new Date i.kadaluarsa .getTime!
+
+		icdX: ({rawat, pasien, icdx}) ->
+			coll.pasien.update pasien._id, $set: rawat:
+				coll.pasien.findOne(pasien._id)rawat.map (i) ->
+					unless i.idrawat is rawat.idrawat then i
+					else _.merge rawat, icdx: icdx
