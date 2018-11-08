@@ -241,8 +241,11 @@ if Meteor.isClient
 						_.every conds =
 							_.includes j.name, "#{normed name}."
 							getLen(name)+1 is getLen(j.name)
+							if theSchema(j.name)autoform
+								that.type isnt \hidden
+							else true
 					structure = -> _.chunk(it, opts.columns)map (i) ->
-						m \.columns, i.map (j) -> m \.column j
+						m \.columns, i.map (j) -> m \.column, j
 					m \.box,
 						m \h5, label
 						m \box, structure filtered.map (j) ->

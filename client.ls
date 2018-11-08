@@ -242,6 +242,7 @@ if Meteor.isClient
 						scope: \rawat
 						doc: that
 						buttonContent: \Tambahkan
+						columns: 3
 						hooks:
 							before: (doc, cb) ->
 								cb _.merge doc, petugas: "#{userGroup!}": Meteor.userId!
@@ -264,6 +265,7 @@ if Meteor.isClient
 						scope: \rawat
 						doc: that
 						buttonContent: 'Simpan'
+						columns: 3
 						hooks:
 							before: (doc, cb) -> Meteor.call \rmRawat, that._id, state.docRawat,
 								(err, res) -> res and cb _.merge doc.rawat.0,
@@ -447,6 +449,7 @@ if Meteor.isClient
 						type: \insert
 						id: \formFarmasi
 						buttonContent: \Simpan
+						columns: 3
 						hooks: after: ->
 							state.showForm = null
 							m.redraw!
@@ -496,6 +499,7 @@ if Meteor.isClient
 					doc: coll.gudang.findOne!
 					id: \formTambahObat
 					buttonContent: \Tambahkan
+					columns: 3
 					hooks: after: ->
 						Meteor.call \sortByDate, m.route.param \idbarang
 						state.showForm = null
@@ -547,6 +551,7 @@ if Meteor.isClient
 							meteormethod: \addRole
 							id: \formAddRole
 							buttonContent: \Beri
+							columns: 3
 							hooks:
 								before: (doc, cb) ->
 									cb _.merge doc, id: state.modal._id
