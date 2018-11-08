@@ -117,10 +117,10 @@ if Meteor.isClient
 			rows = _.compact _.flatten pasien.rawat.map (i) -> i.icdx?map (j, k) -> arr =
 				hari i.tanggal
 				look(\klinik, i.klinik)label
-				\-
+				Meteor.users.findOne(i.petugas.dokter)username
 				i.diagnosa[k]
 				\-
-				\-
+				Meteor.users.findOne(i.petugas.perawat)username
 				i.icdx[k]
 			console.log rows
 			pdfMake.createPdf content:

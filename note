@@ -1,3 +1,11 @@
+Nov 1st, 2018
+oke 1. Diagnosa dokter bisa lebih dari 1
+2. Pencarian pasien pada mr untuk view icdx-nya
+3. Report pdf untuk icdx pasien dengan bentuk
+   'Form Resume Rawat Jalan'
+   no_mr, nama_lengkap, tgl_lahir, umur
+   baris icdFields, icdnya
+
 Oct 28th, 2018
 pen 1. Bugs pada serah obat yg double
 2. Tampilkan semua pasien yang sudah dihandle dokter dan belum ada icd x
