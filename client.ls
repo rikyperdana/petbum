@@ -114,7 +114,8 @@ if Meteor.isClient
 				columns: 3
 				hooks:
 					before: (doc, cb) ->
-						cb _.merge doc, petugas: "#{userGroup!}": Meteor.userId!
+						cb _.merge doc, regis: petugas:
+							"#{userGroup!}": Meteor.userId!
 					after: (id) ->
 						state.showAddPatient = null
 						m.route.set "/regis/lama/#id"

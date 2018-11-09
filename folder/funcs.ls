@@ -236,14 +236,16 @@ if Meteor.isClient
 					m \p.help.is-danger, error if error
 
 				else if schema.type is Object
-					filtered = _.filter maped, (j) ->
+					reducer = (res, inc) ->
+						if inc.autoform?type is \hidden
+							[...res, inc]
+						else [inc, ...res]
+					sorted = maped.reverse!reduce reducer, []
+					filtered = _.filter sorted, (j) ->
 						getLen = (str) -> _.size _.split str, \.
 						_.every conds =
 							_.includes j.name, "#{normed name}."
 							getLen(name)+1 is getLen(j.name)
-							if theSchema(j.name)autoform
-								that.type isnt \hidden
-							else true
 					structure = -> _.chunk(it, opts.columns)map (i) ->
 						m \.columns, i.map (j) -> m \.column, j
 					m \.box,
