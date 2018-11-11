@@ -246,7 +246,17 @@ if Meteor.isClient
 						_.every conds =
 							_.includes j.name, "#{normed name}."
 							getLen(name)+1 is getLen(j.name)
-					structure = -> _.chunk(it, opts.columns)map (i) ->
+					chunk = ->
+						reducer = (res, inc) ->
+							if inc.type in [Object, Array]
+								[...res, [inc]]
+							else
+								[...first, last] = res
+								if last?length < opts.columns
+									[...first, [...last, inc]]
+								else [...res, [inc]]
+						it.reduce reducer, []
+					structure = -> chunk(it, opts.columns)map (i) ->
 						m \.columns, i.map (j) -> m \.column, j
 					m \.box,
 						m \h5, label

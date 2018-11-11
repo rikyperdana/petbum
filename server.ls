@@ -42,27 +42,23 @@ if Meteor.isServer
 					if i["id#scope"] is elmId then doc else i
 
 		serahObat: ({_id, obat}) ->
-			batches = []
+			batches = []; pasien = coll.pasien.findOne _id
 			for i in obat
-				drug = coll.gudang.findOne i.nama
-				for j in [til i.jumlah]
-					batch = drug.batch.find -> it.diapotik > 0
-					coll.gudang.update drug._id, $set: batch: drug.batch.map (k) ->
-						unless k.idbatch is batch.idbatch then k
-						else
-							batches.push do
-								jumlah: 1, nama_obat: drug.nama, nobatch: k.nobatch,
-								nama_pasien: coll.pasien.findOne(_id)regis.nama_lengkap
-								no_mr: coll.pasien.findOne(_id)no_mr
-							_.assign batch, diapotik: batch.diapotik-1
-			# logika yg lebih ringan, hasil harapannya tetap sama
-			reducer = (res, inc) ->
-				find = res.find -> it.idbatch is inc.idbatch
-				if find then res.map (i) ->
-					unless i.idbatch is inc.idbatch then i
-					else _.assign i, jumlah: i.jumlah+1
-				else res.push(inc) and res
-			batches.reduce reducer, []
+				reducer = (res, inc) -> arr =
+					...res
+					if i.jumlah < 1 then inc
+					else
+						batches.push do
+							jumlah: i.jumlah, nama_obat: inc.nama,
+							nobatch: inc.nobatch, no_mr: pasien.no_mr,
+							nama_pasien: pasien.regis.nama_lengkap
+						doc = _.assign {}, inc, diapotik:
+							inc.diapotik - (i.jumlah)
+						i.jumlah -= inc.diapotik
+						doc
+				coll.gudang.update i.nama, $set: batch:
+					coll.gudang.findOne(i.nama)batch.reduce reducer, []
+			batches
 
 		doneRekap: -> coll.rekap.update do
 			{printed: $exists: false}
