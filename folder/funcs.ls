@@ -250,25 +250,24 @@ if Meteor.isClient
 						type = j?autoform?type or \other
 						last = _.last _.split j.name, \.
 						inputTypes "#name.#last", j .[type]!
-					chunk = ->
-						reducer = (res, inc) ->
-							if inc.type in [Object, Array]
-								[...res, [inc]]
-							else
-								[...first, last] = res
-								if last?length < opts.columns
-									if last.0.type in [Object, Array]
-										[...res, [inc]]
-									else [...first, [...last, inc]]
-								else [...res, [inc]]
-						it.reduce reducer, []
-					structure = -> it.map (i) ->
-						m \.columns, i.map (j) -> m \.column, j
 					recDom = (i) ->
 						if _.isArray i then i.map -> recDom it
 						else dom i
+					chunk = ->
+						reducer = (res, inc) ->
+							end = -> [...res, [inc]]
+							if inc.type in [Object, Array] then end!
+							else
+								[...first, last] = res
+								unless last?length < opts.columns then end!
+								else
+									if last.0.type in [Object, Array] then end!
+									else [...first, [...last, inc]]
+						it.reduce reducer, []
+					structure = -> it.map (i) ->
+						m \.columns, i.map (j) -> m \.column, j
 					m \.box,
-						m \h5, label
+						unless +label then m \h5, label
 						m \.box, structure recDom chunk filtered
 
 				else if schema.type is Array
