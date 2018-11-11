@@ -114,7 +114,7 @@ schema.rawatRegis =
 schema.rawatNurse =
 	'rawat.$.anamesa_perawat': type: String, autoform: type: \textarea
 	'rawat.$.fisik': type: [new SimpleSchema schema.fisik], optional: true
-	'rawat.$.cara_masuk': type: Number, autoform: options: selects.cara_masuk
+	'rawat.$.cara_masuk': type: Number, autoform: options: selects.cara_masuk, firstLabel: 'Pilih Satu'
 	'rawat.$.rujukan': type: Number, autoform: options: selects.rujukan
 	'rawat.$.riwayat': type: Object, optional: true
 	'rawat.$.riwayat.kesehatan': type: Object, optional: true

@@ -196,7 +196,9 @@ if Meteor.isClient
 			select: -> m \div,
 				m \label.label, label
 				m \.select, m \select, attr.select(name),
-					m \option, value: '', _.startCase 'Select One'
+					m \option, value: '', ors arr =
+						theSchema(normed name)autoform?firstLabel
+						'Select One'
 					optionList(normed name)map (j) ->
 						m \option, value: j.value, _.startCase j.label
 				m \p.help.is-danger, error if error
@@ -236,12 +238,13 @@ if Meteor.isClient
 					m \p.help.is-danger, error if error
 
 				else if schema.type is Object
-					reducer = (res, inc) ->
-						if inc.autoform?type is \hidden
-							[...res, inc]
-						else [inc, ...res]
-					sorted = maped.reverse!reduce reducer, []
-					filtered = _.filter sorted, (j) ->
+					sorted = ->
+						reducer = (res, inc) ->
+							if inc.autoform?type is \hidden
+								[...res, inc]
+							else [inc, ...res]
+						maped.reverse!reduce reducer, []
+					filtered = sorted!filter (j) ->
 						getLen = (str) -> _.size _.split str, \.
 						_.every conds =
 							_.includes j.name, "#{normed name}."
