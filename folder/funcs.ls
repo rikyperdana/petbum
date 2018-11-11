@@ -246,24 +246,25 @@ if Meteor.isClient
 						_.every conds =
 							_.includes j.name, "#{normed name}."
 							getLen(name)+1 is getLen(j.name)
+					dom = (j) ->
+						type = j?autoform?type or \other
+						last = _.last _.split j.name, \.
+						inputTypes "#name.#last", j .[type]!
 					chunk = ->
 						reducer = (res, inc) ->
 							if inc.type in [Object, Array]
-								[...res, [inc]]
+								[...res, [dom inc]]
 							else
 								[...first, last] = res
 								if last?length < opts.columns
-									[...first, [...last, inc]]
-								else [...res, [inc]]
+									[...first, [...last, dom inc]]
+								else [...res, [dom inc]]
 						it.reduce reducer, []
-					structure = -> chunk(it, opts.columns)map (i) ->
+					structure = -> it.map (i) ->
 						m \.columns, i.map (j) -> m \.column, j
 					m \.box,
 						m \h5, label
-						m \box, structure filtered.map (j) ->
-							type = j?autoform?type or \other
-							last = _.last _.split j.name, \.
-							inputTypes "#name.#last", j .[type]!
+						m \.box, structure chunk filtered
 
 				else if schema.type is Array
 					found = maped.find -> it.name is "#{normed name}.$"
