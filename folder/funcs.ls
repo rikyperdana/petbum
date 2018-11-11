@@ -253,18 +253,23 @@ if Meteor.isClient
 					chunk = ->
 						reducer = (res, inc) ->
 							if inc.type in [Object, Array]
-								[...res, [dom inc]]
+								[...res, [inc]]
 							else
 								[...first, last] = res
 								if last?length < opts.columns
-									[...first, [...last, dom inc]]
-								else [...res, [dom inc]]
+									if last.0.type in [Object, Array]
+										[...res, [inc]]
+									else [...first, [...last, inc]]
+								else [...res, [inc]]
 						it.reduce reducer, []
 					structure = -> it.map (i) ->
 						m \.columns, i.map (j) -> m \.column, j
+					recDom = (i) ->
+						if _.isArray i then i.map -> recDom it
+						else dom i
 					m \.box,
 						m \h5, label
-						m \.box, structure chunk filtered
+						m \.box, structure recDom chunk filtered
 
 				else if schema.type is Array
 					found = maped.find -> it.name is "#{normed name}.$"
