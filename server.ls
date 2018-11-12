@@ -48,13 +48,14 @@ if Meteor.isServer
 					...res
 					if i.jumlah < 1 then inc
 					else
+						minim = -> min [i.jumlah, inc.diapotik]
 						batches.push do
-							jumlah: i.jumlah, nama_obat: inc.nama,
 							nobatch: inc.nobatch, no_mr: pasien.no_mr,
 							nama_pasien: pasien.regis.nama_lengkap
+							nama_obat: inc.nama, jumlah: minim!
 						doc = _.assign {}, inc, diapotik:
-							inc.diapotik - (i.jumlah)
-						i.jumlah -= inc.diapotik
+							inc.diapotik - minim!
+						i.jumlah -= minim!
 						doc
 				coll.gudang.update i.nama, $set: batch:
 					coll.gudang.findOne(i.nama)batch.reduce reducer, []

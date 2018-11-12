@@ -268,7 +268,9 @@ if Meteor.isClient
 									else [...first, [...last, inc]]
 						it.reduce reducer, []
 					structure = -> it.map (i) ->
-						m \.columns, i.map (j) -> m \.column, j
+						m \.columns, i.map (j) -> m \div,
+							class: \column unless j.attrs?type is \hidden
+							j
 					m \.box,
 						unless +label then m \h5, label
 						m \.box, structure recDom chunk filtered
