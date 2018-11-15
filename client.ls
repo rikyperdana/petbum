@@ -120,6 +120,14 @@ if Meteor.isClient
 						state.showAddPatient = null
 						m.route.set "/regis/lama/#id"
 			if userRole(\mr) then m \div,
+				m \br
+				m \form.columns,
+					onsubmit: (e) ->
+						e.preventDefault!
+						Meteor.call \onePasien, e.target.0.value, (err, res) ->
+							makePdf.icdx res if res
+					m \.column, m \input.input, type: \text, placeholder: 'No MR Pasien'
+					m \.column, m \input.button.is-primary, type: \submit, value: \Unduh
 				m \h5, 'Kodifikasi ICD 10'
 				m \table.table,
 					oncreate: -> Meteor.subscribe \coll, \pasien,

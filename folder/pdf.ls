@@ -111,9 +111,8 @@ if Meteor.isClient
 				.download \cetak_rekap.pdf
 				Meteor.call \doneRekap
 
-		icdx: (idpasien) ->
+		icdx: (pasien) ->
 			headers = <[tanggal klinik dokter diagnosa terapi perawat icdx]>
-			pasien = coll.pasien.findOne idpasien
 			rows = _.compact _.flatten pasien.rawat.map (i) -> i.icdx?map (j, k) -> arr =
 				hari i.tanggal
 				look(\klinik, i.klinik)label

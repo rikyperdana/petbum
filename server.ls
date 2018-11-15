@@ -76,3 +76,5 @@ if Meteor.isServer
 				coll.pasien.findOne(pasien._id)rawat.map (i) ->
 					unless i.idrawat is rawat.idrawat then i
 					else _.merge rawat, icdx: icdx
+
+		onePasien: -> coll.pasien.findOne no_mr: +it
