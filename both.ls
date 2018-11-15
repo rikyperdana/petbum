@@ -55,7 +55,7 @@ schema.obat =
 		type: String
 		autoform: type: \hidden
 		autoValue: -> randomId!
-	nama: type: String, autoform: options: selects.obat
+	nama: type: String, autoform: options: selects.gudang
 	puyer: type: String, optional: true
 	aturan: type: Object
 	'aturan.kali': type: Number
@@ -204,6 +204,25 @@ schema.farmasi = _.assign {}, schema.gudang,
 	'batch.$.anggaran': type: Number, autoform: options: selects.anggaran
 	'batch.$.pengadaan': type: Number
 
-<[ pasien gudang tarif rekap ]>map (i) ->
+schema.amprah =
+	nama: type: String, autoform: type: \select, options: selects.gudang
+	jumlah: type: Number
+	peminta:
+		type: String
+		autoform: type: \hidden
+		autoValue: -> Meteor.isClient and Meteor.userId!
+	ruangan:
+		type: String
+		autoform: type: \hidden
+		autoValue: -> Meteor.isClient and userGroup!
+
+schema.responAmprah =
+	diserah: type: Number
+	penyerah:
+		type: String
+		autoform: type: \hidden
+		autoValue: -> Meteor.isClient and Meteor.userId!
+
+<[ pasien gudang tarif rekap amprah ]>map (i) ->
 	coll[i] = new Meteor.Collection i
 	coll[i]allow _.merge ... <[ insert update remove ]>map -> "#it": -> true

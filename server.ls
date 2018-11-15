@@ -61,6 +61,9 @@ if Meteor.isServer
 					coll.gudang.findOne(i.nama)batch.reduce reducer, []
 			batches
 
+		serahAmprah: (doc) ->
+			coll.amprah.update doc._id, doc
+
 		doneRekap: -> coll.rekap.update do
 			{printed: $exists: false}
 			{$set: printed: new Date!}
