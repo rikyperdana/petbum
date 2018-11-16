@@ -121,7 +121,6 @@ if Meteor.isClient
 				\-
 				Meteor.users.findOne(i.petugas.perawat)username
 				i.icdx[k]
-			console.log rows
 			pdfMake.createPdf content:
 				[table: body: [headers, ...rows]]
 			.download "icdX_#{pasien.no_mr}.pdf"

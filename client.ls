@@ -481,13 +481,12 @@ if Meteor.isClient
 						confirm: \Yakin
 						action: -> coll.gudang.remove _id: state.modal._id
 			else m \div,
-				oncreate: -> Meteor.subscribe do
-					\coll, \gudang,
-					_id: m.route.param \idbarang
+				oncreate: -> Meteor.subscribe \coll, \gudang,
+					{_id: m.route.param \idbarang}
 					onReady: -> m.redraw!
 				m \h5, 'Rincian Obat'
 				m \table.table,
-					if coll.gudang.findOne! then [
+					if coll.gudang.findOne m.route.param \idbarang then [
 						[
 							{name: 'Nama Barang', cell: that.nama}
 							{name: 'Jenis Barang', cell: look(\barang, that.jenis)label}

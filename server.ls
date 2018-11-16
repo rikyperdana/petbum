@@ -62,7 +62,18 @@ if Meteor.isServer
 			batches
 
 		serahAmprah: (doc) ->
-			coll.amprah.update doc._id, doc
+			# coll.amprah.update doc._id, doc
+			stock = if doc.ruangan is \obat then \digudang else \diapotik
+			reducer = (res, inc) -> arr =
+				...res
+				if doc.diserah < 1 or inc[stock] < 1 then inc
+				else
+					minim = -> min [doc.diserah, inc[stock]]
+					obj = _.assign {}, inc, "#stock": inc[stock] - minim!
+					doc.diserah -= minim!
+					obj
+			coll.gudang.update doc.nama, $set: batch:
+				coll.gudang.findOne(doc.nama)batch.reduce reducer, []
 
 		doneRekap: -> coll.rekap.update do
 			{printed: $exists: false}

@@ -191,18 +191,18 @@ schema.farmasi = _.assign {}, schema.gudang,
 		autoform: type: \hidden
 		autoValue: -> randomId!
 	'batch.$.nobatch': type: String
-	'batch.$.merek': type: String
+	'batch.$.merek': type: String, optional: true
 	'batch.$.masuk': type: Date
 	'batch.$.kadaluarsa': type: Date
 	'batch.$.digudang': type: Number
 	'batch.$.diapotik': type: Number, autoValue: -> 0
-	'batch.$.diretur': type: Boolean, optional: true
-	'batch.$.beli': type: Number, decimal: true
-	'batch.$.jual': type: Number, decimal: true
-	'batch.$.suplier': type: String
+	'batch.$.diretur': type: Boolean, optional: true, autoform: type: \hidden
+	'batch.$.beli': type: Number, decimal: true, optional: true
+	'batch.$.jual': type: Number, decimal: true, optional: true
+	'batch.$.suplier': type: String, optional: true
 	'batch.$.returnable': type: Boolean, optional: true
 	'batch.$.anggaran': type: Number, autoform: options: selects.anggaran
-	'batch.$.pengadaan': type: Number
+	'batch.$.pengadaan': type: Number, optional: true
 
 schema.amprah =
 	nama: type: String, autoform: type: \select, options: selects.gudang
