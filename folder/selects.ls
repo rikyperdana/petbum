@@ -37,6 +37,7 @@ selects.tindakan = -> if Meteor.isClient
 	coll.tarif?find!fetch!map ->
 		value: it._id, label: it.nama
 
-selects.obat = -> if Meteor.isClient
-	coll.gudang.find!fetch!map ->
-		value: it._id, label: it.nama
+selects.gudang = -> if Meteor.isClient
+	_.compact coll.gudang.find!fetch!map (i) ->
+		type = if currentRoute! is \amprah then [4] else [1 2 3]
+		if i.jenis in type then value: i._id, label: i.nama

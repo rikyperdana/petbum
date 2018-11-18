@@ -42,27 +42,36 @@ if Meteor.isServer
 					if i["id#scope"] is elmId then doc else i
 
 		serahObat: ({_id, obat}) ->
-			batches = []
+			batches = []; pasien = coll.pasien.findOne _id
 			for i in obat
-				drug = coll.gudang.findOne i.nama
-				for j in [til i.jumlah]
-					batch = drug.batch.find -> it.diapotik > 0
-					coll.gudang.update drug._id, $set: batch: drug.batch.map (k) ->
-						unless k.idbatch is batch.idbatch then k
+				coll.gudang.update i.nama, $set: batch: reduce [],
+					coll.gudang.findOne(i.nama)batch, (res, inc) -> arr =
+						...res
+						if i.jumlah < 1 then inc
 						else
+							minim = -> min [i.jumlah, inc.diapotik]
 							batches.push do
-								jumlah: 1, nama_obat: drug.nama, nobatch: k.nobatch,
-								nama_pasien: coll.pasien.findOne(_id)regis.nama_lengkap
-								no_mr: coll.pasien.findOne(_id)no_mr
-							_.assign batch, diapotik: batch.diapotik-1
-			# logika yg lebih ringan, hasil harapannya tetap sama
-			reducer = (res, inc) ->
-				find = res.find -> it.idbatch is inc.idbatch
-				if find then res.map (i) ->
-					unless i.idbatch is inc.idbatch then i
-					else _.assign i, jumlah: i.jumlah+1
-				else res.push(inc) and res
-			batches.reduce reducer, []
+								nobatch: inc.nobatch, no_mr: pasien.no_mr,
+								nama_pasien: pasien.regis.nama_lengkap
+								nama_obat: inc.nama, jumlah: minim!
+							doc = _.assign {}, inc, diapotik:
+								inc.diapotik - minim!
+							i.jumlah -= minim!
+							doc
+			batches
+
+		serahAmprah: (doc) ->
+			coll.amprah.update doc._id, doc
+			stock = if doc.ruangan is \obat then \digudang else \diapotik
+			coll.gudang.update doc.nama, $set: batch: reduce [],
+				coll.gudang.findOne(doc.nama)batch, (res, inc) -> arr =
+					...res
+					if doc.diserah < 1 or inc[stock] < 1 then inc
+					else
+						minim = -> min [doc.diserah, inc[stock]]
+						obj = _.assign {}, inc, "#stock": inc[stock] - minim!
+						doc.diserah -= minim!
+						obj
 
 		doneRekap: -> coll.rekap.update do
 			{printed: $exists: false}
@@ -79,3 +88,5 @@ if Meteor.isServer
 				coll.pasien.findOne(pasien._id)rawat.map (i) ->
 					unless i.idrawat is rawat.idrawat then i
 					else _.merge rawat, icdx: icdx
+
+		onePasien: -> coll.pasien.findOne no_mr: +it

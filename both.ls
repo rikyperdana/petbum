@@ -55,7 +55,7 @@ schema.obat =
 		type: String
 		autoform: type: \hidden
 		autoValue: -> randomId!
-	nama: type: String, autoform: options: selects.obat
+	nama: type: String, autoform: options: selects.gudang
 	puyer: type: String, optional: true
 	aturan: type: Object
 	'aturan.kali': type: Number
@@ -114,7 +114,7 @@ schema.rawatRegis =
 schema.rawatNurse =
 	'rawat.$.anamesa_perawat': type: String, autoform: type: \textarea
 	'rawat.$.fisik': type: [new SimpleSchema schema.fisik], optional: true
-	'rawat.$.cara_masuk': type: Number, autoform: options: selects.cara_masuk
+	'rawat.$.cara_masuk': type: Number, autoform: options: selects.cara_masuk, firstLabel: 'Pilih Satu'
 	'rawat.$.rujukan': type: Number, autoform: options: selects.rujukan
 	'rawat.$.riwayat': type: Object, optional: true
 	'rawat.$.riwayat.kesehatan': type: Object, optional: true
@@ -191,19 +191,38 @@ schema.farmasi = _.assign {}, schema.gudang,
 		autoform: type: \hidden
 		autoValue: -> randomId!
 	'batch.$.nobatch': type: String
-	'batch.$.merek': type: String
+	'batch.$.merek': type: String, optional: true
 	'batch.$.masuk': type: Date
 	'batch.$.kadaluarsa': type: Date
 	'batch.$.digudang': type: Number
 	'batch.$.diapotik': type: Number, autoValue: -> 0
-	'batch.$.diretur': type: Boolean, optional: true
-	'batch.$.beli': type: Number, decimal: true
-	'batch.$.jual': type: Number, decimal: true
-	'batch.$.suplier': type: String
+	'batch.$.diretur': type: Boolean, optional: true, autoform: type: \hidden
+	'batch.$.beli': type: Number, decimal: true, optional: true
+	'batch.$.jual': type: Number, decimal: true, optional: true
+	'batch.$.suplier': type: String, optional: true
 	'batch.$.returnable': type: Boolean, optional: true
 	'batch.$.anggaran': type: Number, autoform: options: selects.anggaran
-	'batch.$.pengadaan': type: Number
+	'batch.$.pengadaan': type: Number, optional: true
 
-<[ pasien gudang tarif rekap ]>map (i) ->
+schema.amprah =
+	nama: type: String, autoform: type: \select, options: selects.gudang
+	jumlah: type: Number
+	peminta:
+		type: String
+		autoform: type: \hidden
+		autoValue: -> Meteor.isClient and Meteor.userId!
+	ruangan:
+		type: String
+		autoform: type: \hidden
+		autoValue: -> Meteor.isClient and userGroup!
+
+schema.responAmprah =
+	diserah: type: Number
+	penyerah:
+		type: String
+		autoform: type: \hidden
+		autoValue: -> Meteor.isClient and Meteor.userId!
+
+<[ pasien gudang tarif rekap amprah ]>map (i) ->
 	coll[i] = new Meteor.Collection i
 	coll[i]allow _.merge ... <[ insert update remove ]>map -> "#it": -> true

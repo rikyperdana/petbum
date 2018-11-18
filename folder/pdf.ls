@@ -111,9 +111,8 @@ if Meteor.isClient
 				.download \cetak_rekap.pdf
 				Meteor.call \doneRekap
 
-		icdx: (idpasien) ->
+		icdx: (pasien) ->
 			headers = <[tanggal klinik dokter diagnosa terapi perawat icdx]>
-			pasien = coll.pasien.findOne idpasien
 			rows = _.compact _.flatten pasien.rawat.map (i) -> i.icdx?map (j, k) -> arr =
 				hari i.tanggal
 				look(\klinik, i.klinik)label
@@ -122,7 +121,6 @@ if Meteor.isClient
 				\-
 				Meteor.users.findOne(i.petugas.perawat)username
 				i.icdx[k]
-			console.log rows
 			pdfMake.createPdf content:
 				[table: body: [headers, ...rows]]
 			.download "icdX_#{pasien.no_mr}.pdf"

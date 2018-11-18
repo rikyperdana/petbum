@@ -2,6 +2,9 @@
 @look2 = (list, id) -> coll[list]find!fetch!find -> it._id is id
 @randomId = -> Math.random!toString 36 .slice 2
 @zeros = -> \0 * (6 - it.toString!length) + it
+@min = -> reduce it, (res, inc) -> if inc < res then inc else res
+@max = -> reduce it, (res, inc) -> if inc > res then inc else res
+@abs = -> Math.sqrt Math.pow it, 2
 @monthDiff = (date) ->
 	diff = date.getTime! - (new Date!)getTime!
 	diff /= 1000ms * 60sec * 60min * 24hour * 7day * 4week

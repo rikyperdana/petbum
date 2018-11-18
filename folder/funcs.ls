@@ -2,9 +2,16 @@
 @coll = {}; @schema = {}; @afState = {};
 @ors = -> it.find -> it
 @ands = -> _.last it if _.every it
-@same = (...args) -> args.reduce do
-	(res, acc) -> res if acc is res
-	args.0
+@bool = -> !!it
+@values = Object.values
+@reduce = (...params) ->
+	if params.length is 2
+		(values params.0)reduce params.1
+	else if params.length is 3
+		(values params.1)reduce params.2, params.0
+	else 'your arguments are invalid'
+@same = -> bool reduce it, (res, inc) -> inc if res is inc
+@reverse = -> reduce [], it, (res, inc) -> [inc, ...res]
 
 if Meteor.isClient
 	@m = require \mithril
@@ -41,11 +48,10 @@ if Meteor.isClient
 		state = afState
 
 		scope = if opts.scope then new SimpleSchema do ->
-			reducer = (res, val, key) ->
+			reduce {}, opts.schema._schema, (res, val, key) ->
 				if new RegExp("^#that")test key
 					_.merge res, "#key": val
 				else res
-			_.reduce opts.schema._schema, reducer, {}
 
 		usedSchema = scope or opts.schema
 		theSchema = (name) -> usedSchema._schema[name]
@@ -196,7 +202,9 @@ if Meteor.isClient
 			select: -> m \div,
 				m \label.label, label
 				m \.select, m \select, attr.select(name),
-					m \option, value: '', _.startCase 'Select One'
+					m \option, value: '', ors arr =
+						theSchema(normed name)autoform?firstLabel
+						'Select One'
 					optionList(normed name)map (j) ->
 						m \option, value: j.value, _.startCase j.label
 				m \p.help.is-danger, error if error
@@ -236,24 +244,37 @@ if Meteor.isClient
 					m \p.help.is-danger, error if error
 
 				else if schema.type is Object
-					reducer = (res, inc) ->
-						if inc.autoform?type is \hidden
-							[...res, inc]
+					sorted = -> reduce [], reverse(maped), (res, inc) ->
+						if inc.autoform?type is \hidden then [...res, inc]
 						else [inc, ...res]
-					sorted = maped.reverse!reduce reducer, []
-					filtered = _.filter sorted, (j) ->
+					filtered = sorted!filter (j) ->
 						getLen = (str) -> _.size _.split str, \.
 						_.every conds =
 							_.includes j.name, "#{normed name}."
 							getLen(name)+1 is getLen(j.name)
-					structure = -> _.chunk(it, opts.columns)map (i) ->
-						m \.columns, i.map (j) -> m \.column, j
+					dom = (j) ->
+						type = j?autoform?type or \other
+						last = _.last _.split j.name, \.
+						inputTypes "#name.#last", j .[type]!
+					recDom = (i) ->
+						if _.isArray i then i.map -> recDom it
+						else dom i
+					chunk = -> reduce [], it, (res, inc) ->
+						end = -> [...res, [inc]]
+						if inc.type in [Object, Array] then end!
+						else
+							[...first, last] = res
+							unless last?length < opts.columns then end!
+							else
+								if last.0.type in [Object, Array] then end!
+								else [...first, [...last, inc]]
+					structure = -> it.map (i) ->
+						m \.columns, i.map (j) -> m \div,
+							class: \column unless j.attrs?type is \hidden
+							j
 					m \.box,
-						m \h5, label
-						m \box, structure filtered.map (j) ->
-							type = j?autoform?type or \other
-							last = _.last _.split j.name, \.
-							inputTypes "#name.#last", j .[type]!
+						unless +label then m \h5, label
+						m \.box, structure recDom chunk filtered
 
 				else if schema.type is Array
 					found = maped.find -> it.name is "#{normed name}.$"

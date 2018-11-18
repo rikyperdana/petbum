@@ -40,6 +40,7 @@ if Meteor.isClient
 			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
 		farmasi: fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
 		manajemen: headers: tarif: <[ nama jenis harga grup active ]>
+		amprah: headers: requests: <[ ruangan peminta jumlah nama_barang penyerah diserah ]>
 
 	comp =
 		layout: (comp) ->
@@ -120,6 +121,14 @@ if Meteor.isClient
 						state.showAddPatient = null
 						m.route.set "/regis/lama/#id"
 			if userRole(\mr) then m \div,
+				m \br
+				m \form.columns,
+					onsubmit: (e) ->
+						e.preventDefault!
+						Meteor.call \onePasien, e.target.0.value, (err, res) ->
+							makePdf.icdx res if res
+					m \.column, m \input.input, type: \text, placeholder: 'No MR Pasien'
+					m \.column, m \input.button.is-primary, type: \submit, value: \Unduh
 				m \h5, 'Kodifikasi ICD 10'
 				m \table.table,
 					oncreate: -> Meteor.subscribe \coll, \pasien,
@@ -472,13 +481,12 @@ if Meteor.isClient
 						confirm: \Yakin
 						action: -> coll.gudang.remove _id: state.modal._id
 			else m \div,
-				oncreate: -> Meteor.subscribe do
-					\coll, \gudang,
-					_id: m.route.param \idbarang
+				oncreate: -> Meteor.subscribe \coll, \gudang,
+					{_id: m.route.param \idbarang}
 					onReady: -> m.redraw!
 				m \h5, 'Rincian Obat'
 				m \table.table,
-					if coll.gudang.findOne! then [
+					if coll.gudang.findOne m.route.param \idbarang then [
 						[
 							{name: 'Nama Barang', cell: that.nama}
 							{name: 'Jenis Barang', cell: look(\barang, that.jenis)label}
@@ -626,6 +634,48 @@ if Meteor.isClient
 					m \tbody, pagins(coll.tarif.find!fetch!)map (i) -> m \tr,
 						attr.manajemen.headers.tarif.map (j) -> m \td, _.startCase i[j]
 				elem.pagins!
+		amprah: -> view: -> m \.content,
+			oncreate: -> Meteor.subscribe \coll, \gudang, {jenis: 4}, onReady: -> m.redraw!
+			m \h5, 'Form Amprah'
+			unless userGroup! is \farmasi then m autoForm do
+				collection: coll.amprah
+				schema: new SimpleSchema schema.amprah
+				type: \insert
+				id: \formAmprah
+			m \br
+			m \h5, 'Daftar Amprah'
+			m \table.table,
+				oncreate: ->
+					cond = ->
+						if userGroup! is \obat then penyerah: $exists: false
+						else if userGroup is \farmasi then ruangan: \apotik
+						else ruangan: userGroup!
+					Meteor.subscribe \coll, \amprah, cond!, onReady: -> m.redraw!
+				m \thead, m \tr,
+					attr.amprah.headers.requests.map (i) -> m \th, _.startCase i
+					if userGroup! is \obat then m \th, \Serah
+				m \tbody, coll.amprah.find!fetch!map (i) -> m \tr, tds arr =
+					_.startCase i.ruangan
+					_.startCase (.username) Meteor.users.findOne i.peminta
+					"#{i.jumlah} unit"
+					look2(\gudang, i.nama)nama
+					if i.penyerah
+						_.startCase (.username) Meteor.users.findOne that
+					if i.diserah then "#that unit"
+					if not i.diserah and userGroup! in <[ obat farmasi ]>
+						m \.button.is-primary,
+							onclick: -> state.modal = i
+							m \span, \Serah
+			if state.modal then elem.modal do
+				title: 'Respon Amprah'
+				content: m autoForm do
+					schema: new SimpleSchema schema.responAmprah
+					id: \formResponAmprah
+					type: \method
+					meteormethod: \serahAmprah
+					hooks:
+						before: (doc, cb) -> cb _.merge doc, that
+						after: -> console.log \sudah
 
 	m.route.prefix ''
 	m.route document.body, \/dashboard,
