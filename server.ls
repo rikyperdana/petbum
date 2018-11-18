@@ -44,36 +44,34 @@ if Meteor.isServer
 		serahObat: ({_id, obat}) ->
 			batches = []; pasien = coll.pasien.findOne _id
 			for i in obat
-				reducer = (res, inc) -> arr =
-					...res
-					if i.jumlah < 1 then inc
-					else
-						minim = -> min [i.jumlah, inc.diapotik]
-						batches.push do
-							nobatch: inc.nobatch, no_mr: pasien.no_mr,
-							nama_pasien: pasien.regis.nama_lengkap
-							nama_obat: inc.nama, jumlah: minim!
-						doc = _.assign {}, inc, diapotik:
-							inc.diapotik - minim!
-						i.jumlah -= minim!
-						doc
-				coll.gudang.update i.nama, $set: batch:
-					coll.gudang.findOne(i.nama)batch.reduce reducer, []
+				coll.gudang.update i.nama, $set: batch: reduce [],
+					coll.gudang.findOne(i.nama)batch, (res, inc) -> arr =
+						...res
+						if i.jumlah < 1 then inc
+						else
+							minim = -> min [i.jumlah, inc.diapotik]
+							batches.push do
+								nobatch: inc.nobatch, no_mr: pasien.no_mr,
+								nama_pasien: pasien.regis.nama_lengkap
+								nama_obat: inc.nama, jumlah: minim!
+							doc = _.assign {}, inc, diapotik:
+								inc.diapotik - minim!
+							i.jumlah -= minim!
+							doc
 			batches
 
 		serahAmprah: (doc) ->
-			# coll.amprah.update doc._id, doc
+			coll.amprah.update doc._id, doc
 			stock = if doc.ruangan is \obat then \digudang else \diapotik
-			reducer = (res, inc) -> arr =
-				...res
-				if doc.diserah < 1 or inc[stock] < 1 then inc
-				else
-					minim = -> min [doc.diserah, inc[stock]]
-					obj = _.assign {}, inc, "#stock": inc[stock] - minim!
-					doc.diserah -= minim!
-					obj
-			coll.gudang.update doc.nama, $set: batch:
-				coll.gudang.findOne(doc.nama)batch.reduce reducer, []
+			coll.gudang.update doc.nama, $set: batch: reduce [],
+				coll.gudang.findOne(doc.nama)batch, (res, inc) -> arr =
+					...res
+					if doc.diserah < 1 or inc[stock] < 1 then inc
+					else
+						minim = -> min [doc.diserah, inc[stock]]
+						obj = _.assign {}, inc, "#stock": inc[stock] - minim!
+						doc.diserah -= minim!
+						obj
 
 		doneRekap: -> coll.rekap.update do
 			{printed: $exists: false}

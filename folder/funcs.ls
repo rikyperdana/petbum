@@ -2,9 +2,16 @@
 @coll = {}; @schema = {}; @afState = {};
 @ors = -> it.find -> it
 @ands = -> _.last it if _.every it
-@same = (...args) -> args.reduce do
-	(res, acc) -> res if acc is res
-	args.0
+@bool = -> !!it
+@values = Object.values
+@reduce = (...params) ->
+	if params.length is 2
+		(values params.0)reduce params.1
+	else if params.length is 3
+		(values params.1)reduce params.2, params.0
+	else 'your arguments are invalid'
+@same = -> bool reduce it, (res, inc) -> inc if res is inc
+@reverse = -> reduce [], it, (res, inc) -> [inc, ...res]
 
 if Meteor.isClient
 	@m = require \mithril
@@ -41,11 +48,10 @@ if Meteor.isClient
 		state = afState
 
 		scope = if opts.scope then new SimpleSchema do ->
-			reducer = (res, val, key) ->
+			reduce {}, opts.schema._schema, (res, val, key) ->
 				if new RegExp("^#that")test key
 					_.merge res, "#key": val
 				else res
-			_.reduce opts.schema._schema, reducer, {}
 
 		usedSchema = scope or opts.schema
 		theSchema = (name) -> usedSchema._schema[name]
@@ -238,12 +244,9 @@ if Meteor.isClient
 					m \p.help.is-danger, error if error
 
 				else if schema.type is Object
-					sorted = ->
-						reducer = (res, inc) ->
-							if inc.autoform?type is \hidden
-								[...res, inc]
-							else [inc, ...res]
-						maped.reverse!reduce reducer, []
+					sorted = -> reduce [], reverse(maped), (res, inc) ->
+						if inc.autoform?type is \hidden then [...res, inc]
+						else [inc, ...res]
 					filtered = sorted!filter (j) ->
 						getLen = (str) -> _.size _.split str, \.
 						_.every conds =
@@ -256,17 +259,15 @@ if Meteor.isClient
 					recDom = (i) ->
 						if _.isArray i then i.map -> recDom it
 						else dom i
-					chunk = ->
-						reducer = (res, inc) ->
-							end = -> [...res, [inc]]
-							if inc.type in [Object, Array] then end!
+					chunk = -> reduce [], it, (res, inc) ->
+						end = -> [...res, [inc]]
+						if inc.type in [Object, Array] then end!
+						else
+							[...first, last] = res
+							unless last?length < opts.columns then end!
 							else
-								[...first, last] = res
-								unless last?length < opts.columns then end!
-								else
-									if last.0.type in [Object, Array] then end!
-									else [...first, [...last, inc]]
-						it.reduce reducer, []
+								if last.0.type in [Object, Array] then end!
+								else [...first, [...last, inc]]
 					structure = -> it.map (i) ->
 						m \.columns, i.map (j) -> m \div,
 							class: \column unless j.attrs?type is \hidden
