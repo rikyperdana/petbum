@@ -48,10 +48,11 @@ if Meteor.isClient
 		state = afState
 
 		scope = if opts.scope then new SimpleSchema do ->
-			reduce {}, opts.schema._schema, (res, val, key) ->
+			reducer = (res, val, key) ->
 				if new RegExp("^#that")test key
 					_.merge res, "#key": val
 				else res
+			_.reduce opts.schema._schema, reducer, {}
 
 		usedSchema = scope or opts.schema
 		theSchema = (name) -> usedSchema._schema[name]
@@ -97,7 +98,7 @@ if Meteor.isClient
 
 				onsubmit: (e) ->
 					e.preventDefault!
-					temp = state.temp[opts.id]map (i) -> "#{i.name}": i.value
+					temp = state.temp[opts.id]map -> "#{it.name}": it.value
 					formFields = _.filter e.target, (i) ->
 						a = -> (i.value isnt \on) and i.name
 						arr = <[ radio checkbox select ]>
@@ -124,7 +125,7 @@ if Meteor.isClient
 						insert: -> opts.collection.insert (doc or obj), after
 						update: -> opts.collection.update do
 							{_id: abnDoc._id}, {$set: (doc or obj)}, after
-						method: -> Meteor.call opts.meteormethod, (doc or obj)
+						method: -> Meteor.call opts.meteormethod, (doc or obj), after
 						'update-pushArray': -> opts.collection.update do
 							{_id: abnDoc._id}
 							{$push: "#{opts.scope}": $each: _.values obj[opts.scope]}
@@ -153,8 +154,7 @@ if Meteor.isClient
 						theVal it.attributes.data.nodeValue
 				checked:
 					if stateTempGet(name)
-						value.toString! in _.map stateTempGet(name)value,
-							-> it.toString!
+						value.toString! in _.map stateTempGet(name)value, -> it.toString!
 					else if abnDoc?["#name.0"]
 						value.toString! in _.compact _.map abnDoc,
 							(val, key) -> val.toString! if _.includes key, name
