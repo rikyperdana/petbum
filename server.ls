@@ -69,7 +69,10 @@ if Meteor.isServer
 					if doc.diserah < 1 or inc[stock] < 1 then inc
 					else
 						minim = -> min [doc.diserah, inc[stock]]
-						obj = _.assign {}, inc, "#stock": inc[stock] - minim!
+						obj = _.assign {}, inc,
+							"#stock": inc[stock] - minim!
+							if stock is \digudang then diapotik:
+								inc[\diapotik] + minim!
 						doc.diserah -= minim!
 						obj
 

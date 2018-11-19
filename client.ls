@@ -40,7 +40,14 @@ if Meteor.isClient
 			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
 		farmasi: fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
 		manajemen: headers: tarif: <[ nama jenis harga grup active ]>
-		amprah: headers: requests: <[ ruangan peminta jumlah nama_barang penyerah diserah ]>
+		amprah:
+			headers: requests: <[ ruangan peminta jumlah nama_barang penyerah diserah ]>
+			amprahList: -> coll.amprah.find!fetch!filter (i) ->
+				if userGroup \farmasi then i.ruangan is \obat else i
+			buttonConds: (obj) -> ands arr =
+				not obj.diserah
+				userGroup! in <[obat farmasi]>
+				not same [userGroup!, obj.ruangan]
 
 	comp =
 		layout: (comp) ->
@@ -642,6 +649,7 @@ if Meteor.isClient
 				schema: new SimpleSchema schema.amprah
 				type: \insert
 				id: \formAmprah
+				columns: 2
 			m \br
 			m \h5, 'Daftar Amprah'
 			m \table.table,
@@ -654,7 +662,7 @@ if Meteor.isClient
 				m \thead, m \tr,
 					attr.amprah.headers.requests.map (i) -> m \th, _.startCase i
 					if userGroup! is \obat then m \th, \Serah
-				m \tbody, coll.amprah.find!fetch!map (i) -> m \tr, tds arr =
+				m \tbody, attr.amprah.amprahList!map (i) -> m \tr, tds arr =
 					_.startCase i.ruangan
 					_.startCase (.username) Meteor.users.findOne i.peminta
 					"#{i.jumlah} unit"
@@ -662,7 +670,7 @@ if Meteor.isClient
 					if i.penyerah
 						_.startCase (.username) Meteor.users.findOne that
 					if i.diserah then "#that unit"
-					if not i.diserah and userGroup! in <[ obat farmasi ]>
+					if attr.amprah.buttonConds(i)
 						m \.button.is-primary,
 							onclick: -> state.modal = i
 							m \span, \Serah
