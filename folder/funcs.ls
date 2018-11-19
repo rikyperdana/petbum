@@ -165,10 +165,10 @@ if Meteor.isClient
 				state.arrLen[name] += num[type]
 
 		columnize = ->
+			console.log it
 			dom = (j) ->
 				type = j?autoform?type or \other
 				split = _.split j.name, \.
-				console.log split
 				title = ->
 					if split.length is 1 then j.head
 					else "#{j.head}.#{_.last split}"
@@ -298,9 +298,12 @@ if Meteor.isClient
 						m \p.help.is-danger, error if error
 
 		view: -> m \form, attr.form,
-			m \.row, usedFields.map (i) ->
-				type = theSchema(i)?autoform?type or \other
-				inputTypes(i, theSchema i)[type]!
+			#m \.row, usedFields.map (i) ->
+			#	type = theSchema(i)?autoform?type or \other
+			#	inputTypes(i, theSchema i)[type]!
+
+			m \.row, columnize usedFields.map (i) ->
+				_.merge theSchema(i), name: i, head: i
 
 			m \.row, m \.columns,
 				m \.column.is-1, m \input.button.is-primary,
