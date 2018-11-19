@@ -297,11 +297,7 @@ if Meteor.isClient
 							inputTypes "#name.#num", found .[type]!
 						m \p.help.is-danger, error if error
 
-		view: -> m \form, attr.form,
-			#m \.row, usedFields.map (i) ->
-			#	type = theSchema(i)?autoform?type or \other
-			#	inputTypes(i, theSchema i)[type]!
-
+		view: -> m \.box, m \form, attr.form,
 			m \.row, columnize usedFields.map (i) ->
 				_.merge theSchema(i), name: i, head: i
 
