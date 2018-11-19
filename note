@@ -1,7 +1,13 @@
+Nov 19th, 2018
+1. Setiap baris form resume rawat jalan mewakili 1x rawat
+2. Autoclose modal responAmprah
+3. Farmasi hanya bisa lihat list request apotik
+4. Stok apotik seharusnya bertambah jika amprah direspon farmasi
+
 Nov 1st, 2018
 oke 1. Diagnosa dokter bisa lebih dari 1
-2. Pencarian pasien pada mr untuk view icdx-nya
-3. Report pdf untuk icdx pasien dengan bentuk
+no 2. Pencarian pasien pada mr untuk view icdx-nya
+oke 3. Report pdf untuk icdx pasien dengan bentuk
    'Form Resume Rawat Jalan'
    no_mr, nama_lengkap, tgl_lahir, umur
    baris icdFields, icdnya

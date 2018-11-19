@@ -129,7 +129,7 @@ if Meteor.isClient
 					hari pasien.regis.tgl_lahir
 					look(\kelamin, pasien.regis.kelamin)label
 			pdfMake.createPdf content: arr =
-				{text: 'ICD 10 Pasien', alignment: \center}
+				{text: 'FORM RESUME RAWAT JALAN', alignment: \center}
 				'\n\n'
 				{columns: columns}
 				'\n\n'

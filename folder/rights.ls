@@ -32,7 +32,7 @@ if Meteor.isClient
 		list: [\manajemen]
 	,
 		group: \farmasi
-		list: [\farmasi]
+		list: <[farmasi amprah]>
 	]
 
 	_.map rights, (i) -> _.assign i,
