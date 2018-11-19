@@ -112,7 +112,7 @@ if Meteor.isClient
 				Meteor.call \doneRekap
 
 		icdx: (pasien) ->
-			headers = <[tanggal klinik dokter diagnosa terapi perawat icdx]>
+			headers = <[tanggal klinik dokter diagnosa terapi perawat icd10]>
 			rows = _.compact _.flatten pasien.rawat.map (i) -> i.icdx?map (j, k) -> arr =
 				hari i.tanggal
 				look(\klinik, i.klinik)label
@@ -121,6 +121,17 @@ if Meteor.isClient
 				\-
 				Meteor.users.findOne(i.petugas.perawat)username
 				i.icdx[k]
-			pdfMake.createPdf content:
-				[table: body: [headers, ...rows]]
+			columns = arr =
+				['NO. MR', 'NAMA LENGKAP', 'TANGGAL LAHIR', 'JENIS KELAMIN']
+				arr =
+					pasien.no_mr.toString!
+					pasien.regis.nama_lengkap
+					hari pasien.regis.tgl_lahir
+					look(\kelamin, pasien.regis.kelamin)label
+			pdfMake.createPdf content: arr =
+				{text: 'ICD 10 Pasien', alignment: \center}
+				'\n\n'
+				{columns: columns}
+				'\n\n'
+				{table: body: [headers.map(-> _.startCase it), ...rows]}
 			.download "icdX_#{pasien.no_mr}.pdf"
