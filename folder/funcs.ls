@@ -164,6 +164,29 @@ if Meteor.isClient
 				num = inc: 1, dec: -1
 				state.arrLen[name] += num[type]
 
+		columnize = ->
+			dom = (j) ->
+				type = j?autoform?type or \other
+				last = _.last _.split j.name, \.
+				inputTypes "#{j.head}.#last", j .[type]!
+			recDom = (i) ->
+				if _.isArray i then i.map -> recDom it
+				else dom i
+			chunk = -> reduce [], it, (res, inc) ->
+				end = -> [...res, [inc]]
+				if inc.type in [Object, Array] then end!
+				else
+					[...first, last] = res
+					unless last?length < opts.columns then end!
+					else
+						if last.0.type in [Object, Array] then end!
+						else [...first, [...last, inc]]
+			structure = -> it.map (i) ->
+				m \.columns, i.map (j) -> m \div,
+					class: \column unless j.attrs?type is \hidden
+					j
+			structure recDom chunk it
+
 		inputTypes = (name, schema) ->
 			label =
 				theSchema(name)?label
@@ -252,29 +275,9 @@ if Meteor.isClient
 						_.every conds =
 							_.includes j.name, "#{normed name}."
 							getLen(name)+1 is getLen(j.name)
-					dom = (j) ->
-						type = j?autoform?type or \other
-						last = _.last _.split j.name, \.
-						inputTypes "#name.#last", j .[type]!
-					recDom = (i) ->
-						if _.isArray i then i.map -> recDom it
-						else dom i
-					chunk = -> reduce [], it, (res, inc) ->
-						end = -> [...res, [inc]]
-						if inc.type in [Object, Array] then end!
-						else
-							[...first, last] = res
-							unless last?length < opts.columns then end!
-							else
-								if last.0.type in [Object, Array] then end!
-								else [...first, [...last, inc]]
-					structure = -> it.map (i) ->
-						m \.columns, i.map (j) -> m \div,
-							class: \column unless j.attrs?type is \hidden
-							j
 					m \.box,
 						unless +label then m \h5, label
-						m \.box, structure recDom chunk filtered
+						m \.box, columnize filtered.map -> _.merge it, head: name
 
 				else if schema.type is Array
 					found = maped.find -> it.name is "#{normed name}.$"
