@@ -167,8 +167,12 @@ if Meteor.isClient
 		columnize = ->
 			dom = (j) ->
 				type = j?autoform?type or \other
-				last = _.last _.split j.name, \.
-				inputTypes "#{j.head}.#last", j .[type]!
+				split = _.split j.name, \.
+				console.log split
+				title = ->
+					if split.length is 1 then j.head
+					else "#{j.head}.#{_.last split}"
+				inputTypes title!, j .[type]!
 			recDom = (i) ->
 				if _.isArray i then i.map -> recDom it
 				else dom i
