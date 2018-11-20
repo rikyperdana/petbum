@@ -154,7 +154,7 @@ if Meteor.isClient
 						theVal it.attributes.data.nodeValue
 				checked:
 					if stateTempGet(name)
-						value.toString! in _.map stateTempGet(name)value, -> it.toString!
+						value.toString! in _.map that.value, -> it.toString!
 					else if abnDoc?["#name.0"]
 						value.toString! in _.compact _.map abnDoc,
 							(val, key) -> val.toString! if _.includes key, name
@@ -165,17 +165,6 @@ if Meteor.isClient
 				state.arrLen[name] += num[type]
 
 		columnize = ->
-			console.log it
-			dom = (j) ->
-				type = j?autoform?type or \other
-				split = _.split j.name, \.
-				title = ->
-					if split.length is 1 then j.head
-					else "#{j.head}.#{_.last split}"
-				inputTypes title!, j .[type]!
-			recDom = (i) ->
-				if _.isArray i then i.map -> recDom it
-				else dom i
 			chunk = -> reduce [], it, (res, inc) ->
 				end = -> [...res, [inc]]
 				if inc.type in [Object, Array] then end!
@@ -184,6 +173,15 @@ if Meteor.isClient
 					unless last?length < opts.columns then end!
 					else
 						if last.0.type in [Object, Array] then end!
+			recDom = (i) ->
+				if _.isArray i then i.map -> recDom it
+				else do ->
+					type = i?autoform?type or \other
+					split = _.split i.name, \.
+					title = ->
+						if split.length is 1 then i.head
+						else "#{i.head}.#{_.last split}"
+					inputTypes title!, i .[type]!
 						else [...first, [...last, inc]]
 			structure = -> it.map (i) ->
 				m \.columns, i.map (j) -> m \div,
@@ -246,8 +244,8 @@ if Meteor.isClient
 				defaultInputTypes =
 					text: String, number: Number,
 					radio: Boolean, date: Date
-				defaultType = -> _.find (_.toPairs defaultInputTypes),
-					-> it.1 is schema.type
+				defaultType = -> _.toPairs(defaultInputTypes)find ->
+					it.1 is schema.type
 				maped = _.map usedSchema._schema, (val, key) ->
 					_.merge val, name: key
 
