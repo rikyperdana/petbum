@@ -173,6 +173,7 @@ if Meteor.isClient
 					unless last?length < opts.columns then end!
 					else
 						if last.0.type in [Object, Array] then end!
+						else [...first, [...last, inc]]
 			recDom = (i) ->
 				if _.isArray i then i.map -> recDom it
 				else do ->
@@ -182,7 +183,6 @@ if Meteor.isClient
 						if split.length is 1 then i.head
 						else "#{i.head}.#{_.last split}"
 					inputTypes title!, i .[type]!
-						else [...first, [...last, inc]]
 			structure = -> it.map (i) ->
 				m \.columns, i.map (j) -> m \div,
 					class: \column unless j.attrs?type is \hidden
