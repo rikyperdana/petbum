@@ -41,9 +41,11 @@ if Meteor.isClient
 		farmasi: fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
 		manajemen: headers: tarif: <[ nama jenis harga grup active ]>
 		amprah:
-			headers: requests: <[ ruangan peminta jumlah nama_barang penyerah diserah ]>
-			amprahList: -> coll.amprah.find!fetch!filter (i) ->
-				if userGroup \farmasi then i.ruangan is \obat else i
+			headers: requests: <[ tanggal_minta ruangan peminta jumlah nama_barang penyerah diserah tanggal_serah]>
+			amprahList: -> reverse coll.amprah.find!fetch!filter (i) ->
+				if userGroup \farmasi then i.ruangan is \obat
+				else if userGroup \jalan then i.ruangan is userGroup!
+				else i
 			buttonConds: (obj) -> ands arr =
 				not obj.diserah
 				userGroup! in <[obat farmasi]>
@@ -663,6 +665,7 @@ if Meteor.isClient
 					attr.amprah.headers.requests.map (i) -> m \th, _.startCase i
 					if userGroup! is \obat then m \th, \Serah
 				m \tbody, attr.amprah.amprahList!map (i) -> m \tr, tds arr =
+					hari i.tanggal_minta
 					_.startCase i.ruangan
 					_.startCase (.username) Meteor.users.findOne i.peminta
 					"#{i.jumlah} unit"
@@ -670,20 +673,27 @@ if Meteor.isClient
 					if i.penyerah
 						_.startCase (.username) Meteor.users.findOne that
 					if i.diserah then "#that unit"
+					if i.tanggal_serah then hari that
 					if attr.amprah.buttonConds(i)
 						m \.button.is-primary,
 							onclick: -> state.modal = i
 							m \span, \Serah
 			if state.modal then elem.modal do
 				title: 'Respon Amprah'
-				content: m autoForm do
-					schema: new SimpleSchema schema.responAmprah
-					id: \formResponAmprah
-					type: \method
-					meteormethod: \serahAmprah
-					hooks:
-						before: (doc, cb) -> cb _.merge doc, that
-						after: -> console.log \sudah
+				content: m \div,
+					m \table.table, m \tr, tds arr =
+						'Jumlah Diminta'
+						that.jumlah
+					m autoForm do
+						schema: new SimpleSchema schema.responAmprah
+						id: \formResponAmprah
+						type: \method
+						meteormethod: \serahAmprah
+						hooks:
+							before: (doc, cb) -> cb _.merge doc, that
+							after: ->
+								state.modal = null
+								m.redraw!
 
 	m.route.prefix ''
 	m.route document.body, \/dashboard,

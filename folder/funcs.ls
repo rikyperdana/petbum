@@ -308,17 +308,3 @@ if Meteor.isClient
 					type: \reset
 					value: opts?reset?content
 					class: opts?reset?classes
-
-	@autoTable = (opts) ->
-		attr =
-			rowEvent: (doc) ->
-				onclick: -> opts.rowEvent.onclick doc
-				ondblclick: -> opts.rowEvent.ondblclick doc
-
-		view: -> m \table.table,
-			m \thead,
-				m \tr, opts.fields.map (i) ->
-					m \th, _.startCase i
-			m \tbody, opts.collection.find!fetch!map (i) ->
-				m \tr, attr.rowEvent(i), opts.fields.map (j) ->
-					m \td, i[j]

@@ -1,8 +1,11 @@
 Nov 19th, 2018
-1. Setiap baris form resume rawat jalan mewakili 1x rawat
-2. Autoclose modal responAmprah
-3. Farmasi hanya bisa lihat list request apotik
-4. Stok apotik seharusnya bertambah jika amprah direspon farmasi
+1. Setiap baris form resume rawat jalan mewakili 1x rawat pada PDF
+oke 2. Autoclose modal responAmprah
+oke 3. Farmasi hanya bisa lihat list request apotik
+oke 4. Stok apotik seharusnya bertambah jika amprah direspon farmasi
+5. Daftar amprah yg tampil hanya request poli tersebut
+oke 6. Balik urutan riwayat amprah, terbaru diatas
+oke 7. Menambahkan info jumlah diminta ke form responAmprah
 
 Nov 1st, 2018
 oke 1. Diagnosa dokter bisa lebih dari 1

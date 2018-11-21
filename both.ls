@@ -207,6 +207,10 @@ schema.farmasi = _.assign {}, schema.gudang,
 schema.amprah =
 	nama: type: String, autoform: type: \select, options: selects.gudang
 	jumlah: type: Number
+	tanggal_minta:
+		type: Date
+		autoform: type: \hidden
+		autoValue: -> new Date!
 	peminta:
 		type: String
 		autoform: type: \hidden
@@ -222,6 +226,10 @@ schema.responAmprah =
 		type: String
 		autoform: type: \hidden
 		autoValue: -> Meteor.isClient and Meteor.userId!
+	tanggal_serah:
+		type: Date
+		autoform: type: \hidden
+		autoValue: -> new Date!
 
 <[ pasien gudang tarif rekap amprah ]>map (i) ->
 	coll[i] = new Meteor.Collection i
