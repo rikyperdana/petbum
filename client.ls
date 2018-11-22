@@ -644,14 +644,20 @@ if Meteor.isClient
 						attr.manajemen.headers.tarif.map (j) -> m \td, _.startCase i[j]
 				elem.pagins!
 		amprah: -> view: -> m \.content,
-			oncreate: -> Meteor.subscribe \coll, \gudang, {jenis: 4}, onReady: -> m.redraw!
-			m \h5, 'Form Amprah'
-			unless userGroup! is \farmasi then m autoForm do
-				collection: coll.amprah
-				schema: new SimpleSchema schema.amprah
-				type: \insert
-				id: \formAmprah
-				columns: 2
+			m \br, oncreate: -> Meteor.subscribe \coll, \gudang,
+				{jenis: 4}, onReady: -> m.redraw!
+			m \.button.is-primary,
+				onclick: -> state.showForm = not state.showForm
+				m \span, \+Request
+			m \br
+			if state.showForm and !userGroup(\farmasi)
+				m \h5, 'Form Amprah'
+				m autoForm do
+					collection: coll.amprah
+					schema: new SimpleSchema schema.amprah
+					type: \insert
+					id: \formAmprah
+					columns: 2
 			m \br
 			m \h5, 'Daftar Amprah'
 			m \table.table,

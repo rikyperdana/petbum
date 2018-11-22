@@ -3,12 +3,11 @@
 @ors = -> it.find -> it
 @ands = -> _.last it if _.every it
 @bool = -> !!it
-@values = Object.values
 @reduce = (...params) ->
 	if params.length is 2
-		(values params.0)reduce params.1
+		(Object.values params.0)reduce params.1
 	else if params.length is 3
-		(values params.1)reduce params.2, params.0
+		(Object.values params.1)reduce params.2, params.0
 	else 'your arguments are invalid'
 @same = -> bool reduce it, (res, inc) -> inc if res is inc
 @reverse = -> reduce [], it, (res, inc) -> [inc, ...res]
