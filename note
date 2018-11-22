@@ -3,13 +3,13 @@ Nov 19th, 2018
 oke 2. Autoclose modal responAmprah
 oke 3. Farmasi hanya bisa lihat list request apotik
 oke 4. Stok apotik seharusnya bertambah jika amprah direspon farmasi
-5. Daftar amprah yg tampil hanya request poli tersebut
+oke 5. Daftar amprah yg tampil hanya request poli tersebut
 oke 6. Balik urutan riwayat amprah, terbaru diatas
 oke 7. Menambahkan info jumlah diminta ke form responAmprah
 
 Nov 1st, 2018
 oke 1. Diagnosa dokter bisa lebih dari 1
-no 2. Pencarian pasien pada mr untuk view icdx-nya
+cancel 2. Pencarian pasien pada mr untuk view icdx-nya
 oke 3. Report pdf untuk icdx pasien dengan bentuk
    'Form Resume Rawat Jalan'
    no_mr, nama_lengkap, tgl_lahir, umur
