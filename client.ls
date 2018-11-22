@@ -130,7 +130,7 @@ if Meteor.isClient
 						state.showAddPatient = null
 						m.route.set "/regis/lama/#id"
 			if userRole(\mr) then m \div,
-				m \br
+				m \br, oncreate: -> Meteor.subscribe \coll, \tarif
 				m \form.columns,
 					onsubmit: (e) ->
 						e.preventDefault!

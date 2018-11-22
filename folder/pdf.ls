@@ -106,15 +106,16 @@ if Meteor.isClient
 
 		icdx: (pasien) ->
 			headers = <[tanggal klinik dokter diagnosa terapi perawat icd10]>
-			rows = _.compact _.flatten pasien.rawat.map (i) -> i.icdx?map (j, k) -> arr =
+			rows = pasien.rawat.map (i) -> arr =
 				hari i.tanggal
 				look(\klinik, i.klinik)label
 				Meteor.users.findOne(i.petugas.dokter)username
-				i.diagnosa[k]
-				\-
+				{ol: i.diagnosa}
+				{ul: i.tindakan.map (j) ->
+					_.startCase look2(\tarif, j.nama)nama}
 				Meteor.users.findOne(i.petugas.perawat)username
-				i.icdx[k]
-			columns = arr =
+				{ol: i.icdx}
+			columns =
 				['NO. MR', 'NAMA LENGKAP', 'TANGGAL LAHIR', 'JENIS KELAMIN']
 				arr =
 					pasien.no_mr.toString!
