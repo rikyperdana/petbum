@@ -95,21 +95,25 @@ if Meteor.isClient
 										m \span, _.startCase i
 					m \.column, if comp then m that
 		login: -> view: -> m \.container,
-			m \.content, m \h5, \Login
-			m \form,
-				onsubmit: (e) ->
-					e.preventDefault!
-					vals = _.initial _.map e.target, -> it.value
-					Meteor.loginWithPassword ...vals, (err) ->
-						if err
-							state.error = 'Salah Password atau Username'
-							m.redraw!
-						else m.route.set \/dashboard
-				m \input.input, type: \text, placeholder: \Username
-				m \input.input, type: \password, placeholder: \Password
-				m \input.button.is-success, type: \submit, value: \Login
-				if state.error then m \article.message, m \.message-header,
-					(m \p, that), m \button.delete, 'aria-label': \delete
+			m \.columns,
+				m \.column
+				m \.column, m \form,
+					m \.content, m \h5, \Login
+					m \form,
+						onsubmit: (e) ->
+							e.preventDefault!
+							vals = _.initial _.map e.target, -> it.value
+							Meteor.loginWithPassword ...vals, (err) ->
+								if err
+									state.error = 'Salah Password atau Username'
+									m.redraw!
+								else m.route.set \/dashboard
+						m \input.input, type: \text, placeholder: \Username
+						m \input.input, type: \password, placeholder: \Password
+						m \input.button.is-success, type: \submit, value: \Login
+						if state.error then m \article.message, m \.message-header,
+							(m \p, that), m \button.delete, 'aria-label': \delete
+				m \.column
 		welcome: -> view: -> m \.content,
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
