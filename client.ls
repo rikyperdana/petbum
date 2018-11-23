@@ -24,7 +24,7 @@ if Meteor.isClient
 				{head: \Planning, cell: doc?planning}
 			poliFilter: (arr) -> if arr then _.compact arr.map (i) ->
 				if userRole! is _.snakeCase look(\klinik, i.klinik)label then i
-				else if \regis is userGroup! then i
+				else if userGroup \regis then i
 			ownKliniks: -> roles!?jalan?map (i) ->
 				(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
 			lastKlinik: (arr) -> unless roles!?jalan then arr else
@@ -44,7 +44,7 @@ if Meteor.isClient
 			headers: requests: <[ tanggal_minta ruangan peminta jumlah nama_barang penyerah diserah tanggal_serah]>
 			amprahList: -> reverse coll.amprah.find!fetch!filter (i) ->
 				if userGroup \farmasi then i.ruangan is \obat
-				else if userGroup \jalan then i.ruangan is userGroup!
+				else if userGroup \jalan then userGroup i.ruangan
 				else i
 			buttonConds: (obj) -> ands arr =
 				not obj.diserah
@@ -89,7 +89,7 @@ if Meteor.isClient
 								if \regis is currentRoute! then m \ul,
 									[[\baru, 'Pasien Baru'], [\lama, 'Cari Pasien']]map (i) ->
 										m \li, m \a, href: "/regis/#{i.0}", oncreate: m.route.link, i.1
-								if same \manajemen, currentRoute!, i.name
+								if same [\manajemen, currentRoute!, i.name]
 									m \ul, <[ users imports ]>map (i) -> m \li, m \a,
 										href: "/manajemen/#i", oncreate: m.route.link,
 										m \span, _.startCase i
@@ -260,7 +260,7 @@ if Meteor.isClient
 						id: \formJalan
 						scope: \rawat
 						doc: that
-						buttonContent: \Tambahkan
+						buttonContent: \Simpan
 						columns: 3
 						hooks:
 							before: (doc, cb) ->
@@ -297,17 +297,24 @@ if Meteor.isClient
 								state.docRawat = null
 								m.redraw!
 					m \table.table,
-						m \thead, m \tr, attr.pasien.headers.rawatFields.map (i) ->
-							m \th, _.startCase i
+						m \thead, m \tr,
+							attr.pasien.headers.rawatFields.map (i) ->
+								m \th, _.startCase i
+							m \th, \Hapus if userRole \admin
 						m \tbody, attr.pasien.poliFilter(that?rawat?reverse!)?map (i) -> m \tr, [
 							hari i.tanggal
 							look(\klinik, i.klinik)label
 							look(\cara_bayar, i.cara_bayar)label
 							... <[ billRegis status_bayar ]>map ->
 								if i[it] then \Sudah else \Belum
-							if \jalan is userGroup! then m \button.button.is-info,
+							if userGroup \jalan then m \button.button.is-info,
 								onclick: -> state.modal = i
 								m \span, \Cek
+							if userRole \admin then m \.button.is-danger,
+								ondblclick: -> Meteor.call \rmRawat,
+									coll.pasien.findOne(_id: m.route.param \idpasien)_id
+									i.idrawat, (err, res) -> res and m.redraw!
+								m \span, \Hapus
 						]map (j) -> m \td, j
 					if state.modal then elem.modal do
 						title: 'Rincian rawat'
@@ -658,18 +665,21 @@ if Meteor.isClient
 					type: \insert
 					id: \formAmprah
 					columns: 2
+					hooks: after: ->
+						state.showForm = null
+						m.redraw!
 			m \br
 			m \h5, 'Daftar Amprah'
 			m \table.table,
 				oncreate: ->
 					cond = ->
-						if userGroup! is \obat then penyerah: $exists: false
-						else if userGroup is \farmasi then ruangan: \apotik
+						if userGroup \obat then penyerah: $exists: false
+						else if userGroup \farmasi then ruangan: \apotik
 						else ruangan: userGroup!
 					Meteor.subscribe \coll, \amprah, cond!, onReady: -> m.redraw!
 				m \thead, m \tr,
 					attr.amprah.headers.requests.map (i) -> m \th, _.startCase i
-					if userGroup! is \obat then m \th, \Serah
+					if userGroup \obat then m \th, \Serah
 				m \tbody, attr.amprah.amprahList!map (i) -> m \tr, tds arr =
 					hari i.tanggal_minta
 					_.startCase i.ruangan
