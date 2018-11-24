@@ -195,7 +195,7 @@ if Meteor.isClient
 					m \thead, m \tr, attr.pasien.headers.patientList.map (i) ->
 						m \th, _.startCase i
 					m \tbody, attr.pasien.lastKlinik(coll.pasien.find!fetch!)map (i) ->
-						rows = -> m \tr,
+						rows = -> if i.no_mr then m \tr,
 							ondblclick: -> m.route.set "#{m.route.get!}/#{i._id}"
 							tds arr =
 								if i.rawat?[i.rawat?length-1]?tanggal then hari that
@@ -367,7 +367,6 @@ if Meteor.isClient
 							{status_bayar: $ne: true}
 						]}
 						onReady: -> m.redraw!
-					coll.pasien.find!observe changed: -> m.redraw!
 				m \thead, m \tr, attr.bayar.header.map (i) -> m \th, _.startCase i
 				m \tbody, coll.pasien.find!fetch!map (i) -> _.compact i.rawat.map (j) ->
 					conds = ors arr =
@@ -648,7 +647,6 @@ if Meteor.isClient
 				m \table.table,
 					oncreate: ->
 						Meteor.subscribe \coll, \tarif, onReady: -> m.redraw!
-						coll.tarif.find!observe added: -> m.redraw!
 					m \thead, m \tr, attr.manajemen.headers.tarif.map (i) ->
 						m \th, _.startCase i
 					m \tbody, pagins(coll.tarif.find!fetch!)map (i) -> m \tr,

@@ -231,6 +231,9 @@ schema.responAmprah =
 		autoform: type: \hidden
 		autoValue: -> new Date!
 
+
 <[ pasien gudang tarif rekap amprah ]>map (i) ->
 	coll[i] = new Meteor.Collection i
 	coll[i]allow _.merge ... <[ insert update remove ]>map -> "#it": -> true
+	if Meteor.isClient then <[added changed]>map (j) ->
+		coll[i]find!observe "#j": -> m.redraw!
