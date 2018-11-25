@@ -87,7 +87,7 @@ if Meteor.isClient
 								class: \is-active if state.activeMenu is i.name
 								m \span, _.startCase i.full
 								if \regis is currentRoute! then m \ul,
-									[[\baru, 'Pasien Baru'], [\lama, 'Cari Pasien']]map (i) ->
+									[[\lama, 'Cari Pasien'], [\baru, 'Pasien Baru']]map (i) ->
 										m \li, m \a, href: "/regis/#{i.0}", oncreate: m.route.link, i.1
 								if same [\manajemen, currentRoute!, i.name]
 									m \ul, <[ users imports ]>map (i) -> m \li, m \a,
@@ -97,7 +97,7 @@ if Meteor.isClient
 		login: -> view: -> m \.container,
 			m \.columns,
 				m \.column
-				m \.column, m \form,
+				m \.column,
 					m \.content, m \h5, \Login
 					m \form,
 						onsubmit: (e) ->
