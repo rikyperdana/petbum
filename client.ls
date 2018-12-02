@@ -11,7 +11,7 @@ if Meteor.isClient
 				rawat: onclick: ->
 					state.showAddRawat = not state.showAddRawat
 			headers:
-				patientList: <[ tanggal nama_lengkap tanggal_lahir tempat_lahir poliklinik ]>
+				patientList: <[ tanggal no_mr nama_lengkap tanggal_lahir tempat_lahir poliklinik ]>
 				rawatFields: <[ tanggal klinik cara_bayar bayar_pendaftaran status_bayar cek ]>
 				icdFields: <[ nama_pasien tanggal klinik dokter diagnosis nama_perawat cek ]>
 			rawatDetails: (doc) -> arr =
@@ -199,6 +199,7 @@ if Meteor.isClient
 							ondblclick: -> m.route.set "#{m.route.get!}/#{i._id}"
 							tds arr =
 								if i.rawat?[i.rawat?length-1]?tanggal then hari that
+								i.no_mr
 								i.regis.nama_lengkap
 								if i.regis.tgl_lahir then moment(that)format 'D MMM YYYY'
 								if i.regis.tmpt_lahir then _.startCase that
@@ -323,7 +324,7 @@ if Meteor.isClient
 					if state.modal then elem.modal do
 						title: 'Rincian rawat'
 						content: m \div,
-							m \h1, coll.pasien.findOne!regis.nama_lengkap
+							m \h1, (.regis.nama_lengkap) coll.pasien.findOne m.route.param \idpasien
 							m \table.table,
 								attr.pasien.rawatDetails state.modal
 								.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
@@ -655,21 +656,24 @@ if Meteor.isClient
 		amprah: -> view: -> m \.content,
 			m \br, oncreate: -> Meteor.subscribe \coll, \gudang,
 				{jenis: 4}, onReady: -> m.redraw!
-			m \.button.is-primary,
-				onclick: -> state.showForm = not state.showForm
-				m \span, \+Request
-			m \br
-			if state.showForm and !userGroup(\farmasi)
-				m \h5, 'Form Amprah'
-				m autoForm do
-					collection: coll.amprah
-					schema: new SimpleSchema schema.amprah
-					type: \insert
-					id: \formAmprah
-					columns: 2
-					hooks: after: ->
-						state.showForm = null
-						m.redraw!
+			m \.columns,
+				m \.column,
+					m \.button.is-primary,
+						onclick: -> state.showForm = not state.showForm
+						m \span, 'Request BHP'
+					m \br
+					if state.showForm and !userGroup(\farmasi)
+						m \h5, 'Form Amprah'
+						m autoForm do
+							collection: coll.amprah
+							schema: new SimpleSchema schema.amprah 4
+							type: \insert
+							id: \formAmprah
+							columns: 2
+							hooks: after: ->
+								state.showForm = null
+								m.redraw!
+				m \.column, m \h5, \coba
 			m \br
 			m \h5, 'Daftar Amprah'
 			m \table.table,

@@ -204,7 +204,7 @@ schema.farmasi = _.assign {}, schema.gudang,
 	'batch.$.anggaran': type: Number, autoform: options: selects.anggaran
 	'batch.$.pengadaan': type: Number, optional: true
 
-schema.amprah =
+schema.amprah = (type) ->
 	nama: type: String, autoform: type: \select, options: selects.gudang
 	jumlah: type: Number
 	tanggal_minta:
