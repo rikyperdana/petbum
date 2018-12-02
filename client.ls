@@ -50,6 +50,9 @@ if Meteor.isClient
 				not obj.diserah
 				userGroup! in <[obat farmasi]>
 				not same [userGroup!, obj.ruangan]
+			reqForm: -> arr =
+				\bhp
+				\obat if userGroup \obat
 
 	comp =
 		layout: (comp) ->
@@ -654,25 +657,24 @@ if Meteor.isClient
 						attr.manajemen.headers.tarif.map (j) -> m \td, _.startCase i[j]
 				elem.pagins!
 		amprah: -> view: -> m \.content,
-			m \br, oncreate: -> Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
-			m \.columns,
-				m \.column,
-					m \.button.is-primary,
-						onclick: -> state.showForm = not state.showForm
-						m \span, 'Request BHP'
-					m \br
-					if state.showForm and !userGroup(\farmasi)
-						m \h5, 'Form Amprah'
-						m autoForm do
-							collection: coll.amprah
-							schema: new SimpleSchema schema.amprah
-							type: \insert
-							id: \formAmprah
-							columns: 2
-							hooks: after: ->
-								state.showForm = null
-								m.redraw!
-				m \.column, m \h5, \coba
+			m \br, oncreate: ->
+				Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
+			m \.columns, _.compact(attr.amprah.reqForm!)map (type) -> m \.column,
+				m \.button.is-primary,
+					onclick: -> state.showForm = not state.showForm
+					m \span, "Request #{_.upperCase type}"
+				m \br
+				if state.showForm and !userGroup(\farmasi)
+					m \h5, 'Form Amprah'
+					m autoForm do
+						collection: coll.amprah
+						schema: new SimpleSchema schema.amprah type
+						type: \insert
+						id: "formAmprah#type"
+						columns: 2
+						hooks: after: ->
+							state.showForm = null
+							m.redraw!
 			m \br
 			m \h5, 'Daftar Amprah'
 			m \table.table,
