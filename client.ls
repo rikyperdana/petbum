@@ -654,8 +654,7 @@ if Meteor.isClient
 						attr.manajemen.headers.tarif.map (j) -> m \td, _.startCase i[j]
 				elem.pagins!
 		amprah: -> view: -> m \.content,
-			m \br, oncreate: -> Meteor.subscribe \coll, \gudang,
-				{jenis: 4}, onReady: -> m.redraw!
+			m \br, oncreate: -> Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
 			m \.columns,
 				m \.column,
 					m \.button.is-primary,
@@ -666,7 +665,7 @@ if Meteor.isClient
 						m \h5, 'Form Amprah'
 						m autoForm do
 							collection: coll.amprah
-							schema: new SimpleSchema schema.amprah 4
+							schema: new SimpleSchema schema.amprah
 							type: \insert
 							id: \formAmprah
 							columns: 2

@@ -38,6 +38,13 @@ selects.tindakan = -> if Meteor.isClient
 		value: it._id, label: it.nama
 
 selects.gudang = -> if Meteor.isClient
+	coll.gudang.find!fetch!map (i) ->
+		value: i._id, label: i.nama
+
+selects.obat = -> if Meteor.isClient
 	_.compact coll.gudang.find!fetch!map (i) ->
-		type = if currentRoute! is \amprah then [4] else [1 2 3]
-		if i.jenis in type then value: i._id, label: i.nama
+		if i.jenis in [1 2 3] then value: i._id, label: i.nama
+
+selects.bhp = -> if Meteor.isClient
+	_.compact coll.gudang.find!fetch!map (i) ->
+		if i.jenis is 4 then value: i._id, label: i.nama

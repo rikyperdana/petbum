@@ -11,7 +11,7 @@ if Meteor.isClient
 		list: <[ jalan farmasi amprah ]>
 	,
 		group: \inap
-		list: <[ inap farmasi ]>
+		list: <[ inap farmasi amprah ]>
 	,
 		group: \labor
 		list: [\labor]

@@ -14,6 +14,11 @@
 	icon: \directions
 	color: \blue
 ,
+	name: \inap
+	full: 'Rawat Inap'
+	icon: \directions
+	color: \red
+,
 	name: \obat
 	full: \Apotek
 	icon: \enhanced_encryption
