@@ -3,8 +3,8 @@ if Meteor.isClient
 	kop = {text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. Dr. Soetomo No. 65, Telp. (0761) 23024\n\n\n', alignment: 'center'}
 
 	@makePdf =
-		card: ->
-			doc = coll.pasien.findOne!
+		card: (idpasien) ->
+			doc = coll.pasien.findOne idpasien
 			pdf = pdfMake.createPdf do
 				content:
 					"Nama : #{doc.regis.nama_lengkap}"
@@ -50,7 +50,8 @@ if Meteor.isClient
 					{text: 'Pekanbaru, '+moment!format('DD/MM/YYYY')+'\n\n\n\n__________________\n'+(_.startCase doc.regis.nama_lengkap), alignment: \center}
 				]}
 			pdf.download "#{zeros doc.no_mr}_consent.pdf"
-			payRawat: (idpasien, idrawat, rows) ->
+
+		payRawat: (idpasien, idrawat, rows) ->
 			pasien = coll.pasien.findOne idpasien
 			rawat = pasien.rawat.find -> it.idrawat is idrawat
 			items = rows.map -> [it.0, rupiah it.1]

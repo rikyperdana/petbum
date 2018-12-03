@@ -50,9 +50,7 @@ if Meteor.isClient
 				not obj.diserah
 				userGroup! in <[obat farmasi]>
 				not same [userGroup!, obj.ruangan]
-			reqForm: -> arr =
-				\bhp
-				\obat if userGroup \obat
+			reqForm: -> [\bhp, if userGroup \obat then \obat]
 
 	comp =
 		layout: (comp) ->
@@ -252,7 +250,7 @@ if Meteor.isClient
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.data)]
 					if currentRoute! is \regis then m \div,
 						m \.button.is-info,
-							onclick: -> makePdf.card!
+							onclick: -> makePdf.card m.route.param \idpasien
 							m \span, \Kartu
 						m \.button.is-info,
 							onclick: -> makePdf.consent!
