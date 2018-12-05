@@ -124,7 +124,7 @@ if Meteor.isClient
 				schema: new SimpleSchema schema.regis
 				type: if m.route.param(\idpasien) then \update else \insert
 				id: \formRegis
-				doc: coll.pasien.findOne!
+				doc: coll.pasien.findOne m.route.param \idpasien
 				buttonContent: \Simpan
 				columns: 3
 				hooks:
@@ -219,6 +219,7 @@ if Meteor.isClient
 								not i.rawat[i.rawat.length-1]anamesa_dokter
 							if doneByNurse! then m \tr, tds arr =
 								hari i.rawat[i.rawat.length-1]tanggal
+								i.no_mr
 								i.regis.nama_lengkap
 								hari i.regis.tgl_lahir
 								i.regis.tmpt_lahir
@@ -526,7 +527,7 @@ if Meteor.isClient
 					schema: new SimpleSchema schema.farmasi
 					type: \update-pushArray
 					scope: \batch
-					doc: coll.gudang.findOne!
+					doc: coll.gudang.findOne m.route.param \idbarang
 					id: \formTambahObat
 					buttonContent: \Tambahkan
 					columns: 3
@@ -537,7 +538,7 @@ if Meteor.isClient
 				m \table.table,
 					m \thead, attr.gudang.headers.rincian.map (i) ->
 						m \th, _.startCase i
-					m \tbody, coll.gudang.findOne!?batch.map (i) -> m \tr, [
+					m \tbody, coll.gudang.findOne(m.route.param \idbarang)?batch.map (i) -> m \tr, [
 						i.nobatch, i.digudang, i.diapotik,
 						(hari i.masuk), (hari i.kadaluarsa)
 					]map (j) -> m \td, j

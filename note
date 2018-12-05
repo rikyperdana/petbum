@@ -1,10 +1,19 @@
-Des 2nd, 2018
-1. Info Faskes pasien yg mendaftar
+Dec 4th, 2018
+1. Rekam jejak waktu pasien di setiap modul
+2. Sembunyikan pada list dokter pasien yg belum dihandle perawat
+3. Keterangan Kali sehari
+4. Keterangan dosis jadi ketikan terbuka
+5. Pencarian obat pada pilihan obat dokter
+6. Bug pada array element yang lupa di decrease
+7. Laporan pdf+excel
+
+Dec 3rd, 2018
+oke 1. Info Faskes pasien yg mendaftar
 2. Pilihan dokter keinginan pasien
-3. Tanggal yang bisa diketikkan
+sulit 3. Tanggal yang bisa diketikkan
 4. Tambah jenis pembayaran 'Jampersal'
 5. Field isian Suami/Istri
-6. Perpindahan kolom dengan tab
+sulit 6. Perpindahan kolom dengan tab
 
 Des 1st, 2018
 oke 1. NoMR di antara tanggal dan nama
