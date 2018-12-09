@@ -97,7 +97,7 @@ if Meteor.isClient
 		rekap: ->
 			fields = <[ no_mr nama_pasien nama_obat nobatch jumlah ]>
 			rows = _.flatten coll.rekap.find!fetch!map (i) ->
-				i.batches.map (i) -> fields.map -> i[it]toString!
+				i.batches.map (i) -> fields.map -> _.startCase i[it]?toString!
 			headers = [fields.map -> _.startCase it]
 			if rows.length > 0
 				pdfMake.createPdf content:

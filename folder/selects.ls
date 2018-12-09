@@ -13,7 +13,7 @@
 	tipe_dokter: <[ umum spesialis ]>
 	rujukan: <[ datang_sendiri rs_lain puskesmas faskes_lainnya ]>
 	keluar: <[ pulang rujuk ]>
-	barang: <[ generik non_generik obat_narkotika bhp ]>
+	barang: <[ generik non_generik obat_narkotika bhp obat_keras_tertentu]>
 	satuan: <[ botol vial ampul pcs sachet tube supp tablet minidose pot turbuhaler kaplet kapsul bag pen rectal flash cream nebu galon lembar roll liter cup pasang bungkus ]>
 	anggaran: <[ blud apbd kemenkes dinkes ]>
 	alias: <[ tn ny nn an by ]>
