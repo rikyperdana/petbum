@@ -26,6 +26,7 @@ if Meteor.isClient
 		'regis.kontak': type: String, optional: true
 		'regis.ayah': type: String, optional: true
 		'regis.ibu': type: String, optional: true
+		'regis.pasangan': type: String, optional: true, label: 'Suami/Istri'
 		'regis.tanggal':
 			type: Date
 			autoform: type: \hidden
@@ -53,7 +54,7 @@ if Meteor.isClient
 			type: Number
 			autoform: type: \hidden
 			autoValue: (name, doc) ->
-				string = "#{_.initial(name.split \.).join \.}.nama"
+				string = "#{_.initial(name.split \.)join \.}.nama"
 				sel = doc.find -> it.name is string
 				if sel?value then look2 \tarif, that .harga
 

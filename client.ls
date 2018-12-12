@@ -35,7 +35,7 @@ if Meteor.isClient
 					not _.last(it.rawat)anamesa_perawat
 					_.last(it.rawat)billRegis
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
-		apotik: header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
+		apotik: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		gudang: headers:
 			farmasi: <[ jenis_barang nama_barang stok_gudang stok_diapotik hapus ]>
 			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
@@ -51,7 +51,9 @@ if Meteor.isClient
 				not obj.diserah
 				userGroup! in <[obat farmasi]>
 				not same [userGroup!, obj.ruangan]
-			reqForm: -> [\bhp, if userGroup \obat then \obat]
+			reqForm: -> arr =
+				\bhp unless userGroup \farmasi
+				if userGroup \obat then \obat
 
 	comp =
 		layout: (comp) ->
@@ -429,7 +431,6 @@ if Meteor.isClient
 							i.no_mr
 							i.regis.nama_lengkap
 							hari j.tanggal
-							\-
 							look(\cara_bayar, j.cara_bayar)label
 							look(\klinik, j.klinik)label
 							m \.button.is-success,
@@ -692,7 +693,7 @@ if Meteor.isClient
 					_.startCase i.ruangan
 					_.startCase (.username) Meteor.users.findOne i.peminta
 					"#{i.jumlah} unit"
-					look2(\gudang, i.nama)nama
+					look2(\gudang, i.nama)?nama
 					if i.penyerah
 						_.startCase (.username) Meteor.users.findOne that
 					if i.diserah then "#that unit"
@@ -704,9 +705,15 @@ if Meteor.isClient
 			if state.modal then elem.modal do
 				title: 'Respon Amprah'
 				content: m \div,
-					m \table.table, m \tr, tds arr =
-						'Jumlah Diminta'
-						that.jumlah
+					m \table.table,
+						m \thead, m \tr, <[nama diminta sedia]>map (i) ->
+							m \th, _.startCase i
+						m \tbody, m \tr, tds arr =
+							look2(\gudang, that.nama)?nama
+							that.jumlah
+							_.sum look2(\gudang, that.nama)batch.map (i) ->
+								if userGroup \obat then i.digudang
+								else i.diapotik
 					m autoForm do
 						schema: new SimpleSchema schema.responAmprah
 						id: \formResponAmprah

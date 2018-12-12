@@ -5,7 +5,7 @@
 	agama: <[ islam katolik protestan buddha hindu kong_hu_chu ]>
 	pendidikan: <[ sd smp sma diploma s1 s2 s3 tidak_sekolah ]>
 	darah: <[ a b ab o ]>
-	cara_bayar: <[ umum bpjs jamkesda_pekanbaru jamkesda_kampar lapas_dinsos ]>
+	cara_bayar: <[ umum bpjs jamkesda_pekanbaru jamkesda_kampar lapas_dinsos jampersal ]>
 	nikah: <[ nikah belum_nikah janda duda ]>
 	klinik: <[ penyakit_dalam gigi kebidanan tht anak saraf mata bedah paru tb_dots kulit fisioterapi gizi metadon psikologi tindakan aps_labor aps_radio ]>
 	karcis: [ 40 30 40 40 40 40 40 40 40 40 40 0 25 30 25 0 0 0 ]
