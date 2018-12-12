@@ -28,11 +28,12 @@ if Meteor.isClient
 			ownKliniks: -> roles!?jalan?map (i) ->
 				(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
 			lastKlinik: (arr) -> unless roles!?jalan then arr else
-				notHandled = (name, doc) -> ands arr =
-					not (_.last doc.rawat)[name]
-					0 is dayDiff (.tanggal) _.last doc.rawat
-				if isDr! then arr.filter -> notHandled \anamesa_dokter, it
-				else arr.filter -> notHandled \anamesa_perawat, it
+				if isDr! then arr.filter -> ands list =
+					_.last(it.rawat)anamesa_perawat
+					not _.last(it.rawat)anamesa_dokter
+				else arr.filter -> ands list =
+					not _.last(it.rawat)anamesa_perawat
+					_.last(it.rawat)billRegis
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		apotik: header: <[ no_mr nama tanggal total_biaya cara_bayar klinik aksi ]>
 		gudang: headers:
@@ -179,7 +180,7 @@ if Meteor.isClient
 									state.modal = null
 									m.redraw!
 			else if m.route.get! in ['/regis/lama', '/jalan'] then m \div,
-				m \form,
+				userGroup(\regis) and m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
 						if e.target.0.value.length > 3

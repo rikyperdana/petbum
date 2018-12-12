@@ -62,11 +62,11 @@ if Meteor.isClient
 			type: String
 			autoform: type: \hidden
 			autoValue: -> randomId!
-		nama: type: String, autoform: options: selects.gudang
+		nama: type: String, autoform: options: selects.obat
 		puyer: type: String, optional: true
 		aturan: type: Object
-		'aturan.kali': type: Number
-		'aturan.dosis': type: Number
+		'aturan.kali': type: Number, label: 'kali sehari'
+		'aturan.dosis': type: String
 		'aturan.bentuk': type: Number, autoform: type: \hidden
 		jumlah: type: Number
 		harga:
