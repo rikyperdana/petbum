@@ -417,45 +417,42 @@ if Meteor.isClient
 			m \h5, \Apotik,
 			m \table.table,
 				oncreate: ->
+					Meteor.subscribe \coll, \gudang
 					Meteor.subscribe \coll, \rekap, printed: $exists: false
 					Meteor.subscribe \coll, \pasien,
 						{rawat: $elemMatch: obat: $elemMatch: hasil: $exists: false}
 						onReady: -> m.redraw!
 				m \thead, attr.apotik.header.map (i) -> m \th, _.startCase i
-				m \tbody, coll.pasien.find!fetch!map (i) ->
-					i.rawat.map (j) -> j.obat?map (k) ->
-						okay = ->
-							if j.cara_bayar is 1 then !k.hasil and j.status_bayar
-							else !	k.hasil
-						okay! and m \tr, tds arr =
-							i.no_mr
-							i.regis.nama_lengkap
-							hari j.tanggal
-							look(\cara_bayar, j.cara_bayar)label
-							look(\klinik, j.klinik)label
-							m \.button.is-success,
-								onclick: -> state.modal = _.merge k, j, i
-								m \span, \Serah
+				m \tbody, coll.pasien.find!fetch!map (i) -> i.rawat.map (j) ->
+					okay = ->
+						if j.cara_bayar is 1 and j.status_bayar then not j.givenDrug
+						else not j.givenDrug
+					okay! and m \tr, tds arr =
+						i.no_mr
+						i.regis.nama_lengkap
+						hari j.tanggal
+						look(\cara_bayar, j.cara_bayar)label
+						look(\klinik, j.klinik)label
+						m \.button.is-success,
+							onclick: -> state.modal = _.merge j, i
+							m \span, \Serah
 			if state.modal then elem.modal do
 				title: 'Serahkan Obat?'
 				content: m \table.table,
-					oncreate: -> Meteor.subscribe \coll, \gudang,
-						onReady: -> m.redraw!
 					m \tr, attr.farmasi.fieldSerah.map (i) ->
 						m \th, _.startCase i
-					m \tr, tds arr =
-						look2(\gudang, state.modal.nama)?nama
-						"#{state.modal.jumlah} unit"
-						"#{state.modal.aturan.kali} kali sehari"
-						"#{state.modal.aturan.dosis} unit per konsumsi"
+					that.obat.map (i) -> m \tr, tds arr =
+						look2(\gudang, i.nama)nama
+						"#{i.jumlah} unit"
+						"#{i.aturan.kali} kali"
+						"#{i.aturan.dosis} unit"
 				confirm: \Serahkan
 				action: ->
 					Meteor.call \serahObat, state.modal, (err, res) -> if res
 						coll.pasien.update state.modal._id, $set: rawat:
 							coll.pasien.findOne(state.modal._id)rawat.map (i) ->
 								if i.idrawat is state.modal.idrawat
-									_.assign i, obat: i.obat.map ->
-										_.merge it, hasil: true
+									_.assign i, givenDrug: true
 								else i
 						coll.rekap.insert batches: res
 						state.modal = null

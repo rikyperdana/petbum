@@ -96,14 +96,28 @@ if Meteor.isClient
 
 		rekap: ->
 			fields = <[ no_mr nama_pasien nama_obat nobatch jumlah ]>
-			rows = _.flatten coll.rekap.find!fetch!map (i) ->
-				i.batches.map (i) -> fields.map -> _.startCase i[it]?toString!
+			rows = [
+				[\1, \2, \3, \4, {ul: <[parasetamol becefort]>}]
+			]
+			rows = _.flattenDeep coll.rekap.find!fetch!map (i) ->
+				i.obat.map (j) -> j.batches.map (k) ->
+					nama_pasien: i.nama_pasien
+					nama_obat: j.nama_obat
+					nobatch: k.nobatch
+					jumlah: k.jumlah
 			headers = [fields.map -> _.startCase it]
 			if rows.length > 0
 				pdfMake.createPdf content:
 					[table: body: [...headers, ...rows]]
 				.download \cetak_rekap.pdf
 				Meteor.call \doneRekap
+
+		testing: ->
+			pdfMake.createPdf content: table: body: [
+				['Column1', 'Column2']
+				[{ul: <[coba lagi]>}, 'kedua']
+			]
+			.download \testing.pdf
 
 		icdx: (pasien) ->
 			headers = <[tanggal klinik dokter diagnosa terapi perawat icd10]>
@@ -131,3 +145,4 @@ if Meteor.isClient
 				'\n\n'
 				{table: body: [headers.map(-> _.startCase it), ...rows]}
 			.download "icdX_#{pasien.no_mr}.pdf"
+

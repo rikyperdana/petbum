@@ -51,14 +51,28 @@ if Meteor.isServer
 						else
 							minim = -> min [i.jumlah, inc.diapotik]
 							batches.push do
-								nobatch: inc.nobatch, no_mr: pasien.no_mr,
-								nama_pasien: pasien.regis.nama_lengkap
-								nama_obat: inc.nama, jumlah: minim!
+								idpasien: pasien._id
+								nama_obat: i.nama
+								nobatch: inc.nobatch
+								jumlah: minim!
 							doc = _.assign {}, inc, diapotik:
 								inc.diapotik - minim!
 							i.jumlah -= minim!
 							doc
-			batches
+			reduce [], batches, (res, inc) ->
+				obj =
+					nama_obat: inc.nama_obat
+					nobatch: inc.nobatch
+					jumlah: inc.jumlah
+				if (res.find (i) -> i.idpasien is inc.idpasien)
+					res.map (i) -> if i.idpasien is inc.idpasien
+						idpasien: i.idpasien, obat: [...i.obat, obj]
+				else [...res, idpasien: inc.idpasien, obat: [obj]]
+			.map (i) -> _.assign i, obat: reduce [], i.obat, (res, inc) ->
+				obj = nobatch: inc.nobatch, jumlah: inc.jumlah
+				if (res.find (i) -> i.nama_obat is inc.nama_obat)
+					res.map (i) -> _.assign i, batches: [...i.batches, obj]
+				else [...res, nama_obat: inc.nama_obat, batches: [obj]]
 
 		serahAmprah: (doc) ->
 			coll.amprah.update doc._id, doc
@@ -76,9 +90,10 @@ if Meteor.isServer
 						doc.diserah -= minim!
 						obj
 
-		doneRekap: -> coll.rekap.update do
-			{printed: $exists: false}
-			{$set: printed: new Date!}
+		doneRekap: ->
+			sel = {printed: $exists: false}
+			opt = {$set: printed: new Date!}
+			coll.rekap.update sel, opt, multi: true
 
 		sortByDate: (idbarang) ->
 			coll.gudang.update idbarang, $set: batch: do ->
