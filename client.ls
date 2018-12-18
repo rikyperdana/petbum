@@ -454,7 +454,7 @@ if Meteor.isClient
 								if i.idrawat is state.modal.idrawat
 									_.assign i, givenDrug: true
 								else i
-						coll.rekap.insert batches: res
+						res.map -> coll.rekap.insert it
 						state.modal = null
 						m.redraw!
 			m \.button.is-warning,
