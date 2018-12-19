@@ -95,12 +95,20 @@ if Meteor.isClient
 			pdf.download "#{zeros doc.no_mr}_payRegCard.pdf"
 
 		rekap: ->
-			fields = <[ no_mr nama_pasien nama_obat nobatch jumlah ]>
+			fields = <[ no_mr_nama_pasien nama_obat nobatch jumlah ]>
 			source = coll.rekap.find!fetch!map (i) ->
 				i.obat.map (j) -> j.batches.map (k) -> arr =
-					coll.pasien.findOne(i.idpasien)no_mr.toString!
-					coll.pasien.findOne(i.idpasien)regis.nama_lengkap
-					look2(\gudang, j.nama_obat)nama
+					{
+						text: "
+							#{coll.pasien.findOne(i.idpasien)no_mr.toString!}
+							\n#{coll.pasien.findOne(i.idpasien)regis.nama_lengkap}
+						"
+						rowSpan: _.sum i.obat.map -> it.batches.length
+					}
+					{
+						text: look2(\gudang, j.nama_obat)nama
+						rowSpan: j.batches.length
+					}
 					k.nobatch
 					k.jumlah.toString!
 			rows = _.flattenDepth source, 2
