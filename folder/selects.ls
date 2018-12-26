@@ -52,3 +52,8 @@ selects.obat = -> if Meteor.isClient
 selects.bhp = -> if Meteor.isClient
 	_.compact coll.gudang.find!fetch!map (i) ->
 		if i.jenis is 4 then value: i._id, label: i.nama
+
+selects.dokter = -> if Meteor.isClient
+	Meteor.users.find!fetch!filter ->
+		_.split it.username, \. .0 in <[ dr drg ]>
+	.map -> value: it._id, label: _.startCase it.username

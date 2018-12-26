@@ -12,7 +12,7 @@ if Meteor.isClient
 					state.showAddRawat = not state.showAddRawat
 			headers:
 				patientList: <[ tanggal no_mr nama_lengkap tanggal_lahir tempat_lahir poliklinik ]>
-				rawatFields: <[ tanggal klinik cara_bayar bayar_pendaftaran status_bayar cek ]>
+				rawatFields: <[ tanggal klinik cara_bayar dokter bayar_pendaftaran status_bayar cek ]>
 				icdFields: <[ nama_pasien tanggal klinik dokter diagnosis nama_perawat cek ]>
 			rawatDetails: (doc) -> arr =
 				{head: \Tanggal, cell: hari doc.tanggal}
@@ -315,6 +315,7 @@ if Meteor.isClient
 							hari i.tanggal
 							look(\klinik, i.klinik)label
 							look(\cara_bayar, i.cara_bayar)label
+							if i.dokter then _.startCase Meteor.users.find(that)username
 							... <[ billRegis status_bayar ]>map ->
 								if i[it] then \Sudah else \Belum
 							if userGroup \jalan then m \button.button.is-info,

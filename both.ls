@@ -94,6 +94,7 @@ if Meteor.isClient
 			autoValue: -> new Date!
 		'rawat.$.cara_bayar': type: Number, autoform: options: selects.cara_bayar
 		'rawat.$.klinik': type: Number, autoform: options: selects.klinik
+		'rawat.$.dokter': type: String, autoform: options: selects.dokter
 		'rawat.$.karcis':
 			type: Number
 			autoform: type: \hidden
