@@ -108,3 +108,11 @@ if Meteor.isServer
 					else _.merge rawat, icdx: icdx
 
 		onePasien: -> coll.pasien.findOne no_mr: +it
+
+		mergePatients: ->
+			grouped = _.groupBy coll.pasien.find!fetch!, \no_mr
+			filtered = _.filter grouped, -> it.length > 1
+			merged = filtered.map -> _.merge ...it
+			merged.map ->
+				coll.pasien.remove no_mr: it.no_mr
+				coll.pasien.insert it
