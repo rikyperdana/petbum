@@ -466,9 +466,10 @@ if Meteor.isClient
 				m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
+						byName = nama: $options: \-i, $regex: ".*#{e.target.0.value}.*"
+						byComposite = kandungan: $options: \-i, $regex: ".*#{e.target.0.value}.*"
 						if e.target.0.value.length > 3 then Meteor.subscribe \coll, \gudang,
-							{nama: $options: \-i, $regex: ".*#{e.target.0.value}.*"}
-							onReady: -> m.redraw!
+							{$or: [byName, byComposite]}, onReady: -> m.redraw!
 					m \input.input, type: \text, placeholder: \Pencarian
 				if roles!?farmasi then m \button.button.is-success,
 					onclick: -> state.showForm = not state.showForm
@@ -519,6 +520,24 @@ if Meteor.isClient
 							{name: \Satuan, cell: look(\satuan, that.satuan)label}
 						]
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.cell)]
+					m \tr,
+						ondblclick: -> if userGroup \obat
+							state.modal = that
+						m \th, \Treshold
+						m \td, that?treshold
+				state.modal and elem.modal do
+					title: 'Tetapkan Treshold'
+					content: m \div,
+						m \h5, 'Berapa batas minimum yang seharusnya ada di apotik?'
+						m \form,
+							onsubmit: (e) ->
+								e.preventDefault!
+								coll.gudang.update state.modal._id, $set:
+									treshold: +e.target.0.value
+							m \.field, m \.control, m \input.input,
+								type: \number, placeholder: \Minimum
+							m \.field, m \.control, m \input.button.is-success,
+								type: \submit, value: \Tetapkan
 				if roles!?farmasi then m \.button.is-warning,
 					onclick: -> state.showForm = not state.showForm
 					m \span,'Tambahkan Batch'
