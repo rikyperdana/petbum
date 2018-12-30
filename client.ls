@@ -71,14 +71,14 @@ if Meteor.isClient
 							onclick: -> state.userMenu = not state.userMenu
 							m \span, Meteor.user!?username
 						m \.navbar-dropdown.is-right, do ->
+							logout = -> arr =
+								Meteor.logout!
+								m.route.set \/login
+								m.redraw!
 							arr =
 								[JSON.stringify Meteor.user!?roles]
-								[\Login, -> m.route.set \/login]
-								[\Logout, -> [
-									Meteor.logout!
-									(m.route.set \/login)
-									m.redraw!
-								]]
+								unless Meteor.userId! then [\Login, -> m.route.set \/login]
+								else [\Logout, -> logout!]
 							arr.map (i) -> m \a.navbar-item,
 								onclick: i?1, i.0
 				m \.columns,
@@ -466,10 +466,9 @@ if Meteor.isClient
 				m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
-						byName = nama: $options: \-i, $regex: ".*#{e.target.0.value}.*"
-						byComposite = kandungan: $options: \-i, $regex: ".*#{e.target.0.value}.*"
+						regex = -> "#it": $options: \-i, $regex: ".*#{e.target.0.value}.*"
 						if e.target.0.value.length > 3 then Meteor.subscribe \coll, \gudang,
-							{$or: [byName, byComposite]}, onReady: -> m.redraw!
+							{$or: [regex(\nama), regex(\kandungan)]}, onReady: -> m.redraw!
 					m \input.input, type: \text, placeholder: \Pencarian
 				if roles!?farmasi then m \button.button.is-success,
 					onclick: -> state.showForm = not state.showForm

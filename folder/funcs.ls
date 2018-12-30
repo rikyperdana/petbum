@@ -230,7 +230,7 @@ if Meteor.isClient
 						theSchema(normed name)autoform?firstLabel
 						'Select One'
 					optionList(normed name)map (j) ->
-						m \option, value: j.value, _.startCase j.label
+						m \option, value: j.value, j.label
 				m \p.help.is-danger, error if error
 
 			radio: -> m \.control,
