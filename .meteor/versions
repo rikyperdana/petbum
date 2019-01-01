@@ -42,6 +42,7 @@ id-map@1.1.0
 jquery@1.11.11
 launch-screen@1.1.1
 lenville:bulma@0.6.0
+lfergon:exportcsv@0.0.8
 livedata@1.0.18
 localstorage@1.2.0
 logging@1.1.20

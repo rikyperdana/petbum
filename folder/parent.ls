@@ -51,3 +51,7 @@ if Meteor.isClient
 				m \span, _.startCase i.0
 			m \.pagination-list, [til 3]map (i) -> m \a.pagination-link,
 				m \span, _.startCase state.pagins.page+i+1
+	@csv = (docs) ->
+		content = exportcsv.exportToCSV docs, true, \;
+		blob = new Blob [content], type: 'text/plain;charset=utf-8'
+		saveAs blob, \any.csv

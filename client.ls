@@ -461,6 +461,13 @@ if Meteor.isClient
 			m \.button.is-warning,
 				onclick: -> makePdf.rekap!
 				m \span, 'Cetak Rekap'
+			[til 3]map -> m \br
+			m \.box,
+				m \h5, 'Laporan Pengeluaran Obat'
+				m \form.columns,
+					m \.column, m \input.input, type: \date, placeholder: \Mulai
+					m \.column, m \input.input, type: \date, placeholder: \Akhir
+					m \.column, m \input.button.is-info, type: \submit, value: \Unduh
 		farmasi: -> view: -> m \.content,
 			unless m.route.param(\idbarang) then m \div,
 				m \form,
