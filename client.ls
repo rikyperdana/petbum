@@ -414,16 +414,12 @@ if Meteor.isClient
 						else makePdf.payRawat ...params, _.compact uraian
 						state.modal = null
 						m.redraw!
-			if userRole \admin then m \.box,
-				m \h5, 'Laporan Pemasukan'
-				m \form.columns,
-					onsubmit: (e) ->
-						e.preventDefault!
-						Meteor.call \incomes, e.target.0.value, e.target.1.value,
-							(err, res) -> csv that if res
-					m \.column, m \input.input, type: \date, placeholder: \Mulai
-					m \.column, m \input.input, type: \date, placeholder: \Akhir
-					m \.column, m \input.button.is-info, type: \submit, value: \Unduh
+			if userRole \admin then elem.report do
+				title: 'Laporan Pemasukan'
+				action: (e) ->
+					[start, end] = [to 1]map -> e.target[it]value
+					Meteor.call \incomes, start, end, (err, res) -> if res
+						csv "Pemasukan #{hari start} - #{hari end}", that
 		obat: -> view: -> m \.content,
 			m \h5, \Apotik,
 			m \table.table,

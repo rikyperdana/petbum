@@ -5,10 +5,6 @@
 @min = -> reduce it, (res, inc) -> if inc < res then inc else res
 @max = -> reduce it, (res, inc) -> if inc > res then inc else res
 @abs = -> Math.sqrt Math.pow it, 2
-@monthDiff = (date) ->
-	diff = date.getTime! - (new Date!)getTime!
-	diff /= 1000ms * 60sec * 60min * 24hour * 7day * 4week
-	Math.round diff
 @dayDiff = (date) ->
 	diff = date.getTime! - (new Date!)getTime!
 	diff /= 1000ms * 60sec * 60min * 24hour
@@ -51,7 +47,16 @@ if Meteor.isClient
 				m \span, _.startCase i.0
 			m \.pagination-list, [til 3]map (i) -> m \a.pagination-link,
 				m \span, _.startCase state.pagins.page+i+1
-	@csv = (docs) ->
+		report: ({title, action}) -> m \.box,
+			m \h5, title
+			m \form.columns,
+				onsubmit: (e) ->
+					e.preventDefault!
+					action e
+				m \.column, m \input.input, type: \date, placeholder: \Mulai
+				m \.column, m \input.input, type: \date, placeholder: \Akhir
+				m \.column, m \input.button.is-info, type: \submit, value: \Unduh
+	@csv = (title, docs) ->
 		content = exportcsv.exportToCSV docs, true, \;
 		blob = new Blob [content], type: 'text/plain;charset=utf-8'
-		saveAs blob, \any.csv
+		saveAs blob, "#title.csv"

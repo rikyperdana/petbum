@@ -126,7 +126,7 @@ if Meteor.isServer
 				no_mr: i.no_mr
 				nama_pasien: i.regis.nama_lengkap
 				tanggal: hari j.tanggal
-				jenis_pembayaran: (.join \+) _.compact arr =
+				jenis_pembayaran: (.join ' + ') _.compact arr =
 					\Regis
 					\Kartu if card
 					\Tindakan if j.tindakan
