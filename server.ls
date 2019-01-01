@@ -117,7 +117,7 @@ if Meteor.isServer
 				coll.pasien.remove no_mr: it.no_mr
 				coll.pasien.insert it
 
-		incomes: (start, end) -> _.compact _.flattenDeep do
+		incomes: (start, end) -> if start < end then _.compact _.flattenDeep do
 			coll.pasien.find!fetch!map (i) -> i.rawat?map (j) ->
 				conds = ands arr =
 					start < j.tanggal < end
@@ -126,13 +126,13 @@ if Meteor.isServer
 				no_mr: i.no_mr
 				nama_pasien: i.regis.nama_lengkap
 				tanggal: hari j.tanggal
-				jenis_pembayaran: _.join _.compact arr =
+				jenis_pembayaran: (.join \+) _.compact arr =
 					\Regis
 					\Kartu if card
 					\Tindakan if j.tindakan
 				klinik: look \klinik, j.klinik .label
 				no_karcis: j.nobill
-				jumlah: rupiah _.sum arr =
+				jumlah: _.sum arr =
 					card
 					look(\karcis, j.klinik)label*1000
 					_.sum j.tindakan?map (k) ->
