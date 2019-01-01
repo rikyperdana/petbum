@@ -394,7 +394,7 @@ if Meteor.isClient
 					it.harga
 				uraian =
 					['Cetak Kartu', 10000] unless coll.pasien.findOne(state.modal.pasienId)rawat?0?billRegis
-					['Daftar Rawat', 30000] unless state.modal.billRegis
+					['Konsultasi Spesialis', look(\karcis, that.klinik)label*1000] unless state.modal.billRegis
 					... tindakans or []
 				params = <[ pasienId idrawat ]>map -> state.modal[it]
 				elem.modal do

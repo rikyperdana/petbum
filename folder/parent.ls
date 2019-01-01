@@ -13,15 +13,15 @@
 	diff = date.getTime! - (new Date!)getTime!
 	diff /= 1000ms * 60sec * 60min * 24hour
 	Math.round diff
+@hari = -> moment it .format 'D MMM YYYY'
+@rupiah = -> "Rp #{numeral(+it or 0)format '0,0'}"
 
 if Meteor.isClient
 
 	@state = pagins: limit: 5, page: 0
-	@hari = -> moment it .format 'D MMM YYYY'
 	@currentRoute = -> m.route.get!split \/ .1
 	@isDr = -> _.split Meteor.user!?username, \. .0 in <[ dr drg ]>
 	@roles = -> Meteor.user!?roles
-	@rupiah = -> "Rp #{numeral(+it or 0)format '0,0'}"
 	@tds = -> it.map (i) -> m \td, i
 	@userRole = ->
 		if it then roles!?[currentRoute!]?0 is that
