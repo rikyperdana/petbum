@@ -190,7 +190,7 @@ if Meteor.isClient
 								$options: \-i, $regex: ".*#{e.target.0.value}.*"
 							byNoMR = no_mr: +e.target.0.value
 							Meteor.subscribe \coll, \pasien, {$or: [byName, byNoMR]},
-								onReady: -> m.redraw!
+								{limit: 30}, onReady: -> m.redraw!
 					m \input.input, type: \text, placeholder: \Pencarian
 				m \table.table,
 					oncreate: -> Meteor.subscribe \users, onReady: ->
