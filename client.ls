@@ -416,8 +416,7 @@ if Meteor.isClient
 						m.redraw!
 			if userRole \admin then elem.report do
 				title: 'Laporan Pemasukan'
-				action: (e) ->
-					[start, end] = [to 1]map -> e.target[it]value
+				action: ([start, end]) ->
 					Meteor.call \incomes, start, end, (err, res) -> if res
 						csv "Pemasukan #{hari start} - #{hari end}", that
 		obat: -> view: -> m \.content,
@@ -468,6 +467,11 @@ if Meteor.isClient
 				onclick: -> makePdf.rekap!
 				m \span, 'Cetak Rekap'
 			[til 3]map -> m \br
+			if userRole \admin then elem.report do
+				title: 'Laporan Pengeluaran Obat'
+				action: ([start, end]) ->
+					Meteor.call \dispenses, start, end, (err, res) -> if res
+						csv "Pengeluaran Obat #{hari start}-#{hari end}", res
 		farmasi: -> view: -> m \.content,
 			unless m.route.param(\idbarang) then m \div,
 				m \form,

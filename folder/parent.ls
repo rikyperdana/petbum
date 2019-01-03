@@ -50,7 +50,9 @@ if Meteor.isClient
 		report: ({title, action}) -> m \.box,
 			m \h5, title
 			m \form.columns,
-				onsubmit: (e) -> [e.preventDefault!, action e]
+				onsubmit: (e) -> arr =
+					e.preventDefault!
+					action [to 1]map -> new Date e.target[it]value
 				m \.column, m \input.input, type: \date, placeholder: \Mulai
 				m \.column, m \input.input, type: \date, placeholder: \Akhir
 				m \.column, m \input.button.is-info, type: \submit, value: \Unduh

@@ -155,4 +155,5 @@ if Meteor.isServer
 					_.assign it, jumlah: it.jumlah + inc.jumlah
 			d = c.map ->
 				price = getPrice it.nama_obat, it.no_batch
-				_.assign it, harga: price, total: price * it.jumlah
+				_.assign it, harga: price, total: (price * it.jumlah),
+					nama_obat: coll.gudang.findOne it.nama_obat .nama
