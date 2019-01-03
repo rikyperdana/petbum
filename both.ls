@@ -200,7 +200,10 @@ if Meteor.isClient
 		'batch.$.masuk': type: Date
 		'batch.$.kadaluarsa': type: Date
 		'batch.$.digudang': type: Number
-		'batch.$.diapotik': type: Number, autoValue: -> 0
+		'batch.$.diapotik':
+			type: Number
+			autoform: type: \hidden
+			autoValue: -> 0
 		'batch.$.diretur': type: Boolean, optional: true, autoform: type: \hidden
 		'batch.$.beli': type: Number, decimal: true, optional: true
 		'batch.$.jual': type: Number, decimal: true, optional: true

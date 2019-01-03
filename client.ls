@@ -37,7 +37,7 @@ if Meteor.isClient
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		apotik: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		gudang: headers:
-			farmasi: <[ jenis_barang nama_barang stok_gudang stok_diapotik hapus ]>
+			farmasi: <[ jenis_barang nama_barang stok_gudang stok_diapotik ]>
 			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
 		farmasi: fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
 		manajemen: headers: tarif: <[ nama jenis harga grup active ]>
@@ -528,7 +528,7 @@ if Meteor.isClient
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.cell)]
 					m \tr,
 						ondblclick: -> if userGroup \obat
-							state.modal = that
+							state.modal = coll.gudang.findOne m.route.param \idbarang
 						m \th, \Treshold
 						m \td, that?treshold
 				state.modal and elem.modal do
@@ -540,6 +540,8 @@ if Meteor.isClient
 								e.preventDefault!
 								coll.gudang.update state.modal._id, $set:
 									treshold: +e.target.0.value
+								state.modal = null
+								m.redraw!
 							m \.field, m \.control, m \input.input,
 								type: \number, placeholder: \Minimum
 							m \.field, m \.control, m \input.button.is-success,
@@ -713,7 +715,7 @@ if Meteor.isClient
 					if userGroup \obat then m \th, \Serah
 				m \tbody, attr.amprah.amprahList!map (i) -> m \tr, tds arr =
 					hari i.tanggal_minta
-					_.startCase i.ruangan
+					(.full) modules.find -> it.name is i.ruangan
 					_.startCase (.username) Meteor.users.findOne i.peminta
 					"#{i.jumlah} unit"
 					look2(\gudang, i.nama)?nama
@@ -735,7 +737,7 @@ if Meteor.isClient
 							look2(\gudang, that.nama)?nama
 							that.jumlah
 							_.sum look2(\gudang, that.nama)batch.map (i) ->
-								if userGroup \obat then i.digudang
+								if userGroup \farmasi then i.digudang
 								else i.diapotik
 					m autoForm do
 						schema: new SimpleSchema schema.responAmprah

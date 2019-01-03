@@ -145,7 +145,7 @@ if Meteor.isServer
 				.beli
 			a = coll.rekap.find!fetch!filter -> start < it.printed < end
 			b = _.flattenDeep a.map (i) -> i.obat.map (j) -> j.batches.map (k) ->
-				nama_obat: j.nama_obat, no_batch: k.nobatch, jumlah: k.jumlah,
+				nama_obat: j.nama_obat, no_batch: k.nobatch, jumlah: k.jumlah
 			c = reduce [], a, (res, inc) ->
 				matched = -> _.every arr =
 					it.nama_obat is inc.nama_obat
