@@ -200,6 +200,12 @@ if Meteor.isClient
 		'batch.$.masuk': type: Date
 		'batch.$.kadaluarsa': type: Date
 		'batch.$.digudang': type: Number
+		'batch.$.awal':
+			type: Number
+			autoform: type: \hidden
+			autoValue: (name, docs) ->
+				(?value) docs.find ->
+					\digudang is _.last it.name.split \.
 		'batch.$.diapotik':
 			type: Number
 			autoform: type: \hidden
