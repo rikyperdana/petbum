@@ -143,9 +143,6 @@ if Meteor.isServer
 				coll.gudang.findOne(nama_obat)
 				.batch.find(-> it.nobatch is no_batch)
 				.beli
-			getPrice = (nama_obat, no_batch) ->
-				coll.gudang.findOne(nama_obat)
-				.batch.filter(-> it.nobatch is no_batch)
 			a = coll.rekap.find!fetch!filter -> start < it.printed < end
 			b = _.flattenDeep a.map (i) -> i.obat.map (j) -> j.batches.map (k) ->
 				nama_obat: j.nama_obat, no_batch: k.nobatch, jumlah: k.jumlah
@@ -157,10 +154,10 @@ if Meteor.isServer
 				else res.map -> unless matched(it) then it else
 					_.assign it, jumlah: it.jumlah + inc.jumlah
 			d = c.map (i) ->
-				price = getPrice it.nama_obat, i.no_batch
+				price = getPrice i.nama_obat, i.no_batch
 				obj = coll.gudang.findOne i.nama_obat
 				awal = _.sum obj.batch.map ->
 					if it.nobatch is i.no_batch then it.awal
 				_.assign i, harga: price, total: (price * i.jumlah),
 					nama_obat: obj.nama, stok_awal: awal,
-					stok_akhir: awal - jumlah
+					stok_akhir: awal - i.jumlah
