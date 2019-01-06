@@ -293,7 +293,7 @@ if Meteor.isClient
 						id: \formNurse
 						scope: \rawat
 						doc: that
-						buttonContent: 'Simpan'
+						buttonContent: \Simpan
 						columns: 3
 						hooks:
 							before: (doc, cb) -> Meteor.call \rmRawat, that._id, state.docRawat,
@@ -303,7 +303,16 @@ if Meteor.isClient
 										doc.rawat.0.obat
 										not doc.rawat.0.tindakan
 									petugas: "#{if isDr! then \dokter else \perawat}": Meteor.userId!
-							after: ->
+							after: (doc) ->
+								if doc.pindah then coll.pasien.update do
+									{_id: m.route.param \idpasien},
+									$push: rawat:
+										klinik: that
+										billRegis: doc.billRegis
+										cara_bayar: doc.cara_bayar
+										idrawat: randomId!
+										petugas: doc.petugas
+										tanggal: new Date!
 								state.docRawat = null
 								m.redraw!
 					m \table.table,
@@ -752,7 +761,6 @@ if Meteor.isClient
 							hooks:
 								before: (doc, cb) -> cb _.merge doc, state.modal
 								after: (doc) ->
-									console.log doc
 									state.modal = doc
 									m.redraw!
 					else m \table.table,

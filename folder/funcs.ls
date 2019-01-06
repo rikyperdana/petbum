@@ -128,7 +128,7 @@ if Meteor.isClient
 						'update-pushArray': -> opts.collection.update do
 							{_id: abnDoc._id}
 							{$push: "#{opts.scope}": $each: _.values obj[opts.scope]}
-							after
+							(err, res) -> opts.hooks?after doc if res
 
 					if opts.hooks?before then that obj, (moded) ->
 						formTypes(moded)[opts.type]!
