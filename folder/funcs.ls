@@ -282,13 +282,14 @@ if Meteor.isClient
 
 				else if schema.type is Array
 					found = maped.find -> it.name is "#{normed name}.$"
-					unless opts.type is \update-pushArray
-						docLen = (.length-1) _.filter abnDoc, (val, key) ->
+					docLen = if opts.type is \update-pushArray then 1 else
+						(.length-1) _.filter abnDoc, (val, key) ->
 							_.includes key, "#name."
 					m \.box,
-						m \h5.subtitle, label
-						m \a.button.is-success, attr.arrLen(name, \inc), '+ Add'
-						m \a.button.is-warning, attr.arrLen(name, \dec), '- Rem'
+						unless opts.type is \update-pushArray then m \div,
+							m \h5.subtitle, label
+							m \a.button.is-success, attr.arrLen(name, \inc), '+ Add'
+							m \a.button.is-warning, attr.arrLen(name, \dec), '- Rem'
 						[1 to (state.arrLen[name] or docLen or 0)]map (num) ->
 							type = j?autoform?type or \other
 							inputTypes "#name.#num", found .[type]!
