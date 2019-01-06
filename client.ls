@@ -733,26 +733,33 @@ if Meteor.isClient
 							m \span, \Serah
 			if state.modal then elem.modal do
 				title: 'Respon Amprah'
-				content: m \div,
-					m \table.table,
-						m \thead, m \tr, <[nama diminta sedia]>map (i) ->
+				content:
+					if state.modal.nama then m \div,
+						m \table.table,
+							m \thead, m \tr, <[nama diminta sedia]>map (i) ->
+								m \th, _.startCase i
+							m \tbody, m \tr, tds arr =
+								look2(\gudang, state.modal.nama)?nama
+								state.modal.jumlah
+								_.sum look2(\gudang, state.modal.nama)batch.map (i) ->
+									if userGroup \farmasi then i.digudang
+									else i.diapotik
+						m autoForm do
+							schema: new SimpleSchema schema.responAmprah
+							id: \formResponAmprah
+							type: \method
+							meteormethod: \serahAmprah
+							hooks:
+								before: (doc, cb) -> cb _.merge doc, state.modal
+								after: (doc) ->
+									console.log doc
+									state.modal = doc
+									m.redraw!
+					else m \table.table,
+						m \thead, m \tr, <[ no_batch serahkan ]>map (i) ->
 							m \th, _.startCase i
-						m \tbody, m \tr, tds arr =
-							look2(\gudang, that.nama)?nama
-							that.jumlah
-							_.sum look2(\gudang, that.nama)batch.map (i) ->
-								if userGroup \farmasi then i.digudang
-								else i.diapotik
-					m autoForm do
-						schema: new SimpleSchema schema.responAmprah
-						id: \formResponAmprah
-						type: \method
-						meteormethod: \serahAmprah
-						hooks:
-							before: (doc, cb) -> cb _.merge doc, that
-							after: ->
-								state.modal = null
-								m.redraw!
+						m \tbody, state.modal.map (i) -> m \tr,
+							tds _.map i, -> it
 
 	m.route.prefix ''
 	m.route document.body, \/dashboard,
