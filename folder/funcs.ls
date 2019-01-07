@@ -282,11 +282,11 @@ if Meteor.isClient
 
 				else if schema.type is Array
 					found = maped.find -> it.name is "#{normed name}.$"
-					docLen = if opts.type is \update-pushArray then 1 else
+					docLen = if opts.scope is name then 1 else
 						(.length-1) _.filter abnDoc, (val, key) ->
 							_.includes key, "#name."
 					m \.box,
-						unless opts.type is \update-pushArray then m \div,
+						unless opts.scope is name then m \div,
 							m \h5.subtitle, label
 							m \a.button.is-success, attr.arrLen(name, \inc), '+ Add'
 							m \a.button.is-warning, attr.arrLen(name, \dec), '- Rem'
