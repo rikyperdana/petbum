@@ -492,7 +492,7 @@ if Meteor.isClient
 					m \input.input, type: \text, placeholder: \Pencarian
 				if roles!?farmasi then m \button.button.is-success,
 					onclick: -> state.showForm = not state.showForm
-					m \span, '+Tambah Jenis Obat'
+					m \span, '+Tambah Jenis Barang'
 				if state.showForm
 					m \h5, 'Form Barang Farmasi'
 					m autoForm do
@@ -540,9 +540,9 @@ if Meteor.isClient
 						]
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.cell)]
 					m \tr,
-						ondblclick: -> if userGroup \obat
+						ondblclick: -> if userGroup(\obat) and userRole(\admin)
 							state.modal = coll.gudang.findOne m.route.param \idbarang
-						m \th, \Treshold
+						m \th, 'Batas Minimum'
 						m \td, that?treshold
 				state.modal and elem.modal do
 					title: 'Tetapkan Treshold'

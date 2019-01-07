@@ -1,13 +1,23 @@
+Jan 7th, 2018
+1. Rapikan header tabel excel output laporan kasir
+2. Versi pdf dari laporan kasir
+3. Rapikan header tabel excel output laporan apotik
+4. Jarakkan tombol input rawat
+5. Notifikasi angka mewakili jumlah tugas
+6. Nama barang yang harus diserahkan pada amprah
+7. Tunjukkan nama poli sang peminta barang
+8. Hilangkan fitur hapus barang
+
 Dec 5th, 2018
 oke 1. Penggabungan blok serah obat
 oke 2. Urutan serah di apotik
 oke 3. Pilihan obat bagi dokter berikut dengan kedua stok
 oke 4. Hapus kolom Total Biaya pada apotik
-5. Notifikasi serahan batch bagi farmasi
+oke 5. Notifikasi serahan batch bagi farmasi
 6. Prinsip: Kurangi keragaman batch pada stok apotik
 oke 7. Hilangkan tombol request pada farmasi
 oke 8. Pada modal Respon Amprah tampilkan stok apotik/farmasi
-9. Laporan pdf+excel apotik+farmasi
+oke 9. Laporan pdf+excel apotik+farmasi
 
 Dec 4th, 2018
 1. Rekam jejak waktu pasien di setiap modul
