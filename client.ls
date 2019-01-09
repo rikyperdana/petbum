@@ -82,14 +82,22 @@ if Meteor.isClient
 							arr.map (i) -> m \a.navbar-item,
 								onclick: i?1, i.0
 				m \.columns,
-					oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
+					oncreate: ->
+						state.notify = {}
+						Meteor.subscribe \users, onReady: ->
+							m.redraw!
+							attr.layout.rights!map (i) -> Meteor.call \notify, i.name,
+								(err, res) -> if res
+									state.notify[i.name] = res
+									m.redraw!
 					Meteor.userId! and m \.column.is-2, m \aside.menu.box,
 						m \p.menu-label, 'Admin Menu'
 						m \ul.menu-list, attr.layout.rights!map (i) ->
 							m \li, m "a##{i.name}",
 								href: "/#{i.name}"
 								class: \is-active if state.activeMenu is i.name
-								m \span, _.startCase i.full
+								if state.notify[i.name] then m \span, "(#that) "
+								m \span, i.full
 								if \regis is currentRoute! then m \ul,
 									[[\lama, 'Cari Pasien'], [\baru, 'Pasien Baru']]map (i) ->
 										m \li, m \a, href: "/regis/#{i.0}", oncreate: m.route.link, i.1
@@ -252,17 +260,12 @@ if Meteor.isClient
 							{name: 'Umur', data: moment!diff(that.regis.tgl_lahir, \years) + ' tahun'}
 						]
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.data)]
-					if currentRoute! is \regis then m \div,
-						m \.button.is-info,
-							onclick: -> makePdf.card m.route.param \idpasien
-							m \span, \Kartu
-						m \.button.is-info,
-							onclick: -> makePdf.consent!
-							m \span, \Consent
-						m \.button.is-warning,
-							onclick: -> m.route.set "/regis/edit/#{m.route.param \idpasien}"
-							m \span, \Edit
-						m \.button.is-success, attr.pasien.showForm.rawat, \+Rawat
+					if currentRoute! is \regis then m \div, [
+						[\Kartu, \is-info, onclick: -> makePdf.card m.route.param \idpasien]
+						[\Consent, \is-info, onclick: -> makePdf.consent!]
+						[\Edit, \is-warning, onclick: -> m.route.set "/regis/edit/#{m.route.param \idpasien}"]
+						[\+Rawat, \is-success, attr.pasien.showForm.rawat ]
+					]map (i) -> m ".button.#{i.1}", (_.merge style: 'margin-right: 10px', i.2), i.0
 					state.showAddRawat and m autoForm do
 						collection: coll.pasien
 						schema: new SimpleSchema schema.rawatRegis
@@ -515,9 +518,6 @@ if Meteor.isClient
 						m \td, i.nama
 						<[ digudang diapotik ]>map (j) ->
 							m \td, _.sumBy i.batch, j
-						userRole! is \admin and m \td, m \.button.is-danger,
-							onclick: -> state.modal = i
-							m \span, \Hapus
 					if state.modal then elem.modal do
 						title: 'Yakin hapus Obat ini?'
 						confirm: \Yakin
@@ -745,10 +745,9 @@ if Meteor.isClient
 				content:
 					if state.modal.nama then m \div,
 						m \table.table,
-							m \thead, m \tr, <[nama diminta sedia]>map (i) ->
+							m \thead, m \tr, <[diminta sedia]>map (i) ->
 								m \th, _.startCase i
 							m \tbody, m \tr, tds arr =
-								look2(\gudang, state.modal.nama)?nama
 								state.modal.jumlah
 								_.sum look2(\gudang, state.modal.nama)batch.map (i) ->
 									if userGroup \farmasi then i.digudang
@@ -764,7 +763,7 @@ if Meteor.isClient
 									state.modal = doc
 									m.redraw!
 					else m \table.table,
-						m \thead, m \tr, <[ no_batch serahkan ]>map (i) ->
+						m \thead, m \tr, <[ nama_obat no_batch serahkan ]>map (i) ->
 							m \th, _.startCase i
 						m \tbody, state.modal.map (i) -> m \tr,
 							tds _.map i, -> it

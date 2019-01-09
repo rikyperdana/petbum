@@ -1,12 +1,14 @@
+Jan 9th, 2018
+1. Perhatikan dan perbaiki semua tampilan
+
 Jan 7th, 2018
-1. Rapikan header tabel excel output laporan kasir
-2. Versi pdf dari laporan kasir
-3. Rapikan header tabel excel output laporan apotik
-4. Jarakkan tombol input rawat
-5. Notifikasi angka mewakili jumlah tugas
-6. Nama barang yang harus diserahkan pada amprah
-7. Tunjukkan nama poli sang peminta barang
-8. Hilangkan fitur hapus barang
+1. Rapikan header tabel excel output laporan kasir + apotik
+2. Versi pdf dari laporan kasir + apotik
+oke 3. Jarakkan tombol input rawat
+oke 4. Notifikasi angka mewakili jumlah tugas
+oke 5. Nama barang yang harus diserahkan pada amprah
+6. Tunjukkan nama poli sang peminta barang
+oke 7. Hilangkan fitur hapus barang
 
 Dec 5th, 2018
 oke 1. Penggabungan blok serah obat
@@ -25,7 +27,7 @@ oke 2. Sembunyikan pada list dokter pasien yg belum dihandle perawat
 oke 3. Keterangan Kali sehari
 oke 4. Keterangan dosis jadi ketikan terbuka
 sulit 5. Pencarian obat pada pilihan obat dokter
-6. Bug pada array element yang lupa di decrease
+oke 6. Bug pada array element yang lupa di decrease
 7. Laporan pdf+excel rawat jalan
 
 Dec 3rd, 2018

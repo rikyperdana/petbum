@@ -84,7 +84,10 @@ if Meteor.isServer
 					if doc.diserah < 1 or inc[stock] < 1 then inc
 					else
 						minim = -> min [doc.diserah, inc[stock]]
-						batches.push no_batch: inc.nobatch, serah: minim!
+						batches.push do
+							nama_obat: coll.gudang.findOne(doc.nama)nama
+							no_batch: inc.nobatch
+							serah: minim!
 						obj = _.assign {}, inc,
 							"#stock": inc[stock] - minim!
 							if stock is \digudang then diapotik:
@@ -164,3 +167,7 @@ if Meteor.isServer
 				_.assign i, harga: price, total: (price * i.jumlah),
 					nama_obat: obj.nama, stok_awal: awal,
 					stok_akhir: awal - i.jumlah
+
+		notify: (name) ->
+			obj = amprah: -> coll.amprah.find(diserah: $exists: false)fetch!length
+			obj[name]!
