@@ -52,9 +52,14 @@ if Meteor.isClient
 			m \form.columns,
 				onsubmit: (e) -> arr =
 					e.preventDefault!
-					action [to 1]map -> new Date e.target[it]value
+					action do
+						start: new Date e.target[0]value
+						end: new Date e.target[1]value
+						type: e.target[2]value
 				m \.column, m \input.input, type: \date, placeholder: \Mulai
 				m \.column, m \input.input, type: \date, placeholder: \Akhir
+				m \.column, m \.field, m \.control, m \.select, m \select,
+					<[Tabel Pdf]>map (i) -> m \option, i
 				m \.column, m \input.button.is-info, type: \submit, value: \Unduh
 	@csv = (title, docs) ->
 		content = exportcsv.exportToCSV docs, true, \;

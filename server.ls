@@ -129,16 +129,16 @@ if Meteor.isServer
 					start < j.tanggal < end
 					j.status_bayar or j.billRegis
 				card = if i.rawat.length > 1 then 10000 else false
-				no_mr: i.no_mr
-				nama_pasien: i.regis.nama_lengkap
-				tanggal: hari j.tanggal
-				jenis_pembayaran: (.join ' + ') _.compact arr =
+				'NO. MR': i.no_mr
+				'NAMA PASIEN': i.regis.nama_lengkap
+				'TANGGAL': hari j.tanggal
+				'JENIS PEMBAYARAN': (.join ' + ') _.compact arr =
 					\Regis
 					\Kartu if card
 					\Tindakan if j.tindakan
-				klinik: look \klinik, j.klinik .label
-				no_karcis: j.nobill
-				jumlah: _.sum arr =
+				'KLINIK': look \klinik, j.klinik .label
+				'NO.KARCIS': j.nobill
+				'JUMLAH (Rp)': _.sum arr =
 					card
 					look(\karcis, j.klinik)label*1000
 					_.sum j.tindakan?map (k) ->
@@ -164,10 +164,10 @@ if Meteor.isServer
 				obj = coll.gudang.findOne i.nama_obat
 				awal = _.sum obj.batch.map ->
 					if it.nobatch is i.no_batch then it.awal
-				_.assign i, harga: price, total: (price * i.jumlah),
-					nama_obat: obj.nama, stok_awal: awal,
-					stok_akhir: awal - i.jumlah
+				_.assign i, 'HARGA': price, 'TOTAL': (price * i.jumlah),
+					'NAMA OBAT': obj.nama, 'STOK AWAL': awal,
+					'STOK AKHIR': awal - i.jumlah
 
 		notify: (name) ->
 			obj = amprah: -> coll.amprah.find(diserah: $exists: false)fetch!length
-			obj[name]!
+			obj[name]?!

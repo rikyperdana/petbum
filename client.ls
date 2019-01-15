@@ -428,9 +428,11 @@ if Meteor.isClient
 						m.redraw!
 			if userRole \admin then elem.report do
 				title: 'Laporan Pemasukan'
-				action: ([start, end]) ->
+				action: ({start, end, type}) ->
 					Meteor.call \incomes, start, end, (err, res) -> if res
-						csv "Pemasukan #{hari start} - #{hari end}", that
+						title = "Pemasukan #{hari start} - #{hari end}"
+						obj = Tabel: csv, Pdf: makePdf.csv
+						obj[type] title, that
 		obat: -> view: -> m \.content,
 			m \h5, \Apotik,
 			m \table.table,
@@ -481,7 +483,7 @@ if Meteor.isClient
 			[til 3]map -> m \br
 			if userRole \admin then elem.report do
 				title: 'Laporan Pengeluaran Obat'
-				action: ([start, end]) ->
+				action: ({start, end, type}) ->
 					Meteor.call \dispenses, start, end, (err, res) -> if res
 						csv "Pengeluaran Obat #{hari start}-#{hari end}", res
 		farmasi: -> view: -> m \.content,

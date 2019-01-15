@@ -1,6 +1,6 @@
 if Meteor.isClient
 
-	kop = {text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. Dr. Soetomo No. 65, Telp. (0761) 23024\n\n\n', alignment: 'center'}
+	kop = {text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. Dr. Soetomo No. 65, Telp. (0761) 23024\n\n\n', alignment: \center, bold: true}
 
 	@makePdf =
 		card: (idpasien) ->
@@ -146,3 +146,14 @@ if Meteor.isClient
 				{table: body: [headers.map(-> _.startCase it), ...rows]}
 			.download "icdX_#{pasien.no_mr}.pdf"
 
+		csv: (name, docs) ->
+			rows = docs.map -> _.map it, -> it.toString!
+			headers = [_.map docs.0, (val, key) ->
+				text: key, bold: true, alignment: \center]
+			if rows.length > 0
+				pdfMake.createPdf content: arr =
+					kop
+					table:
+						widths: [til headers.0.length]map -> \auto
+						body: [...headers, ...rows]
+				.download "#name.pdf"
