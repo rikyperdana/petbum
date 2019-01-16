@@ -39,7 +39,10 @@ if Meteor.isClient
 		gudang: headers:
 			farmasi: <[ jenis_barang nama_barang stok_gudang stok_diapotik ]>
 			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
-		farmasi: fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
+		farmasi:
+			fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
+			search: -> it.filter (i) -> ors <[nama kandungan]>map (j) ->
+				_.includes (_.lowerCase i[j]), _.lowerCase state.search
 		manajemen: headers: tarif: <[ nama jenis harga grup active ]>
 		amprah:
 			headers: requests: <[ tanggal_minta ruangan peminta jumlah nama_barang penyerah diserah tanggal_serah]>
@@ -491,9 +494,7 @@ if Meteor.isClient
 				m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
-						regex = -> "#it": $options: \-i, $regex: ".*#{e.target.0.value}.*"
-						if e.target.0.value.length > 3 then Meteor.subscribe \coll, \gudang,
-							{$or: [regex(\nama), regex(\kandungan)]}, onReady: -> m.redraw!
+						state.search = _.lowerCase e.target.0.value
 					m \input.input, type: \text, placeholder: \Pencarian
 				if roles!?farmasi then m \button.button.is-success,
 					onclick: -> state.showForm = not state.showForm
@@ -511,10 +512,10 @@ if Meteor.isClient
 							state.showForm = null
 							m.redraw!
 				m \table.table,
-					# oncreate: -> Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
+					oncreate: -> Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
 					m \thead, m \tr, attr.gudang.headers.farmasi.map (i) ->
 						m \th, _.startCase i
-					m \tbody, coll.gudang.find!fetch!map (i) -> m \tr,
+					m \tbody, attr.farmasi.search(coll.gudang.find!fetch!)map (i) -> m \tr,
 						ondblclick: -> m.route.set "/farmasi/#{i._id}"
 						m \td, look(\barang, i.jenis)label
 						m \td, i.nama
