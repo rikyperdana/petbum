@@ -37,7 +37,7 @@ if Meteor.isClient
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		apotik: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		gudang: headers:
-			farmasi: <[ jenis_barang nama_barang stok_gudang stok_diapotik ]>
+			farmasi: <[ jenis_barang nama_barang batas stok_gudang stok_diapotik ]>
 			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
 		farmasi:
 			fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
@@ -516,15 +516,13 @@ if Meteor.isClient
 					m \thead, m \tr, attr.gudang.headers.farmasi.map (i) ->
 						m \th, _.startCase i
 					m \tbody, attr.farmasi.search(coll.gudang.find!fetch!)map (i) -> m \tr,
+						class: \has-text-danger if i.treshold > _.sumBy i.batch, \diapotik
 						ondblclick: -> m.route.set "/farmasi/#{i._id}"
 						m \td, look(\barang, i.jenis)label
 						m \td, i.nama
+						m \td, i.treshold
 						<[ digudang diapotik ]>map (j) ->
 							m \td, _.sumBy i.batch, j
-					if state.modal then elem.modal do
-						title: 'Yakin hapus Obat ini?'
-						confirm: \Yakin
-						action: -> coll.gudang.remove _id: state.modal._id
 			else m \div,
 				oncreate: -> Meteor.subscribe \coll, \gudang,
 					{_id: m.route.param \idbarang}
@@ -543,7 +541,7 @@ if Meteor.isClient
 						]
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.cell)]
 					m \tr,
-						ondblclick: -> if userGroup(\obat) and userRole(\admin)
+						ondblclick: -> if userGroup(\obat)
 							state.modal = coll.gudang.findOne m.route.param \idbarang
 						m \th, 'Batas Minimum'
 						m \td, that?treshold
