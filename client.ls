@@ -20,7 +20,7 @@ if Meteor.isClient
 				{head: 'Cara Bayar', cell: look(\cara_bayar, doc.cara_bayar)label}
 				{head: 'Anamesa Perawat', cell: doc?anamesa_perawat}
 				{head: 'Anamesa Dokter', cell: doc?anamesa_dokter}
-				{head: \Diagnosa, cell: doc?diagnosa}
+				{head: \Diagnosa, cell: doc?diagnosa.join ', '}
 				{head: \Planning, cell: doc?planning}
 			poliFilter: (arr) -> if arr then _.compact arr.map (i) ->
 				if userRole! is _.snakeCase look(\klinik, i.klinik)label then i
@@ -37,7 +37,7 @@ if Meteor.isClient
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		apotik: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		gudang: headers:
-			farmasi: <[ jenis_barang nama_barang batas stok_gudang stok_diapotik ]>
+			farmasi: <[ jenis_barang nama_barang batas stok_diapotik stok_gudang ]>
 			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
 		farmasi:
 			fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
@@ -521,7 +521,7 @@ if Meteor.isClient
 						m \td, look(\barang, i.jenis)label
 						m \td, i.nama
 						m \td, i.treshold
-						<[ digudang diapotik ]>map (j) ->
+						<[ diapotik digudang ]>map (j) ->
 							m \td, _.sumBy i.batch, j
 			else m \div,
 				oncreate: -> Meteor.subscribe \coll, \gudang,
@@ -697,14 +697,15 @@ if Meteor.isClient
 						attr.manajemen.headers.tarif.map (j) -> m \td, _.startCase i[j]
 				elem.pagins!
 		amprah: -> view: -> m \.content,
-			m \br, oncreate: ->
+			oncreate: ->
 				Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
-			m \.columns, _.compact(attr.amprah.reqForm!)map (type) -> m \.column,
+				state.showForm = obat: false, bhp: false
+			_.compact(attr.amprah.reqForm!)map (type) -> m \div,
+				[til 1]map (i) -> m \br
 				m \.button.is-primary,
-					onclick: -> state.showForm = not state.showForm
+					onclick: -> state.showForm[type] = not state.showForm[type]
 					m \span, "Request #{_.upperCase type}"
-				m \br
-				if state.showForm and !userGroup(\farmasi)
+				if state.showForm?[type] and !userGroup(\farmasi)
 					m \h5, 'Form Amprah'
 					m autoForm do
 						collection: coll.amprah
