@@ -58,9 +58,9 @@ if Meteor.isClient
 						type: e.target[2]value
 				m \.column, m \input.input, type: \date, placeholder: \Mulai
 				m \.column, m \input.input, type: \date, placeholder: \Akhir
-				m \.column, m \.field, m \.control, m \.select, m \select,
+				m \.column.is-2, m \.field, m \.control, m \.select, m \select,
 					<[Tabel Pdf]>map (i) -> m \option, i
-				m \.column, m \input.button.is-info, type: \submit, value: \Unduh
+				m \.column.is-1, m \input.button.is-info, type: \submit, value: \Unduh
 	@csv = (title, docs) ->
 		content = exportcsv.exportToCSV docs, true, \;
 		blob = new Blob [content], type: 'text/plain;charset=utf-8'

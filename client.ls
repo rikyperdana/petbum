@@ -1,9 +1,11 @@
 if Meteor.isClient
 
 	attr =
-		layout: rights: -> modules.filter -> it.name in
-			_.flatMap (_.keys Meteor.user!?roles), (i) ->
-				(.list) rights.find -> it.group is i
+		layout:
+			hospital: 'RSUD Petala Bumi'
+			rights: -> modules.filter -> it.name in
+				_.flatMap (_.keys Meteor.user!?roles), (i) ->
+					(.list) rights.find -> it.group is i
 		pasien:
 			showForm:
 				patient: onclick: ->
@@ -11,8 +13,8 @@ if Meteor.isClient
 				rawat: onclick: ->
 					state.showAddRawat = not state.showAddRawat
 			headers:
-				patientList: <[ tanggal no_mr nama_lengkap tanggal_lahir tempat_lahir poliklinik ]>
-				rawatFields: <[ tanggal klinik cara_bayar dokter bayar_pendaftaran status_bayar cek ]>
+				patientList: <[ tanggal_terakhir_rawat no_mr nama_lengkap tanggal_lahir tempat_lahir poliklinik ]>
+				rawatFields: <[ tanggal_berobat poliklinik cara_bayar dokter bayar_pendaftaran status_bayar ]>
 				icdFields: <[ nama_pasien tanggal klinik dokter diagnosis nama_perawat cek ]>
 			rawatDetails: (doc) -> arr =
 				{head: \Tanggal, cell: hari doc.tanggal}
@@ -65,9 +67,10 @@ if Meteor.isClient
 				m \link, rel: \stylesheet, href: 'https:/maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
 				m \nav.navbar.is-info,
 					role: \navigation, 'aria-label': 'main navigation',
-					m \.navbar-brand, m \a.navbar-item, href: \#,
-						_.upperCase (?full or \RSPB) modules.find ->
-							it.name is m.route.get!split(\/)[1]
+					m \.navbar-brand, m \a.navbar-item,
+						{style: "margin-left: 600px"}
+						_.upperCase (?full or attr.layout.hospital) modules.find ->
+							it.name is m.route.get!split \/ .1
 					m \.navbar-end, m \.navbar-item.has-dropdown,
 						class: \is-active if state.userMenu
 						m \a.navbar-link,
@@ -99,8 +102,8 @@ if Meteor.isClient
 							m \li, m "a##{i.name}",
 								href: "/#{i.name}"
 								class: \is-active if state.activeMenu is i.name
-								if state.notify[i.name] then m \span, "(#that) "
 								m \span, i.full
+								if state.notify[i.name] then m \span, " (#that)"
 								if \regis is currentRoute! then m \ul,
 									[[\lama, 'Cari Pasien'], [\baru, 'Pasien Baru']]map (i) ->
 										m \li, m \a, href: "/regis/#{i.0}", oncreate: m.route.link, i.1
@@ -267,7 +270,7 @@ if Meteor.isClient
 						[\Kartu, \is-info, onclick: -> makePdf.card m.route.param \idpasien]
 						[\Consent, \is-info, onclick: -> makePdf.consent!]
 						[\Edit, \is-warning, onclick: -> m.route.set "/regis/edit/#{m.route.param \idpasien}"]
-						[\+Rawat, \is-success, attr.pasien.showForm.rawat ]
+						['+Rawat Jalan', \is-success, attr.pasien.showForm.rawat ]
 					]map (i) -> m ".button.#{i.1}", (_.merge style: 'margin-right: 10px', i.2), i.0
 					state.showAddRawat and m autoForm do
 						collection: coll.pasien
@@ -325,6 +328,7 @@ if Meteor.isClient
 						m \thead, m \tr,
 							attr.pasien.headers.rawatFields.map (i) ->
 								m \th, _.startCase i
+							m \th, \Rincian if userGroup \jalan
 							m \th, \Hapus if userRole \admin
 						m \tbody, attr.pasien.poliFilter(that?rawat?reverse!)?map (i) -> m \tr, [
 							hari i.tanggal
@@ -335,7 +339,7 @@ if Meteor.isClient
 								if i[it] then \Sudah else \Belum
 							if userGroup \jalan then m \button.button.is-info,
 								onclick: -> state.modal = i
-								m \span, \Cek
+								m \span, \Lihat
 							if userRole \admin then m \.button.is-danger,
 								ondblclick: -> Meteor.call \rmRawat,
 									coll.pasien.findOne(_id: m.route.param \idpasien)_id

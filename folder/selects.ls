@@ -15,7 +15,7 @@
 	keluar: <[ pulang rujuk ]>
 	barang: <[ generik non_generik obat_narkotika bhp obat_keras_tertentu]>
 	satuan: <[ botol vial ampul pcs sachet tube supp tablet minidose pot turbuhaler kaplet kapsul bag pen rectal flash cream nebu galon lembar roll liter cup pasang bungkus ]>
-	anggaran: <[ blud apbd kemenkes dinkes ]>
+	anggaran: <[ blud apbd ]>
 	alias: <[ tn ny nn an by ]>
 	tinggal: <[ orang_tua keluarga sendiri panti_asuhan ]>
 	cara_masuk: <[ jalan kursi_roda lainnya ]>

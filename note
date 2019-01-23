@@ -1,8 +1,8 @@
 Jan 9th, 2018
-1. Perhatikan dan perbaiki semua tampilan
+maybe 1. Perhatikan dan perbaiki semua tampilan
 
 Jan 7th, 2018
-oke1. Rapikan header tabel excel output laporan kasir + apotik
+oke 1. Rapikan header tabel excel output laporan kasir + apotik
 oke 2. Versi pdf dari laporan kasir + apotik
 oke 3. Jarakkan tombol input rawat
 oke 4. Notifikasi angka mewakili jumlah tugas
@@ -22,13 +22,13 @@ oke 8. Pada modal Respon Amprah tampilkan stok apotik/farmasi
 oke 9. Laporan pdf+excel apotik+farmasi
 
 Dec 4th, 2018
-1. Rekam jejak waktu pasien di setiap modul
+oke 1. Rekam jejak waktu pasien di setiap modul
 oke 2. Sembunyikan pada list dokter pasien yg belum dihandle perawat
 oke 3. Keterangan Kali sehari
 oke 4. Keterangan dosis jadi ketikan terbuka
 sulit 5. Pencarian obat pada pilihan obat dokter
 oke 6. Bug pada array element yang lupa di decrease
-7. Laporan pdf+excel rawat jalan
+oke 7. Laporan pdf+excel rawat jalan
 
 Dec 3rd, 2018
 oke 1. Info Faskes pasien yg mendaftar
@@ -47,7 +47,7 @@ oke 4. Bagi apotik tampilkan form request bhp dan obat
 ? 6. Draft rancangan rawat inap pengurangan obat
 
 Nov 19th, 2018
-1. Setiap baris form resume rawat jalan mewakili 1x rawat pada PDF
+oke 1. Setiap baris form resume rawat jalan mewakili 1x rawat pada PDF
 oke 2. Autoclose modal responAmprah
 oke 3. Farmasi hanya bisa lihat list request apotik
 oke 4. Stok apotik seharusnya bertambah jika amprah direspon farmasi

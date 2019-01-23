@@ -15,9 +15,9 @@ if Meteor.isClient
 		'regis.tmpt_lahir': type: String, optional: true
 		'regis.kelamin': type: Number, autoform: options: selects.kelamin
 		'regis.agama': type: Number, optional: true, autoform: options: selects.agama
-		'regis.nikah': type: Number, optional: true, autoform: options: selects.nikah
-		'regis.pendidikan': type: Number, optional: true, autoform: options: selects.pendidikan
-		'regis.darah': type: Number, optional: true, autoform: options: selects.darah
+		'regis.nikah': type: Number, optional: true, label: 'Status Nikah', autoform: options: selects.nikah
+		'regis.pendidikan': type: Number, optional: true, label: 'Pendidikan Terakhir', autoform: options: selects.pendidikan
+		'regis.darah': type: Number, optional: true, label: 'Golongan Darah', autoform: options: selects.darah
 		'regis.pekerjaan': type: Number, optional: true, autoform: options: selects.pekerjaan
 		'regis.alamat': type: String, optional: true
 		'regis.kabupaten': type: String, optional: true, label: 'Kabupaten/Kota'
@@ -93,7 +93,7 @@ if Meteor.isClient
 			autoform: type: \hidden
 			autoValue: -> new Date!
 		'rawat.$.cara_bayar': type: Number, autoform: options: selects.cara_bayar
-		'rawat.$.klinik': type: Number, autoform: options: selects.klinik
+		'rawat.$.klinik': type: Number, label: 'Poliklinik', autoform: options: selects.klinik
 		'rawat.$.dokter': type: String, autoform: options: selects.dokter
 		'rawat.$.billRegis':
 			type: Number
@@ -114,7 +114,7 @@ if Meteor.isClient
 			type: Number, optional: true,
 			label: 'Pasien Tinggal'
 			autoform: options: selects.tinggal
-		'rawat.$.tanggung_jawab': type: String
+		'rawat.$.tanggung_jawab': type: String, optional: true
 
 	schema.rawatNurse =
 		'rawat.$.anamesa_perawat': type: String, autoform: type: \textarea
