@@ -168,8 +168,16 @@ if Meteor.isServer
 					'NAMA OBAT': obj.nama, 'STOK AWAL': awal,
 					'STOK AKHIR': awal - i.jumlah
 
-		visits: (start, end) -> console.log coll.pasien.aggregate arr =
-			$match: no_mr: 123123
+		visits: (start, end) ->
+			cond = tanggal: $and: [{$gt: start}, {$lt: end}]
+			groups = coll.pasien.aggregate pipe =
+				a = $match: rawat: $elemMatch: cond
+				b = $unwind: \$rawat
+				c = $match: cond
+				d = $group: id: \$klinik, total: $sum: 1
+			selects.klinik.map (i) ->
+				klinik: i.label
+				jumlah: (.jumlah or 0) groups.find -> it.id is i.value
 
 		notify: (name) ->
 			obj = amprah: -> coll.amprah.find(diserah: $exists: false)fetch!length
