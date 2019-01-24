@@ -136,6 +136,9 @@ if Meteor.isClient
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
 		pasien: -> view: -> m \.content,
+			if userGroup \regis  then elem.report do
+				title: 'Laporan Kunjungan Poliklinik'
+				action: ({start, end, type}) -> Meteor.call \visits, start, end
 			if m.route.param(\jenis) in <[baru edit]> then m autoForm do
 				collection: coll.pasien
 				schema: new SimpleSchema schema.regis

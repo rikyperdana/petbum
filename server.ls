@@ -168,6 +168,9 @@ if Meteor.isServer
 					'NAMA OBAT': obj.nama, 'STOK AWAL': awal,
 					'STOK AKHIR': awal - i.jumlah
 
+		visits: (start, end) -> console.log coll.pasien.aggregate arr =
+			$match: no_mr: 123123
+
 		notify: (name) ->
 			obj = amprah: -> coll.amprah.find(diserah: $exists: false)fetch!length
 			obj[name]?!
