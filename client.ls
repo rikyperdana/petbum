@@ -138,7 +138,11 @@ if Meteor.isClient
 		pasien: -> view: -> m \.content,
 			if userGroup \regis  then elem.report do
 				title: 'Laporan Kunjungan Poliklinik'
-				action: ({start, end, type}) -> Meteor.call \visits, start, end
+				action: ({start, end, type}) ->
+					Meteor.call \visits, start, end, (err, res) -> if res
+						title = "Kunjungan #{hari start} - #{hari end}"
+						obj = Tabel: csv, Pdf: makePdf.csv
+						obj[type] title, that
 			if m.route.param(\jenis) in <[baru edit]> then m autoForm do
 				collection: coll.pasien
 				schema: new SimpleSchema schema.regis

@@ -169,15 +169,18 @@ if Meteor.isServer
 					'STOK AKHIR': awal - i.jumlah
 
 		visits: (start, end) ->
-			cond = tanggal: $and: [{$gt: start}, {$lt: end}]
 			groups = coll.pasien.aggregate pipe =
-				a = $match: rawat: $elemMatch: cond
+				a = $match: rawat: $elemMatch: $and: list =
+					{tanggal: $gt: start}
+					{tanggal: $lt: end}
 				b = $unwind: \$rawat
-				c = $match: cond
-				d = $group: id: \$klinik, total: $sum: 1
+				c = $match: $and: list =
+					{'rawat.tanggal': $gt: start}
+					{'rawat.tanggal': $lt: end}
+				d = $group: _id: '$rawat.klinik', jumlah: $sum: 1
 			selects.klinik.map (i) ->
-				klinik: i.label
-				jumlah: (.jumlah or 0) groups.find -> it.id is i.value
+				KLINIK: i.label
+				JUMLAH: (?jumlah or 0) groups.find -> it._id is i.value
 
 		notify: (name) ->
 			obj = amprah: -> coll.amprah.find(diserah: $exists: false)fetch!length
