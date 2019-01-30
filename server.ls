@@ -183,13 +183,14 @@ if Meteor.isServer
 			grouped = _.groupBy maped, \hari
 			result = _.map grouped, (val, key) ->
 				hari: key, tanggal: (new Date key),
-				poli: selects.klinik.map (v, k) ->
+				poli: _.merge ... selects.klinik.map (v, k) ->
 					"#{v.label}": (.length) val.filter -> it.klinik is k+1
-				bayar: selects.cara_bayar.map (v, k) ->
+				bayar: _.merge ... selects.cara_bayar.map (v, k) ->
 					"#{v.label}": (.length) val.filter -> it.cara_bayar is k+1
-				status: list =
-					baru = baru: (.length) val.filter -> it.baru
-					lama = lama: val.length - (.length) val.filter -> it.baru
+				status: _.merge ... [
+					{Baru: (.length) val.filter -> it.baru}
+					{Lama: val.length - (.length) val.filter -> it.baru}
+				]
 			_.sortBy result, \tanggal
 
 		notify: (name) ->

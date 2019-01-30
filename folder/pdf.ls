@@ -159,16 +159,18 @@ if Meteor.isClient
 				.download "#name.pdf"
 
 		visits: (docs) ->
-			headers =
-				poli: _.keys _.merge {}, ...docs.0.poli
-			rows =
-				poli: docs.map (i) -> [i.hari].concat do
-					_.values _.merge {}, ... i.poli
-					.map -> it.toString!
-			console.log rows
-			pdfMake.createPdf content: arr =
+			headers = _.merge ... <[poli bayar status]>map (i) ->
+				"#i": _.keys docs.0[i]
+			rows = _.merge ... <[poli bayar status]>map (i) ->
+				"#i": docs.map (j) -> [j.hari]concat do
+					(_.values j[i])map -> it.toString!
+			range = <[first last]>map (i) -> (.hari) _[i] docs
+			title = "Laporan Kunjungan #{range.0} - #{range.1}.pdf"
+			pdfMake.createPdf pageOrientation: \landscape, content: arr =
 				kop
-				table: body: contents =
-					[\Tanggal, ...headers.poli]
-					...rows.poli
-			.download "something.pdf"
+				{text: "#title \n\n", alignment: \center, bold: true}
+				... <[poli bayar status]>map (i) ->
+					table: body: x =
+						[\Tanggal, ...headers[i]]
+						...rows[i]
+			.download title
