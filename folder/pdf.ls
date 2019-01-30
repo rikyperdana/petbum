@@ -157,3 +157,18 @@ if Meteor.isClient
 						widths: [til headers.0.length]map -> \auto
 						body: [...headers, ...rows]
 				.download "#name.pdf"
+
+		visits: (docs) ->
+			headers =
+				poli: _.keys _.merge {}, ...docs.0.poli
+			rows =
+				poli: docs.map (i) -> [i.hari].concat do
+					_.values _.merge {}, ... i.poli
+					.map -> it.toString!
+			console.log rows
+			pdfMake.createPdf content: arr =
+				kop
+				table: body: contents =
+					[\Tanggal, ...headers.poli]
+					...rows.poli
+			.download "something.pdf"
