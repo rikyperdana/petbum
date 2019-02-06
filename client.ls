@@ -151,6 +151,9 @@ if Meteor.isClient
 				doc: coll.pasien.findOne m.route.param \idpasien
 				buttonContent: \Simpan
 				columns: 3
+				onchange: (doc) -> if doc.value
+					Meteor.call \onePasien, that, (err, res) ->
+						res and alert "No. MR #that sudah terpakai"
 				hooks:
 					before: (doc, cb) ->
 						cb _.merge doc, regis: petugas:

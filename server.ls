@@ -196,3 +196,11 @@ if Meteor.isServer
 		notify: (name) ->
 			obj = amprah: -> coll.amprah.find(diserah: $exists: false)fetch!length
 			obj[name]?!
+
+		nextMR: ->
+			list = coll.pasien.aggregate pipe =
+				{$project: no_mr: 1}
+				{$sort: no_mr: 1}
+			nums = list.map -> it.no_mr
+			index = nums.findIndex (i, j, k) -> i - k[j-1] > 1
+			nums[index-1]+1
