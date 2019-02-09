@@ -504,6 +504,13 @@ if Meteor.isClient
 					Meteor.call \dispenses, start, end, (err, res) -> if res
 						csv "Pengeluaran Obat #{hari start}-#{hari end}", res
 		farmasi: -> view: -> m \.content,
+			if userGroup \farmasi then elem.report do
+				title: 'Laporan Stok Barang'
+				action: ({start, end, type}) ->
+					Meteor.call \stocks, start, end, (err, res) -> if res
+						title = "Stok Barang #{hari start} - #{hari end}"
+						obj = Tabel: csv, Pdf: makePdf.csv
+						obj[type] title, that
 			unless m.route.param(\idbarang) then m \div,
 				m \form,
 					onsubmit: (e) ->

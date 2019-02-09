@@ -197,6 +197,27 @@ if Meteor.isServer
 				]
 			_.sortBy result, \tanggal
 
+		stocks: (start, end) ->
+			coll.gudang.aggregate pipe =
+				a = $match: batch: $elemMatch: $and: arr =
+					{masuk: $gt: start}
+					{masuk: $lt: end}
+				b = $unwind: \$batch
+				c = $match: $and: arr =
+					{'batch.masuk': $gt: start}
+					{'batch.masuk': $lt: end}
+			.map (i) ->
+				'Nama Obat': i.nama
+				'Kemasan': look(\satuan, i.satuan)label
+				'Satuan': look(\satuan, i.satuan)label
+				'Jenis': look(\barang, i.jenis)label
+				'Batch': i.batch.nobatch
+				'ED': hari i.batch.kadaluarsa
+				'Harga Satuan': rupiah i.batch.beli
+				'Stok Awal': i.batch.awal.toString!
+				'Sisa Stock': i.batch.digudang.toString!
+				'Total Nilai': rupiah i.batch.digudang * i.batch.beli
+
 		notify: (name) ->
 			obj = amprah: -> coll.amprah.find(diserah: $exists: false)fetch!length
 			obj[name]?!

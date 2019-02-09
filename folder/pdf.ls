@@ -151,11 +151,13 @@ if Meteor.isClient
 			headers = [_.map docs.0, (val, key) ->
 				text: key, bold: true, alignment: \center]
 			if rows.length > 0
-				pdfMake.createPdf content: arr =
-					kop
-					table:
-						widths: [til headers.0.length]map -> \auto
-						body: [...headers, ...rows]
+				pdfMake.createPdf do
+					pageOrientation: \landscape
+					content: arr =
+						kop
+						table:
+							widths: [til headers.0.length]map -> \auto
+							body: [...headers, ...rows]
 				.download "#name.pdf"
 
 		visits: (docs) ->
