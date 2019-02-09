@@ -22,7 +22,7 @@ if Meteor.isClient
 				{head: 'Cara Bayar', cell: look(\cara_bayar, doc.cara_bayar)label}
 				{head: 'Anamesa Perawat', cell: doc?anamesa_perawat}
 				{head: 'Anamesa Dokter', cell: doc?anamesa_dokter}
-				{head: \Diagnosa, cell: doc?diagnosa.join ', '}
+				{head: \Diagnosa, cell: doc?diagnosa?join ', '}
 				{head: \Planning, cell: doc?planning}
 			poliFilter: (arr) -> if arr then _.compact arr.map (i) ->
 				if userRole! is _.snakeCase look(\klinik, i.klinik)label then i
@@ -82,7 +82,7 @@ if Meteor.isClient
 								m.route.set \/login
 								m.redraw!
 							arr =
-								[JSON.stringify Meteor.user!?roles]
+								if Meteor.user!?roles then ["Grup: #{userGroup!}, Peran: #{userRole!}"] else ['']
 								unless Meteor.userId! then [\Login, -> m.route.set \/login]
 								else [\Logout, -> logout!]
 							arr.map (i) -> m \a.navbar-item,

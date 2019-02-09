@@ -90,7 +90,7 @@ if Meteor.isClient
 			form:
 				id: opts.id
 				onchange: ({target}) ->
-					opts.onchange target
+					if opts.onchange then that target
 					arr = <[ radio checkbox select ]>
 					unless theSchema(target.name)?autoform?type in arr
 						state.form[opts.id][target.name] = target.value
