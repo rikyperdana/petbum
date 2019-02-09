@@ -164,9 +164,13 @@ if Meteor.isServer
 				obj = coll.gudang.findOne i.nama_obat
 				awal = _.sum obj.batch.map ->
 					if it.nobatch is i.no_batch then it.awal
-				_.assign i, 'HARGA': price, 'TOTAL': (price * i.jumlah),
-					'NAMA OBAT': obj.nama, 'STOK AWAL': awal,
-					'STOK AKHIR': awal - i.jumlah
+				'Nama Obat': obj.nama
+				'No. Batch': i.no_batch
+				'Jumlah': i.jumlah
+				'Harga': price
+				'Total': price * i.jumlah
+				'Stok Awal': awal
+				'Stok Akhir': awal - i.jumlah
 
 		visits: (start, end) ->
 			docs = coll.pasien.aggregate pipe =

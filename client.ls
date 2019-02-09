@@ -136,7 +136,7 @@ if Meteor.isClient
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
 		pasien: -> view: -> m \.content,
-			if userGroup \regis  then elem.report do
+			if userGroup \regis and userRole \admin then elem.report do
 				title: 'Laporan Kunjungan Poliklinik'
 				action: ({start, end, type}) ->
 					Meteor.call \visits, start, end, (err, res) -> if res
