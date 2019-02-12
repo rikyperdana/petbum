@@ -151,9 +151,9 @@ if Meteor.isClient
 				doc: coll.pasien.findOne m.route.param \idpasien
 				buttonContent: \Simpan
 				columns: 3
-				onchange: (doc) -> if doc.value
-					Meteor.call \onePasien, that, (err, res) ->
-						res and alert "No. MR #that sudah terpakai"
+				onchange: (doc) -> if doc.name is \no_mr
+					Meteor.call \onePasien, doc.value, (err, res) ->
+						res and alert "No. MR #{doc.value} sudah terpakai"
 				hooks:
 					before: (doc, cb) ->
 						cb _.merge doc, regis: petugas:
@@ -422,7 +422,9 @@ if Meteor.isClient
 					_.startCase look2(\tarif, it.nama)nama
 					it.harga
 				uraian =
-					['Cetak Kartu', 10000] unless coll.pasien.findOne(state.modal.pasienId)rawat?0?billRegis
+					['Cetak Kartu', 10000] if ands arr =
+						not coll.pasien.findOne(state.modal.pasienId)rawat?0?billRegis
+						coll.pasien.findOne(state.modal.pasienId)regis.petugas
 					['Konsultasi Spesialis', look(\karcis, that.klinik)label*1000] unless state.modal.billRegis
 					... tindakans or []
 				params = <[ pasienId idrawat ]>map -> state.modal[it]
