@@ -136,6 +136,9 @@ if Meteor.isClient
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
 		pasien: -> view: -> m \.content,
+			oncreate: Meteor.subscribe \coll, \daerah, $and: arr =
+				{provinsi: $exists: true}
+				{kabupaten: $exists: false}
 			if userGroup \regis and userRole \admin then elem.report do
 				title: 'Laporan Kunjungan Poliklinik'
 				action: ({start, end, type}) ->
@@ -151,13 +154,29 @@ if Meteor.isClient
 				doc: coll.pasien.findOne m.route.param \idpasien
 				buttonContent: \Simpan
 				columns: 3
-				onchange: (doc) -> if doc.name is \no_mr
-					Meteor.call \onePasien, doc.value, (err, res) ->
-						res and alert "No. MR #{doc.value} sudah terpakai"
+				onchange: (doc) ->
+					if doc.name is \no_mr
+						Meteor.call \onePasien, doc.value, (err, res) ->
+							res and alert "No. MR #{doc.value} sudah terpakai"
+					else if doc.name is \regis.provinsi
+						Meteor.subscribe \coll, \daerah, $and: arr =
+							{provinsi: +doc.value}
+							{kabupaten: $exists: true}
+					else if doc.name is \regis.kabupaten
+						Meteor.subscribe \coll, \daerah, $and: arr =
+							{kabupaten: +doc.value}
+							{kecamatan: $exists: true}
+					else if doc.name is \regis.kecamatan
+						Meteor.subscribe \coll, \daerah, $and: arr =
+							{kecamatan: +doc.value}
+							{kelurahan: $exists: true}
 				hooks:
-					before: (doc, cb) ->
-						cb _.merge doc, regis: petugas:
-							"#{userGroup!}": Meteor.userId!
+					before: (doc, cb) -> cb _.merge doc, regis:
+						petugas: "#{userGroup!}": Meteor.userId!
+						provinsi: (.daerah) coll.daerah.findOne provinsi: doc.provinsi
+						kabupaten: (.daerah) coll.daerah.findOne provinsi: doc.provinsi, kabupaten: doc.kabupaten
+						kecamatan: (.daerah) coll.daerah.findOne kabupaten: doc.kabupaten, kecamatan: doc.kecamatan
+						kelurahan: (.daerah) coll.daerah.findOne kecamatan: doc.kecamatan, kelurahan: doc.kelurahan
 					after: (id) ->
 						state.showAddPatient = null
 						m.route.set "/regis/lama/#id"
@@ -344,7 +363,7 @@ if Meteor.isClient
 							hari i.tanggal
 							look(\klinik, i.klinik)label
 							look(\cara_bayar, i.cara_bayar)label
-							if i.dokter then _.startCase Meteor.users.find(that)username
+							if i.dokter then _.startCase Meteor.users.findOne(that)username
 							... <[ billRegis status_bayar ]>map ->
 								if i[it] then \Sudah else \Belum
 							if userGroup \jalan then m \button.button.is-info,
@@ -706,6 +725,12 @@ if Meteor.isClient
 							if data.password
 								<[ newUser importRoles ]>map (i) ->
 									Meteor.call i, data
+							if data.daerah then coll.daerah.insert do
+								daerah: _.lowerCase data.daerah
+								provinsi: +that if data.provinsi
+								kabupaten: +that if data.kabupaten
+								kecamatan: +that if data.kecamatan
+								kelurahan: +that if data.kelurahan
 					m \span.file-cta,
 						m \span.file-icon, m \i.fa.fa-upload
 						m \span.file-label, 'Pilih file .csv'

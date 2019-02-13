@@ -60,3 +60,19 @@ selects.dokter = -> if Meteor.isClient
 		_.split i.username, \. .0 in <[ dr drg ]>
 		_.includes i.roles.jalan, (.[selPoli]) selects.klinik.map -> _.snakeCase it.label
 	a.map -> value: it._id, label: _.startCase it.username
+
+selects.provinsi = -> if Meteor.isClient
+	coll.daerah.find!fetch!filter -> it.provinsi and not it.kabupaten
+	.map -> value: it.provinsi, label: _.startCase it.daerah
+
+selects.kabupaten = -> if Meteor.isClient
+	coll.daerah.find!fetch!filter -> it.kabupaten and it.provinsi
+	.map -> value: it.kabupaten, label: _.startCase it.daerah
+
+selects.kecamatan = -> if Meteor.isClient
+	coll.daerah.find!fetch!filter -> it.kecamatan and it.kabupaten
+	.map -> value: it.kecamatan, label: _.startCase it.daerah
+
+selects.kelurahan = -> if Meteor.isClient
+	coll.daerah.find!fetch!filter -> it.kelurahan and it.kecamatan
+	.map -> value: it.kelurahan, label: _.startCase it.daerah
