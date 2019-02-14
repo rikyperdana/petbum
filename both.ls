@@ -13,7 +13,7 @@ if Meteor.isClient
 		'regis.no_ktp': type: Number, max: 9999999999999999, optional: true
 		'regis.tgl_lahir': type: Date
 		'regis.tmpt_lahir': type: String, optional: true
-		'regis.kelamin': type: Number, autoform: options: selects.kelamin
+		'regis.kelamin': type: Number, optional: true, autoform: options: selects.kelamin
 		'regis.agama': type: Number, optional: true, autoform: options: selects.agama
 		'regis.nikah': type: Number, optional: true, label: 'Status Nikah', autoform: options: selects.nikah
 		'regis.pendidikan': type: Number, optional: true, label: 'Pendidikan Terakhir', autoform: options: selects.pendidikan

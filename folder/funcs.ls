@@ -131,9 +131,10 @@ if Meteor.isClient
 							{$push: "#{opts.scope}": $each: _.values obj[opts.scope]}
 							(err, res) -> opts.hooks?after doc if res
 
-					if opts.hooks?before then that obj, (moded) ->
-						formTypes(moded)[opts.type]!
-					else formTypes![opts.type]!
+					if _.values(state.errors[opts.id])length is 0
+						if opts.hooks?before then that obj, (moded) ->
+							formTypes(moded)[opts.type]!
+						else formTypes![opts.type]!
 
 			radio: (name, value) ->
 				type: \radio, name: name, id: "#name#value"

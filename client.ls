@@ -173,10 +173,10 @@ if Meteor.isClient
 				hooks:
 					before: (doc, cb) -> cb _.merge doc, regis:
 						petugas: "#{userGroup!}": Meteor.userId!
-						provinsi: (.daerah) coll.daerah.findOne provinsi: doc.provinsi
-						kabupaten: (.daerah) coll.daerah.findOne provinsi: doc.provinsi, kabupaten: doc.kabupaten
-						kecamatan: (.daerah) coll.daerah.findOne kabupaten: doc.kabupaten, kecamatan: doc.kecamatan
-						kelurahan: (.daerah) coll.daerah.findOne kecamatan: doc.kecamatan, kelurahan: doc.kelurahan
+						provinsi: (?daerah) coll.daerah.findOne provinsi: doc.provinsi
+						kabupaten: (?daerah) coll.daerah.findOne provinsi: doc.provinsi, kabupaten: doc.kabupaten
+						kecamatan: (?daerah) coll.daerah.findOne kabupaten: doc.kabupaten, kecamatan: doc.kecamatan
+						kelurahan: (?daerah) coll.daerah.findOne kecamatan: doc.kecamatan, kelurahan: doc.kelurahan
 					after: (id) ->
 						state.showAddPatient = null
 						m.route.set "/regis/lama/#id"
