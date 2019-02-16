@@ -194,9 +194,12 @@ if Meteor.isClient
 			structure recDom chunk it
 
 		inputTypes = (name, schema) ->
-			label =
-				theSchema(name)?label
-				or _.startCase _.last _.split name, \.
+			title = ors arr =
+				theSchema(normed name)?label
+				_.startCase _.last _.split (normed name), \.
+			label = m \label.label,
+				m \span, title
+				m \span.has-text-danger, \* unless theSchema(normed name)optional
 			error = _.startCase _.find state.errors[opts.id],
 				(val, key) -> key is name
 
@@ -206,15 +209,15 @@ if Meteor.isClient
 					(val, key) -> value: val, name: key
 
 			textarea: -> m \div,
+				label
 				m \textarea.textarea,
 					name: name, id: name,
 					class: \is-danger if error
-					placeholder: label
 					value: state.form[opts.id][name] or abnDoc?[name]
 				m \p.help.is-danger, error if error
 
 			range: -> m \div,
-				m \label.label, label
+				label
 				m \input,
 					type: \range, id: name, name: name,
 					class: \is-danger if error
@@ -222,14 +225,14 @@ if Meteor.isClient
 				m \p.help.is-danger, error if error
 
 			checkbox: -> m \div,
-				m \label.label, label
+				label
 				optionList(name)map (j) -> m \label.checkbox,
 					m \input, attr.checkbox name, j.value
 					m \span, _.startCase j.label
 				m \p.help.is-danger, error if error
 
 			select: -> m \div,
-				m \label.label, label
+				label
 				m \.select, m \select, attr.select(name),
 					m \option, value: '', ors arr =
 						theSchema(normed name)autoform?firstLabel
@@ -239,7 +242,7 @@ if Meteor.isClient
 				m \p.help.is-danger, error if error
 
 			radio: -> m \.control,
-				m \label.label, label
+				label
 				optionList(name)map (j) -> m \label.radio,
 					m \input, attr.radio name, j.value
 					m \span, _.startCase j.label
@@ -260,9 +263,7 @@ if Meteor.isClient
 					inputTypes name, defaultType!0 .radio!
 
 				else if defaultType!?0 then m \.field,
-					m \label.label,
-						m \span, label
-						m \span.has-text-danger, \* unless schema.optional
+					label
 					m \.control, m \input.input,
 						class: \is-danger if error
 						type: schema.autoform?type or that
