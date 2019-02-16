@@ -82,8 +82,8 @@ if Meteor.isClient
 		stateTempGet = (field) -> if state.temp[opts.id]
 			_.findLast state.temp[opts.id], -> it.name is field
 
-		# if opts.scope then opts.doc[that] = []
-		abnDoc = abnormalize that if opts.doc
+		clonedDoc = _.assign {}, opts.doc, "#that": [] if opts.scope
+		abnDoc = abnormalize that if clonedDoc or opts.doc
 		normed = -> it.replace /\d/g, \$
 
 		attr =
@@ -117,8 +117,11 @@ if Meteor.isClient
 
 					context = usedSchema.newContext!
 					context.validate _.merge {}, obj, (opts.doc or {})
-					state.errors[opts.id] = _.assign {},
-						... context._invalidKeys.map -> "#{it.name}": it.type
+					state.errors[opts.id] = _.assign {}, ... do ->
+						a = context._invalidKeys.filter (i) -> ands arr =
+							i.type isnt \keyNotInSchema
+							!theSchema(normed i.name)?autoValue
+						a.map -> "#{it.name}": it.type
 
 					after = (err, res) -> opts.hooks?after res if res
 					formTypes = (doc) ->
