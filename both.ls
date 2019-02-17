@@ -67,9 +67,8 @@ if Meteor.isClient
 		nama: type: String, autoform: options: selects.obat
 		puyer: type: String, optional: true
 		aturan: type: Object
-		'aturan.kali': type: Number, label: 'kali sehari'
+		'aturan.kali': type: Number, label: 'Kali sehari'
 		'aturan.dosis': type: String
-		'aturan.bentuk': type: Number, autoform: type: \hidden
 		jumlah: type: Number
 		harga:
 			type: Number

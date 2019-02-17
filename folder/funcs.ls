@@ -15,16 +15,6 @@
 if Meteor.isClient
 	@m = require \mithril
 
-	@abnormalize = (obj) ->
-		recurse = (name, value) ->
-			if value?getMonth then "#name": value
-			else if _.isObject value then _.assign {},
-				... _.map value, (val, key) ->
-					recurse "#name.#key", val
-			else "#name": value
-		_.assign {}, ... _.map (recurse \obj, obj),
-			(val, key) -> "#{key.substring 4}": val
-
 	@normalize = (obj) ->
 		recurse = (value, name) ->
 			if _.isObject value
@@ -82,7 +72,7 @@ if Meteor.isClient
 			_.findLast state.temp[opts.id], -> it.name is field
 
 		clonedDoc = _.assign {}, opts.doc, "#that": [] if opts.scope
-		abnDoc = abnormalize that if clonedDoc or opts.doc
+		usedDoc = clonedDoc or opts.doc
 		normed = -> it.replace /\d/g, \$
 
 		attr =
@@ -128,10 +118,10 @@ if Meteor.isClient
 					formTypes = (doc) ->
 						insert: -> opts.collection.insert (doc or obj), after
 						update: -> opts.collection.update do
-							{_id: abnDoc._id}, {$set: (doc or obj)}, after
+							{_id: usedDoc._id}, {$set: (doc or obj)}, after
 						method: -> Meteor.call opts.meteormethod, (doc or obj), after
 						'update-pushArray': -> opts.collection.update do
-							{_id: abnDoc._id}
+							{_id: usedDoc._id}
 							{$push: "#{opts.scope}": $each: _.values obj[opts.scope]}
 							(err, res) -> opts.hooks?after doc if res
 
@@ -142,12 +132,12 @@ if Meteor.isClient
 
 			radio: (name, value) ->
 				type: \radio, name: name, id: "#name#value"
-				checked: value is (stateTempGet(name)?value or abnDoc?[name])
+				checked: value is (stateTempGet(name)?value or usedDoc?[name])
 				onchange: -> state.temp[opts.id]push {name, value}
 
 			select: (name) ->
 				name: name
-				value: stateTempGet(name)?value or abnDoc?[name]
+				value: stateTempGet(name)?value or usedDoc?[name]
 				onchange: ({target}) -> state.temp[opts.id]push do
 					name: name, value: target.value
 
@@ -160,8 +150,8 @@ if Meteor.isClient
 				checked:
 					if stateTempGet(name)
 						value.toString! in _.map that.value, -> it.toString!
-					else if abnDoc?["#name.0"]
-						value.toString! in _.compact _.map abnDoc,
+					else if usedDoc?["#name.0"]
+						value.toString! in _.compact _.map usedDoc,
 							(val, key) -> val.toString! if _.includes key, name
 
 			arrLen: (name, type) -> onclick: ->
@@ -214,7 +204,7 @@ if Meteor.isClient
 				m \textarea.textarea,
 					name: name, id: name,
 					class: \is-danger if error
-					value: state.form[opts.id][name] or abnDoc?[name]
+					value: state.form[opts.id][name] or usedDoc?[name]
 				m \p.help.is-danger, error if error
 
 			range: -> m \div,
@@ -222,7 +212,7 @@ if Meteor.isClient
 				m \input,
 					type: \range, id: name, name: name,
 					class: \is-danger if error
-					value: state.form[opts.id][name] or abnDoc?[name]?toString!
+					value: state.form[opts.id][name] or usedDoc?[name]?toString!
 				m \p.help.is-danger, error if error
 
 			checkbox: -> m \div,
@@ -270,9 +260,9 @@ if Meteor.isClient
 						class: \is-danger if error
 						type: schema.autoform?type or that
 						name: name, id: name, value: do ->
-							date = abnDoc?[name] and that is \date and
-								moment abnDoc[name] .format \YYYY-MM-DD
-							state.form[opts.id]?[name] or date or abnDoc?[name]
+							date = usedDoc?[name] and that is \date and
+								moment usedDoc[name] .format \YYYY-MM-DD
+							state.form[opts.id]?[name] or date or usedDoc?[name]
 					m \p.help.is-danger, error if error
 
 				else if schema.type is Object
@@ -291,7 +281,7 @@ if Meteor.isClient
 				else if schema.type is Array
 					found = maped.find -> it.name is "#{normed name}.$"
 					docLen = if opts.scope is name then 1 else
-						(.length-1) _.filter abnDoc, (val, key) ->
+						(.length-1) _.filter usedDoc, (val, key) ->
 							_.includes key, "#name."
 					m \.box,
 						unless opts.scope is name then m \div,

@@ -525,7 +525,7 @@ if Meteor.isClient
 					Meteor.call \dispenses, start, end, (err, res) -> if res
 						csv "Pengeluaran Obat #{hari start}-#{hari end}", res
 		farmasi: -> view: -> m \.content,
-			if userGroup \farmasi then elem.report do
+			if (userGroup \farmasi) and userRole(\admin) then elem.report do
 				title: 'Laporan Stok Barang'
 				action: ({start, end, type}) ->
 					Meteor.call \stocks, start, end, (err, res) -> if res
