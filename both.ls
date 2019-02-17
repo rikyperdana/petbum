@@ -212,11 +212,11 @@ if Meteor.isClient
 			autoform: type: \hidden
 			autoValue: -> 0
 		'batch.$.diretur': type: Boolean, optional: true, autoform: type: \hidden
-		'batch.$.beli': type: Number, decimal: true, optional: true
+		'batch.$.beli': type: Number, decimal: true
 		'batch.$.jual': type: Number, decimal: true, optional: true
 		'batch.$.suplier': type: String, optional: true
-		'batch.$.returnable': type: Boolean, optional: true
-		'batch.$.anggaran': type: Number, autoform: options: selects.anggaran
+		'batch.$.returnable': type: Number, optional: true, autoform: options: selects.returnable
+		'batch.$.anggaran': type: Number, optional: true, autoform: options: selects.anggaran
 		'batch.$.pengadaan': type: Number, optional: true
 
 	schema.amprah = (type) ->

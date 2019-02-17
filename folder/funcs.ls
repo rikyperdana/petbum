@@ -68,11 +68,10 @@ if Meteor.isClient
 		optionList = (name) -> ors arr =
 			theSchema(name)?allowedValues?map (i) ->
 				value: i, label: _.startCase i
-			do ->
-				if _.isFunction theSchema(name)?autoform?options
-					theSchema(name)?autoform?options!
-				else theSchema(name)?autoform?options
-			<[ true false ]>map (i) ->
+			if _.isFunction theSchema(name)?autoform?options
+				theSchema(name)?autoform?options!
+			else theSchema(name)?autoform?options
+			<[true false]>map (i) ->
 				value: JSON.parse i
 				label: _.startCase i
 
@@ -114,6 +113,8 @@ if Meteor.isClient
 								when Date then new Date value
 
 					obj = normalize _.merge ... temp.concat formValues
+
+					console.log formFields, formValues, obj
 
 					context = usedSchema.newContext!
 					context.validate _.merge {}, obj, (opts.doc or {})
@@ -243,9 +244,10 @@ if Meteor.isClient
 
 			radio: -> m \.control,
 				label
-				optionList(name)map (j) -> m \label.radio,
+				optionList(normed name)map (j) -> m \label.radio,
 					m \input, attr.radio name, j.value
 					m \span, _.startCase j.label
+				m \p.help.is-danger, error if error
 
 			other: ->
 				defaultInputTypes =

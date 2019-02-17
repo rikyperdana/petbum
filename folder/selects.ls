@@ -30,6 +30,7 @@
 	bicara: <[ normal gangguan_bicara lainnya ]>
 	hambatan: <[ tidak_ada pendengaran cemas motivasi_memburuk bahasa lainnya ]>
 	potensial: <[ proses_penyakit pengobatan nutrisi tindakan lainnya ]>
+	returnable: <[ bisa tidak ]>
 
 _.map selects, (i, j) -> selects[j] = _.map selects[j], (m, n) -> value: n+1, label: _.startCase m
 
