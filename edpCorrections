@@ -18,11 +18,16 @@ II. Rawat Jalan
    Result: Sudah disejajarkan, dan dokter kosong diganti dengan -
 III. Kasir
 1. Pasien lama masih cetak kartu
+   Reply: Klaim ini tidak terbukti. Tidak ada biaya kartu yang dikenakan kepada pasien lama
 2. Tidak bisa bayar setelah tindakan dokter
+   Reply: Klaim ini tidak terbukti. Pasien bisa membayar tindakan yang tertagihkan di kasir
 3. Rincian pasien lama salah?
+   Reply: Butuh keterangan lebih lanjut, laporan tidak lengkap
 IV. Keperawatan
 1. Belum ada nama dokter
+   Reply: Laporan tidak jelas, nama dokter tampil sesuai dengan users yang ada di DB
 2. Saat inputkan cara masuk setelah input fisik, inputan fisik menghilang
+   Result: Informasi fisik yang sudah diinputkan kini bisa dilihat di modal Rincian Rawat
 3. Pasien masuk sebagai pasien poli gigi, mengapa ada imunikasi tidak hilang?
 4. Request bhp bisa diproses walaupun tidak tertera jumlah barang yang diminta
 5. Belum ada nama request bhp

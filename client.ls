@@ -384,6 +384,12 @@ if Meteor.isClient
 							m \table.table,
 								attr.pasien.rawatDetails state.modal
 								.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
+							if state.modal.fisik then m \div,
+								m \br
+								m \table, m \tr, m \th, \Fisik
+								m \table.table,
+									m \thead, m \tr, _.map that, (v, k) -> m \th, _.startCase k
+									m \tbody, m \tr, _.map that, (v, k) -> m \td, v
 							if state.modal.tindakan then m \div,
 								m \br
 								m \table, m \tr, m \th, \Tindakan

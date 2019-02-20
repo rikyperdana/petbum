@@ -118,7 +118,7 @@ if Meteor.isClient
 
 	schema.rawatNurse =
 		'rawat.$.anamesa_perawat': type: String, autoform: type: \textarea
-		'rawat.$.fisik': type: [new SimpleSchema schema.fisik], optional: true
+		'rawat.$.fisik': optional: true, type: new SimpleSchema schema.fisik
 		'rawat.$.cara_masuk': type: Number, optional: true, autoform: options: selects.cara_masuk, firstLabel: 'Pilih Satu'
 		'rawat.$.rujukan': type: Number, optional: true, autoform: options: selects.rujukan
 		'rawat.$.riwayat': type: Object, optional: true
@@ -155,8 +155,8 @@ if Meteor.isClient
 		'rawat.$.komunikasi.potensial': type: Number, optional: true, autoform: options: selects.potensial
 
 	schema.rawatDoctor =
-		'rawat.$.anamesa_dokter': type: String, optional: true, autoform: type: \textarea
-		'rawat.$.diagnosa': type: [String], optional: true
+		'rawat.$.anamesa_dokter': type: String, autoform: type: \textarea
+		'rawat.$.diagnosa': type: [String]
 		'rawat.$.planning': type: String, optional: true, autoform: type: \textarea
 		'rawat.$.tindakan': type: [new SimpleSchema schema.tindakan], optional: true
 		'rawat.$.obat': type: [new SimpleSchema schema.obat], optional: true
