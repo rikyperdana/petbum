@@ -1,0 +1,36 @@
+Feb 20th, 2019
+I. Pendaftaran
+1. Setelah update: notifikasi No. MR sudah terpakai muncul, tapi masih bisa tersimpan
+2. Setelah sistem update: Saat melakukan pendaftaran pasien baru, tanpa melakukan pembayaran status pendaftaran sudah bayar
+II. Rawat Jalan
+1. Pilihan dokter belum ada, status bayar sudah padahal belum
+2. Keterangan dokter belum tercantum karena belum ada pilihan dokter di pendaftaran
+3. Status bayar konsultasi belum dibayar, tetapi bisa dihapus
+4. Tombol hapus belum sejajar dengan judul
+III. Kasir
+1. Pasien lama masih cetak kartu
+2. Tidak bisa bayar setelah tindakan dokter
+3. Rincian pasien lama salah?
+IV. Keperawatan
+1. Belum ada nama dokter
+2. Saat inputkan cara masuk setelah input fisik, inputan fisik menghilang
+3. Pasien masuk sebagai pasien poli gigi, mengapa ada imunikasi tidak hilang?
+4. Request bhp bisa diproses walaupun tidak tertera jumlah barang yang diminta
+5. Belum ada nama request bhp
+V. Dokter
+1. Belum tercantum nama tindakan
+2. Belum tercantum nama obat
+3. Setelah diupdate, tidak bisa simpan tindakan dokter, tidak ada pesan error ataupun perubahan tampilan
+VI. Apotik
+1. Obat bisa diserahkan saat pasien belum bayar biaya tindakan, aturan dosis salah
+2. List nama bhp pada request bhp apotik belum ada
+3. List nama obat pada request obat apotik belum ada
+VII. Gudang Farmasi
+1. Tidak bisa tambah jenis barang, notifikasi amprah sering error
+2. Tidak bisa unduh laporan stok barang
+VIII. Laporan
+1. Pada pdf laporan pendaftaran, baris petugas belum sejajar
+2. Keterangan laporan pendaftaran belum terinput ke tabel
+3. Pada laporan pembayaran, hanya ingin cek 2 hari, tapi muncul semua data pembayaran
+4. Jenis pembayaran pada laporan pasien ABE, pasien lama masih selalu bayar kartu
+5. Nama pasien pada laporan hurufnya belum sama

@@ -25,7 +25,7 @@ if Meteor.isClient
 					else _.merge {}, ... _.map value, recurse
 				if +name then res[name] else res
 			else
-				if +name then value
+				if +name+1 then value
 				else "#name": value
 		obj = recurse obj, \obj .obj
 		for key, val of obj
@@ -103,8 +103,6 @@ if Meteor.isClient
 								when Date then new Date value
 
 					obj = normalize _.merge ... temp.concat formValues
-
-					console.log formFields, formValues, obj
 
 					context = usedSchema.newContext!
 					context.validate _.merge {}, obj, (opts.doc or {})

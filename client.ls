@@ -157,7 +157,9 @@ if Meteor.isClient
 				onchange: (doc) ->
 					if doc.name is \no_mr
 						Meteor.call \onePasien, doc.value, (err, res) ->
-							res and alert "No. MR #{doc.value} sudah terpakai"
+							if res then afState.errors.formRegis = no_mr: \Terpakai
+							else delete afState.errors.formRegis.no_mr
+							m.redraw!
 					else if doc.name is \regis.provinsi
 						Meteor.subscribe \coll, \daerah, $and: arr =
 							{provinsi: +doc.value}
