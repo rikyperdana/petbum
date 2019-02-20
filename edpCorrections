@@ -1,12 +1,21 @@
 Feb 20th, 2019
 I. Pendaftaran
 1. Setelah update: notifikasi No. MR sudah terpakai muncul, tapi masih bisa tersimpan
+   Result: Oke, baru saja difixkan. Silahkan coba lagi
 2. Setelah sistem update: Saat melakukan pendaftaran pasien baru, tanpa melakukan pembayaran status pendaftaran sudah bayar
+   Reply: Dari screenshot yang dilampirkan tim edp, terlihat mereka menggunakan pilihan pembayaran BPJS
+          Ya iya lah sistem ini menganggapnya sudah bayar
 II. Rawat Jalan
 1. Pilihan dokter belum ada, status bayar sudah padahal belum
+   Result: Rumus sudah diperbaiki, sekarang sudah ada lagi
 2. Keterangan dokter belum tercantum karena belum ada pilihan dokter di pendaftaran
+   Reply: Orang pendaftaran memutuskan untuk tidak memilih dokter agar pasien bisa ditangani oleh
+          Dokter mana saja yang sedang standby di poli tersebut
 3. Status bayar konsultasi belum dibayar, tetapi bisa dihapus
+   Reply: Ya bisa lah, orang pendaftaran juga manusia yang bisa melakukan kesalahan
+          Bayangkan kalau record hanya bisa dihapus kalau sudah dibayar??
 4. Tombol hapus belum sejajar dengan judul
+   Result: Sudah disejajarkan, dan dokter kosong diganti dengan -
 III. Kasir
 1. Pasien lama masih cetak kartu
 2. Tidak bisa bayar setelah tindakan dokter

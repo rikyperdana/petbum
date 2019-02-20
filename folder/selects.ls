@@ -56,7 +56,7 @@ selects.bhp = -> if Meteor.isClient
 		if i.jenis is 4 then value: i._id, label: i.nama
 
 selects.dokter = -> if Meteor.isClient
-	selPoli = 1 + afState.form.formJalan[\rawat.1.klinik]
+	selPoli = afState.form.formJalan[\rawat.1.klinik] - 1
 	a = Meteor.users.find!fetch!filter (i) -> ands arr =
 		_.split i.username, \. .0 in <[ dr drg ]>
 		_.includes i.roles.jalan, (.[selPoli]) selects.klinik.map -> _.snakeCase it.label
