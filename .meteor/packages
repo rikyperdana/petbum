@@ -30,3 +30,5 @@ nilsdannemann:pdfmake
 numeral:numeral
 lfergon:exportcsv
 sakulstra:aggregate
+izzilab:shelljs
+mrt:cron
