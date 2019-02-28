@@ -365,7 +365,7 @@ if Meteor.isClient
 							hari i.tanggal
 							look(\klinik, i.klinik)label
 							look(\cara_bayar, i.cara_bayar)label
-							if i.dokter then _.startCase Meteor.users.findOne(that)username else \-
+							if i.dokter then _.startCase Meteor.users.findOne(that)?username
 							... <[ billRegis status_bayar ]>map ->
 								if i[it] then \Sudah else \Belum
 							if userGroup \jalan then m \button.button.is-info,
@@ -376,7 +376,7 @@ if Meteor.isClient
 									coll.pasien.findOne(_id: m.route.param \idpasien)_id
 									i.idrawat, (err, res) -> res and m.redraw!
 								m \span, \Hapus
-						]map (j) -> if j then m \td, j
+						]map (j) -> m \td, j or \-
 					if state.modal then elem.modal do
 						title: 'Rincian rawat'
 						content: m \div,

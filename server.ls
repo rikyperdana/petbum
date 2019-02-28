@@ -1,9 +1,10 @@
 if Meteor.isServer
 
+	backup = -> <[pasien gudang users rekap amprah]>map (i) ->
+		shell.exec "mongoexport -h localhost:3001 -d meteor -c #i -o ~/backup/#{_.kebabCase hari new Date}-#i.json"
+
 	Meteor.startup ->
-		new Meteor.Cron events:
-			"0 0 * * *": -> <[pasien gudang users rekap amprah]>map (i) ->
-				shell.exec "mongoexport -h localhost:3001 -d meteor -c #i -o ../#{hari new Date}-#i.json"
+		new Meteor.Cron events: "0 0 * * *": backup!
 
 	Meteor.publish \coll, (name, sel = {}, opt = {}) ->
 		coll[name]find sel, opt
@@ -235,4 +236,4 @@ if Meteor.isServer
 			index = nums.findIndex (i, j, k) -> i - k[j-1] > 1
 			nums[index-1]+1
 
-		shell: -> console.log shell
+		backupNow: backup
