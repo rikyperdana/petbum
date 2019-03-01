@@ -4,7 +4,7 @@ if Meteor.isServer
 		shell.exec "mongoexport -h localhost:3001 -d meteor -c #i -o ~/backup/#{_.kebabCase hari new Date}-#i.json"
 
 	Meteor.startup ->
-		new Meteor.Cron events: "0 0 * * *": backup!
+		new Meteor.Cron events: "0 0 * * *": backup
 
 	Meteor.publish \coll, (name, sel = {}, opt = {}) ->
 		coll[name]find sel, opt

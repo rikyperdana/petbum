@@ -88,14 +88,13 @@ if Meteor.isClient
 				onsubmit: (e) ->
 					e.preventDefault!
 					temp = state.temp[opts.id]map -> "#{it.name}": it.value
-					formFields = _.filter e.target, (i) ->
+					formValues = _.filter e.target, (i) ->
 						a = -> (i.value isnt \on) and i.name
 						arr = <[ radio checkbox select ]>
 						b = -> theSchema(i)?autoform?type in arr
 						a! and not b!
-
-					formValues = formFields.map ({name, value}) ->
-						name and _.reduceRight name.split(\.),
+					.map ({name, value}) -> if name and value
+						_.reduceRight name.split(\.),
 							((res, inc) -> "#inc": res)
 							if value then switch theSchema(normed name)type
 								when String then value
