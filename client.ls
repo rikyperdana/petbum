@@ -491,7 +491,8 @@ if Meteor.isClient
 				m \thead, attr.apotik.header.map (i) -> m \th, _.startCase i
 				m \tbody, coll.pasien.find!fetch!map (i) -> i.rawat.map (j) ->
 					okay = ->
-						if j.cara_bayar is 1 and j.status_bayar then not j.givenDrug
+						if j.cara_bayar is 1
+							j.status_bayar and not j.givenDrug
 						else not j.givenDrug
 					okay! and m \tr, tds arr =
 						i.no_mr
