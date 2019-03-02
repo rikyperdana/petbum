@@ -104,8 +104,8 @@ if Meteor.isClient
 					obj = normalize _.merge ... temp.concat formValues
 
 					context = usedSchema.newContext!
-					context.validate _.merge {}, obj, (opts.doc or {})
-					state.errors[opts.id] = _.assign {}, ... do ->
+					context.validate _.merge {}, obj, unless opts.scope then (opts.doc or {})
+					state.errors[opts.id] = _.merge {}, ... do ->
 						a = context._invalidKeys.filter (i) -> ands arr =
 							i.type isnt \keyNotInSchema
 							!theSchema(normed i.name)?autoValue
