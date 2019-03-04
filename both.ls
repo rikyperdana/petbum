@@ -47,10 +47,8 @@ if Meteor.isClient
 			type: String
 			autoform: type: \hidden
 			autoValue: -> randomId!
-		nama: type: String, autoform: options: ->
-			_.compact coll.tarif.find!fetch!map (i) ->
-				if i.jenis in roles!?jalan
-					value: i._id, label: _.startCase i.nama
+		grup: type: String, autoform: options: selects.grupTindakan
+		nama: type: String, autoform: options: selects.namaTindakan
 		harga:
 			type: Number
 			autoform: type: \hidden

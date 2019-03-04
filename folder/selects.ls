@@ -38,6 +38,26 @@ selects.tindakan = -> if Meteor.isClient
 	coll.tarif?find!fetch!map ->
 		value: it._id, label: it.nama
 
+selects.grupTindakan = -> if Meteor.isClient
+	a = coll.tarif?find!fetch!filter -> ands arr =
+		it.first is \jalan
+		it.second is _.snakeCase (.label) selects.klinik.find ->
+			it.value is (.klinik) coll.pasien.findOne!rawat.find ->
+				it.idrawat is state.docRawat
+	(_.uniqBy a, \third)map ->
+		value: it.third
+		label: _.startCase it.third
+
+selects.namaTindakan = (name) -> if Meteor.isClient
+	current = "#{_.initial name.split(\.) .join \.}.grup"
+	a = coll.tarif?find!fetch!filter -> ands arr =
+		it.first is \jalan
+		it.second is _.snakeCase (.label) selects.klinik.find ->
+			it.value is (.klinik) coll.pasien.findOne!rawat.find ->
+				it.idrawat is state.docRawat
+		it.third is afState.form.formNurse[current]
+	a.map -> value: it._id, label: _.startCase it.nama
+
 selects.gudang = -> if Meteor.isClient
 	coll.gudang.find!fetch!map (i) ->
 		value: i._id, label: i.nama
@@ -59,7 +79,7 @@ selects.dokter = -> if Meteor.isClient
 	selPoli = afState.form.formJalan[\rawat.1.klinik] - 1
 	a = Meteor.users.find!fetch!filter (i) -> ands arr =
 		_.split i.username, \. .0 in <[ dr drg ]>
-		_.includes i.roles.jalan, (.[selPoli]) selects.klinik.map -> _.snakeCase it.label
+		_.includes i.roles?jalan, (.[selPoli]) selects.klinik.map -> _.snakeCase it.label
 	a.map -> value: it._id, label: _.startCase it.username
 
 selects.provinsi = -> if Meteor.isClient

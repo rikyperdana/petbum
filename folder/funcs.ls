@@ -56,11 +56,11 @@ if Meteor.isClient
 			usedSchema._firstLevelSchemaKeys
 
 		optionList = (name) -> ors arr =
-			theSchema(name)?allowedValues?map (i) ->
+			theSchema(normed name)?allowedValues?map (i) ->
 				value: i, label: _.startCase i
-			if _.isFunction theSchema(name)?autoform?options
-				theSchema(name)?autoform?options!
-			else theSchema(name)?autoform?options
+			if _.isFunction theSchema(normed name)?autoform?options
+				theSchema(normed name)?autoform?options name
+			else theSchema(normed name)?autoform?options
 			<[true false]>map (i) ->
 				value: JSON.parse i
 				label: _.startCase i
@@ -225,7 +225,7 @@ if Meteor.isClient
 					m \option, value: '', ors arr =
 						theSchema(normed name)autoform?firstLabel
 						'Select One'
-					optionList(normed name)map (j) ->
+					optionList(name)map (j) ->
 						m \option, value: j.value, j.label
 				m \p.help.is-danger, error if error
 
