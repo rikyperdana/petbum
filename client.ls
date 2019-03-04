@@ -336,12 +336,15 @@ if Meteor.isClient
 						buttonContent: \Simpan
 						columns: 3
 						hooks:
-							before: (doc, cb) -> Meteor.call \rmRawat, that._id, state.docRawat,
-								(err, res) -> res and cb _.merge doc.rawat.0,
-									(that.rawat.find -> it.idrawat is state.docRawat),
-									status_bayar: true if ands arr =
-										doc.rawat.0.obat
-										not doc.rawat.0.tindakan
+							before: (doc, cb) ->
+								base = that.rawat.find -> it.idrawat is state.docRawat
+								Meteor.call \rmRawat, that._id, state.docRawat,
+								(err, res) -> res and cb _.merge doc.rawat.0, base,
+									status_bayar: true if ors arr =
+										base.cara_bayar isnt 1
+										ands arr =
+											doc.rawat.0.obat
+											not doc.rawat.0.tindakan
 									petugas: "#{if isDr! then \dokter else \perawat}": Meteor.userId!
 							after: (doc) ->
 								if doc.pindah then coll.pasien.update do
