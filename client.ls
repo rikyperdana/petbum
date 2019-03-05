@@ -45,7 +45,7 @@ if Meteor.isClient
 			fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
 			search: -> it.filter (i) -> ors <[nama kandungan]>map (j) ->
 				_.includes (_.lowerCase i[j]), _.lowerCase state.search
-		manajemen: headers: tarif: <[ nama jenis harga grup active ]>
+		manajemen: headers: tarif: <[ nama harga first second third active ]>
 		amprah:
 			headers: requests: <[ tanggal_minta ruangan peminta jumlah nama_barang penyerah diserah tanggal_serah]>
 			amprahList: -> reverse coll.amprah.find!fetch!filter (i) ->
@@ -730,8 +730,9 @@ if Meteor.isClient
 								sel = nama: _.snakeCase data.nama
 								opt =
 									harga: +data.harga
-									jenis: _.snakeCase data.jenis
-									grup: _.startCase that if data.grup
+									first: data.first
+									second: data.second
+									third: that if data.third
 									active: true
 								Meteor.call \import, \tarif, sel, opt
 							if data.password
@@ -753,8 +754,13 @@ if Meteor.isClient
 						Meteor.subscribe \coll, \tarif, onReady: -> m.redraw!
 					m \thead, m \tr, attr.manajemen.headers.tarif.map (i) ->
 						m \th, _.startCase i
-					m \tbody, pagins(coll.tarif.find!fetch!)map (i) -> m \tr,
-						attr.manajemen.headers.tarif.map (j) -> m \td, _.startCase i[j]
+					m \tbody, pagins(coll.tarif.find!fetch!)map (i) -> m \tr, tds arr =
+						_.startCase i.nama
+						rupiah i.harga
+						_.startCase i.first
+						_.startCase i.second
+						_.startCase i.third
+						i.active
 				elem.pagins!
 		amprah: -> view: -> m \.content,
 			oncreate: ->
