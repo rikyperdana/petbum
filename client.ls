@@ -45,7 +45,11 @@ if Meteor.isClient
 			fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
 			search: -> it.filter (i) -> ors <[nama kandungan]>map (j) ->
 				_.includes (_.lowerCase i[j]), _.lowerCase state.search
-		manajemen: headers: tarif: <[ nama harga first second third active ]>
+		manajemen:
+			headers: tarif: <[ nama harga first second third active ]>
+			userList: -> pagins _.reverse ors arr =
+				if state.search then Meteor.users.find(username: $regex: ".*#that.*")fetch!
+				Meteor.users.find!fetch!
 		amprah:
 			headers: requests: <[ tanggal_minta ruangan peminta jumlah nama_barang penyerah diserah tanggal_serah]>
 			amprahList: -> reverse coll.amprah.find!fetch!filter (i) ->
@@ -659,10 +663,13 @@ if Meteor.isClient
 						type: \submit, value: \Daftarkan
 				[til 2]map -> m \br
 				m \h5, 'Daftar Pengguna Sistem'
+				m \form,
+					onkeypress: (e) -> state.search = e.target.value
+					m \input.input, type: \text, placeholder: \Pencarian
 				m \table.table,
 					oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
 					m \thead, m \tr, <[ Username Peran Aksi ]>map (i) -> m \th, i
-					m \tbody, pagins(Meteor.users.find!fetch!reverse!)map (i) -> m \tr,
+					m \tbody, attr.manajemen.userList!map (i) -> m \tr,
 						ondblclick: -> state.modal = i
 						m \td, i.username
 						m \td, JSON.stringify i.roles
