@@ -1,0 +1,178 @@
+if Meteor.isClient
+
+	kop = {text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. Dr. Soetomo No. 65, Telp. (0761) 23024\n\n\n', alignment: \center, bold: true}
+
+	@makePdf =
+		card: (idpasien) ->
+			doc = coll.pasien.findOne idpasien
+			pdf = pdfMake.createPdf do
+				content:
+					"Nama : #{doc.regis.nama_lengkap}"
+					"No. MR: #{zeros doc.no_mr}"
+				pageSize: \B8
+				pageMargins: [110 50 0 0]
+				pageOrientation: \landscape
+			pdf.download "#{zeros doc.no_mr}_card.pdf"
+
+		consent: ->
+			doc = coll.pasien.findOne!
+			pdf = pdfMake.createPdf content: arr =
+				kop
+				{text: '\nDATA UMUM PASIEN', alignment: \center}
+				{columns: [
+					['NO. MR', 'NAMA LENGKAP', 'TEMPAT & TANGGAL LAHIR', 'GOLONGAN DARAH', 'JENIS KELAMIN', 'AGAMA', 'PENDIDIKAN', 'PEKERJAAN', 'NAMA AYAH', 'NAMA IBU', 'NAMA SUAMI / ISTRI', 'ALAMAT', 'NO. TELP / HP']
+					[
+						zeros doc.no_mr
+						doc.regis.nama_lengkap
+						"#{doc.regis.tmpt_lahir or \-}, #{moment doc.regis.tgl_lahir .format 'D/MM/YYYY'}"
+						... _.map <[ darah kelamin agama pendidikan pekerjaan ]>, (i) ->
+							look(i, doc.regis[i])?label or \-
+						... _.map <[ ayah ibu pasangan alamat kontak ]>, (i) ->
+							doc.regis[i] or \-
+					]map -> ": #it"
+				]}
+				{text: '\nPERSETUJUAN UMUM (GENERAL CONSENT)', alignment: \center}
+				{table: body: [
+					[\S, \TS, {text: \Keterangan, alignment: \center}]
+					... [
+						['Saya akan mentaati peraturan yang berlaku di RSUD Petala Bumi']
+						['Saya memberi kuasa kepada dokter dan semua tenaga kesehatan untuk melakukan pemeriksaan / pengobatan / tindakan yang diperlakukan upaya kesembuhan saya / pasien tersebut diatas']
+						['Saya memberi kuasa kepada dokter dan semua tenaga kesehatan yang ikut merawat saya untuk memberikan keterangan medis saya kepada yang bertanggung jawab atas biaya perawatan saya.']
+						['Saya memberi kuasa kepada RSUD Petala Bumi untuk menginformasikan identitas sosial saya kepada keluarga / rekan / masyarakat']
+						['Saya mengatakan bahwa informasi hasil pemeriksaan / rekam medis saya dapat digunakan untuk pendidikan / penelitian demi kemajuan ilmu kesehatan']
+					]map -> [' ', ' ', ...it]
+				]}
+				'\nPetunjuk :'
+				'S: Setuju'
+				'TS: Tidak Setuju'
+				{alignment: \justify, columns: [
+					{text: '\n\n\n\n__________________\n'+(_.startCase Meteor.user().username), alignment: \center}
+					{text: 'Pekanbaru, '+moment!format('DD/MM/YYYY')+'\n\n\n\n__________________\n'+(_.startCase doc.regis.nama_lengkap), alignment: \center}
+				]}
+			pdf.download "#{zeros doc.no_mr}_consent.pdf"
+
+		payRawat: (idpasien, idrawat, rows) ->
+			pasien = coll.pasien.findOne idpasien
+			rawat = pasien.rawat.find -> it.idrawat is idrawat
+			items = rows.map -> [it.0, rupiah it.1]
+			table = table: widths: [\*, \auto], body: [[\Uraian \Harga], ...items]
+			pdf = pdfMake.createPdf content: arr =
+				kop
+				"\n"
+				{columns: [
+					['NO. MR', 'NAMA PASIEN', 'JENIS KELAMIN', 'TANGGAL LAHIR', 'UMUR', 'KLINIK']
+					[
+						zeros pasien.no_mr
+						_.startCase pasien.regis.nama_lengkap
+						look(\kelamin, pasien.regis.kelamin)?label or \-
+						moment!format 'D/MM/YYYY'
+						"#{moment!diff pasien.regis.tgl_lahir, \years} tahun"
+						look(\klinik, rawat.klinik)?label or \-
+					]map -> ": #it"
+				]}
+				{text: '\n\nRINCIAN PEMBAYARAN', alignment: \center}
+				table
+				"\nTOTAL BIAYA #{rupiah _.sum rows.map -> it.1}"
+				{text: '\nPEKANBARU, ' + moment!format('D/MM/YYYY') +
+				'\n\n\n\n\n' + (_.startCase Meteor.user!username), alignment: \right}
+			pdf.download "#{zeros pasien.no_mr}_payRawat.pdf"
+
+		payRegCard: (idpasien, idrawat, rows) ->
+			doc = coll.pasien.findOne idpasien
+			pdf = pdfMake.createPdf content: arr =
+				kop
+				{columns: [
+					['TANGGAL', 'NO. MR', 'NAMA PASIEN', 'TARIF', '\n\nPETUGAS']
+					[
+						moment!format 'DD/MM/YYYY'
+						zeros doc.no_mr
+						_.startCase doc.regis.nama_lengkap
+						...rows.map -> "#{it.0} #{rupiah it.1}"
+						"Total: #{rupiah _.sum rows.map -> it.1}"
+						"\n\n #{_.startCase Meteor.user!username}"
+					]map -> ": #it"
+				]}
+			pdf.download "#{zeros doc.no_mr}_payRegCard.pdf"
+
+		rekap: ->
+			fields = <[ no_mr_nama_pasien nama_obat nobatch jumlah ]>
+			source = coll.rekap.find!fetch!map (i) ->
+				i.obat.map (j) -> j.batches.map (k) -> arr =
+					{
+						text: "
+							#{coll.pasien.findOne(i.idpasien)no_mr.toString!}
+							\n#{coll.pasien.findOne(i.idpasien)regis.nama_lengkap}
+						"
+						rowSpan: _.sum i.obat.map -> it.batches.length
+					}
+					{
+						text: look2(\gudang, j.nama_obat)nama
+						rowSpan: j.batches.length
+					}
+					k.nobatch
+					k.jumlah.toString!
+			rows = _.flattenDepth source, 2
+			headers = [fields.map -> _.startCase it]
+			if rows.length > 0
+				Meteor.call \doneRekap
+				pdfMake.createPdf content:
+					[table: body: [...headers, ...rows]]
+				.download \cetak_rekap.pdf
+
+		icdx: (pasien) ->
+			headers = <[tanggal klinik dokter diagnosa terapi perawat icd10]>
+			rows = pasien.rawat.map (i) -> arr =
+				hari i.tanggal
+				look(\klinik, i.klinik)label
+				Meteor.users.findOne(i.petugas.dokter)username
+				{ol: i.diagnosa}
+				{ul: i.tindakan.map (j) ->
+					_.startCase look2(\tarif, j.nama)nama}
+				Meteor.users.findOne(i.petugas.perawat)username
+				{ol: i.icdx}
+			columns =
+				['NO. MR', 'NAMA LENGKAP', 'TANGGAL LAHIR', 'JENIS KELAMIN']
+				arr =
+					pasien.no_mr.toString!
+					pasien.regis.nama_lengkap
+					hari pasien.regis.tgl_lahir
+					look(\kelamin, pasien.regis.kelamin)label
+			pdfMake.createPdf content: arr =
+				kop
+				{text: 'FORM RESUME RAWAT JALAN', alignment: \center}
+				'\n\n'
+				{columns: columns}
+				'\n\n'
+				{table: body: [headers.map(-> _.startCase it), ...rows]}
+			.download "icdX_#{pasien.no_mr}.pdf"
+
+		csv: (name, docs) ->
+			rows = docs.map -> _.map it, -> it.toString!
+			headers = [_.map docs.0, (val, key) ->
+				text: key, bold: true, alignment: \center]
+			if rows.length > 0
+				pdfMake.createPdf do
+					pageOrientation: \landscape
+					content: arr =
+						kop
+						table:
+							widths: [til headers.0.length]map -> \auto
+							body: [...headers, ...rows]
+				.download "#name.pdf"
+
+		visits: (docs) ->
+			headers = _.merge ... <[poli bayar status]>map (i) ->
+				"#i": _.keys docs.0[i]
+			rows = _.merge ... <[poli bayar status]>map (i) ->
+				"#i": docs.map (j) -> [j.hari]concat do
+					(_.values j[i])map -> it.toString!
+			range = <[first last]>map (i) -> (.hari) _[i] docs
+			title = "Laporan Kunjungan #{range.0} - #{range.1}.pdf"
+			pdfMake.createPdf pageOrientation: \landscape, content: arr =
+				kop
+				{text: "#title \n\n", alignment: \center, bold: true}
+				... <[poli bayar status]>map (i) ->
+					table: body: x =
+						[\Tanggal, ...headers[i]]
+						...rows[i]
+			.download title
