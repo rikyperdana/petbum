@@ -104,16 +104,22 @@ if Meteor.isClient
 						m \p.menu-label, 'Admin Menu'
 						m \ul.menu-list, attr.layout.rights!map (i) ->
 							m \li, m "a##{i.name}",
-								href: "/#{i.name}"
+								onclick: (e) ->
+									if e.target.id in (modules.map -> it.name)
+										m.route.set e.target.id
 								class: \is-active if state.activeMenu is i.name
 								m \span, i.full
 								if state.notify[i.name] then m \span, " (#that)"
 								if \regis is currentRoute! then m \ul,
 									[[\lama, 'Cari Pasien'], [\baru, 'Pasien Baru']]map (i) ->
-										m \li, m \a, href: "/regis/#{i.0}", oncreate: m.route.link, i.1
+										m \li, m "a##{i.0}",
+											onclick: (e) ->
+												if e.target.id in <[baru lama]>
+													m.route.set "/regis/#{e.target.id}"
+											m \span, _.startCase i.1
 								if same [\manajemen, currentRoute!, i.name]
 									m \ul, <[ users imports ]>map (i) -> m \li, m \a,
-										href: "/manajemen/#i", oncreate: m.route.link,
+										onclick: -> m.route.set "/manajemen/#i"
 										m \span, _.startCase i
 					m \.column, if comp then m that
 		login: -> view: -> m \.container, m \.columns,

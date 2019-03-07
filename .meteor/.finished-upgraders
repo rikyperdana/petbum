@@ -15,4 +15,11 @@ notices-for-facebook-graph-api-2
 1.4.1-add-shell-server-package
 1.4.3-split-account-service-packages
 1.5-add-dynamic-import-package
+<<<<<<< HEAD
 1.7-split-underscore-from-meteor-base
+=======
+<<<<<<< HEAD
+1.7-split-underscore-from-meteor-base
+=======
+>>>>>>> 8952a4fa4a689bcbdabe5aa700e2dcfd67f4da2c
+>>>>>>> bf1849f87636eaa8eb1f766f26f9e5e690479e9a
