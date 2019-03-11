@@ -15,7 +15,7 @@ if Meteor.isClient
 			pdf.download "#{zeros doc.no_mr}_card.pdf"
 
 		consent: ->
-			doc = coll.pasien.findOne!
+			doc = coll.pasien.findOne m.route.param \idpasien
 			pdf = pdfMake.createPdf content: arr =
 				kop
 				{text: '\nDATA UMUM PASIEN', alignment: \center}

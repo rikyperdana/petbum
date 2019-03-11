@@ -67,7 +67,6 @@ if Meteor.isClient
 	comp =
 		layout: (comp) ->
 			view: -> m \div,
-				unless Meteor.userId! then m.route.set \/login
 				m \link, rel: \stylesheet, href: 'https:/maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
 				m \nav.navbar.is-info,
 					role: \navigation, 'aria-label': 'main navigation',
@@ -119,7 +118,9 @@ if Meteor.isClient
 									href: "/manajemen/#i"
 									oncreate: m.route.link
 									m \span, _.startCase i
-					m \.column, if comp then m that
+					m \.column,
+						unless Meteor.userId! then m comp.login
+						else if comp then m that
 		login: -> view: -> m \.container, m \.columns,
 			m \.column
 			m \.column,
