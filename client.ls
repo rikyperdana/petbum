@@ -64,6 +64,26 @@ if Meteor.isClient
 				\bhp unless userGroup \farmasi
 				if userGroup \obat then \obat
 
+	loginComp = -> view: -> m \.container, m \.columns,
+		m \.column
+		m \.column,
+			m \.content, m \h5, \Login
+			m \form,
+				onsubmit: (e) ->
+					e.preventDefault!
+					vals = _.initial _.map e.target, -> it.value
+					Meteor.loginWithPassword ...vals, (err) ->
+						if err
+							state.error = 'Salah Password atau Username'
+							m.redraw!
+						else m.route.set \/dashboard
+				m \input.input, type: \text, placeholder: \Username
+				m \input.input, type: \password, placeholder: \Password
+				m \input.button.is-success, type: \submit, value: \Login
+				if state.error then m \article.message, m \.message-header,
+					(m \p, that), m \button.delete, 'aria-label': \delete
+		m \.column
+
 	comp =
 		layout: (comp) ->
 			view: -> m \div,
@@ -91,14 +111,6 @@ if Meteor.isClient
 							arr.map (i) -> m \a.navbar-item,
 								onclick: i?1, i.0
 				m \.columns,
-					oncreate: ->
-						state.notify = {}
-						Meteor.subscribe \users, onReady: ->
-							m.redraw!
-							attr.layout.rights!map (i) -> Meteor.call \notify, i.name,
-								(err, res) -> if res
-									state.notify[i.name] = res
-									m.redraw!
 					Meteor.userId! and m \.column.is-2, m \aside.menu.box,
 						m \p.menu-label, 'Admin Menu'
 						m \ul.menu-list, attr.layout.rights!map (i) -> m \li,
@@ -119,27 +131,9 @@ if Meteor.isClient
 									oncreate: m.route.link
 									m \span, _.startCase i
 					m \.column,
-						unless Meteor.userId! then m comp.login
+						unless Meteor.userId! then m loginComp
 						else if comp then m that
-		login: -> view: -> m \.container, m \.columns,
-			m \.column
-			m \.column,
-				m \.content, m \h5, \Login
-				m \form,
-					onsubmit: (e) ->
-						e.preventDefault!
-						vals = _.initial _.map e.target, -> it.value
-						Meteor.loginWithPassword ...vals, (err) ->
-							if err
-								state.error = 'Salah Password atau Username'
-								m.redraw!
-							else m.route.set \/dashboard
-					m \input.input, type: \text, placeholder: \Username
-					m \input.input, type: \password, placeholder: \Password
-					m \input.button.is-success, type: \submit, value: \Login
-					if state.error then m \article.message, m \.message-header,
-						(m \p, that), m \button.delete, 'aria-label': \delete
-			m \.column
+		login: loginComp
 		welcome: -> view: -> m \.content,
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
