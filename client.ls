@@ -29,8 +29,12 @@ if Meteor.isClient
 				else if userGroup \regis then i
 			ownKliniks: -> roles!?jalan?map (i) ->
 				(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
-			lastKlinik: (arr) -> unless roles!?jalan then arr else
-				if isDr! then arr.filter -> ands list =
+			list: -> (.fetch!) coll.pasien.find 'regis.nama_lengkap':
+				$options: \i
+				$regex: ".*#{state.search or ''}.*"
+			lastKlinik: (arr) ->
+				unless roles!?jalan then arr
+				else if isDr! then arr.filter -> ands list =
 					_.last(it.rawat)anamesa_perawat
 					not _.last(it.rawat)anamesa_dokter
 				else arr.filter -> ands list =
@@ -232,10 +236,12 @@ if Meteor.isClient
 				userGroup(\regis) and m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
-						if e.target.0.value.length > 3
+						val = e.target.0.value
+						if val.length > 3
 							byName = 'regis.nama_lengkap':
-								$options: \-i, $regex: ".*#{e.target.0.value}.*"
-							byNoMR = no_mr: +e.target.0.value
+								$options: \-i, $regex: ".*#val.*"
+							byNoMR = no_mr: +val
+							state.search = val
 							Meteor.subscribe \coll, \pasien, {$or: [byName, byNoMR]},
 								{limit: 30}, onReady: -> m.redraw!
 					m \input.input, type: \text, placeholder: \Pencarian
@@ -245,7 +251,7 @@ if Meteor.isClient
 						Meteor.subscribe \coll, \pasien, onKlinik, onReady: -> m.redraw!
 					m \thead, m \tr, attr.pasien.headers.patientList.map (i) ->
 						m \th, _.startCase i
-					m \tbody, attr.pasien.lastKlinik(coll.pasien.find!fetch!)map (i) ->
+					m \tbody, attr.pasien.lastKlinik(attr.pasien.list!)map (i) ->
 						rows = -> if i.no_mr then m \tr,
 							ondblclick: -> m.route.set "#{m.route.get!}/#{i._id}"
 							tds arr =
@@ -553,9 +559,9 @@ if Meteor.isClient
 						state.search = _.lowerCase e.target.0.value
 					m \input.input, type: \text, placeholder: \Pencarian
 				if roles!?farmasi then m \button.button.is-success,
-					onclick: -> state.showForm = not state.showForm
+					onclick: -> state.showFormFarmasi = not state.showFormFarmasi
 					m \span, '+Tambah Jenis Barang'
-				if state.showForm
+				if state.showFormFarmasi
 					m \h5, 'Form Barang Farmasi'
 					m autoForm do
 						collection: coll.gudang
@@ -769,6 +775,7 @@ if Meteor.isClient
 				elem.pagins!
 		amprah: -> view: -> m \.content,
 			oncreate: ->
+				Meteor.subscribe \users, onReady: -> m.redraw!
 				Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
 				state.showForm = obat: false, bhp: false
 			_.compact(attr.amprah.reqForm!)map (type) -> m \div,

@@ -1,3 +1,12 @@
+Mar 12th, 2019
+oke 1. Perbaiki state.showForm antara amprah & farmasi
+oke 2. Perbaiki form pencarian pasien
+3. Expected number error pada form edit pasien
+4. General URL hacks
+oke 5. Pada box laporan jangan unduh bila belum ada tanggal awal & akhir
+oke 6. Masalah pada amprah apotik, lupa subscribe users collection
+rumit 7. Jarangan serahkan barang bila sedia 0
+
 Feb 1st, 2019
 1. Pilihan dokter sesuai dengan poli yang terpilih
 2. Peringatan bila No. MR sudah terpakai

@@ -52,10 +52,11 @@ if Meteor.isClient
 			m \form.columns,
 				onsubmit: (e) -> arr =
 					e.preventDefault!
+					vals = [to 2]map -> e.target[it]value
 					action do
-						start: new Date e.target[0]value
-						end: new Date e.target[1]value
-						type: e.target[2]value
+						start: new Date that if vals.0
+						end: new Date that if vals.1
+						type: vals.2
 				m \.column, m \input.input, type: \date, placeholder: \Mulai
 				m \.column, m \input.input, type: \date, placeholder: \Akhir
 				m \.column.is-2, m \.field, m \.control, m \.select, m \select,
