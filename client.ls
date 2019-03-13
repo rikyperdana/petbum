@@ -29,9 +29,11 @@ if Meteor.isClient
 				else if userGroup \regis then i
 			ownKliniks: -> roles!?jalan?map (i) ->
 				(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
-			list: -> (.fetch!) coll.pasien.find 'regis.nama_lengkap':
-				$options: \i
-				$regex: ".*#{state.search or ''}.*"
+			list: ->
+				byName = 'regis.nama_lengkap':
+					$options: \-i, $regex: ".*#{state.search or ''}.*"
+				byNoMR = no_mr: +(state.search or '')
+				(.fetch!) coll.pasien.find $or: [byName, byNoMR]
 			lastKlinik: (arr) ->
 				unless roles!?jalan then arr
 				else if isDr! then arr.filter -> ands list =
@@ -147,7 +149,7 @@ if Meteor.isClient
 				{kabupaten: $exists: false}
 			if userGroup \regis and userRole \admin then elem.report do
 				title: 'Laporan Kunjungan Poliklinik'
-				action: ({start, end, type}) ->
+				action: ({start, end, type}) -> if start and end
 					Meteor.call \visits, start, end, (err, res) -> if res
 						title = "Kunjungan #{hari start} - #{hari end}"
 						obj = Tabel: csv, Pdf: makePdf.csv
@@ -485,7 +487,7 @@ if Meteor.isClient
 						m.redraw!
 			if userRole \admin then elem.report do
 				title: 'Laporan Pemasukan'
-				action: ({start, end, type}) ->
+				action: ({start, end, type}) -> if start and end
 					Meteor.call \incomes, start, end, (err, res) -> if res
 						title = "Pemasukan #{hari start} - #{hari end}"
 						obj = Tabel: csv, Pdf: makePdf.csv
@@ -541,13 +543,13 @@ if Meteor.isClient
 			[til 3]map -> m \br
 			if userRole \admin then elem.report do
 				title: 'Laporan Pengeluaran Obat'
-				action: ({start, end, type}) ->
+				action: ({start, end, type}) -> if start and end
 					Meteor.call \dispenses, start, end, (err, res) -> if res
 						csv "Pengeluaran Obat #{hari start}-#{hari end}", res
 		farmasi: -> view: -> m \.content,
 			if (userGroup \farmasi) and userRole(\admin) then elem.report do
 				title: 'Laporan Stok Barang'
-				action: ({start, end, type}) ->
+				action: ({start, end, type}) -> if start and end
 					Meteor.call \stocks, start, end, (err, res) -> if res
 						title = "Stok Barang #{hari start} - #{hari end}"
 						obj = Tabel: csv, Pdf: makePdf.csv
