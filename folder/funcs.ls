@@ -135,7 +135,7 @@ if Meteor.isClient
 
 			select: (name) ->
 				name: name
-				value: stateTempGet(name)?value or usedDoc?[name]
+				value: stateTempGet(name)?value or _.get usedDoc, name
 				onchange: ({target}) -> state.temp[opts.id]push do
 					name: name, value: target.value
 
@@ -259,8 +259,8 @@ if Meteor.isClient
 						type: schema.autoform?type or that
 						name: name, id: name, step: \any, value: ors arr =
 							state.form[opts.id]?[name]
-							usedDoc?[name] and that is \date and
-								moment usedDoc[name] .format \YYYY-MM-DD
+							_.get(usedDoc, name) and that is \date and
+								moment(_.get usedDoc, name)format \YYYY-MM-DD
 							_.get usedDoc, name
 					m \p.help.is-danger, error if error
 
