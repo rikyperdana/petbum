@@ -35,6 +35,7 @@ if Meteor.isClient
 
 	@autoForm = (opts) ->
 		state = afState
+		normed = -> it.replace /\d/g, \$
 
 		scope = if opts.scope then new SimpleSchema do ->
 			reducer = (res, val, key) ->
@@ -71,9 +72,9 @@ if Meteor.isClient
 		stateTempGet = (field) -> if state.temp[opts.id]
 			_.findLast state.temp[opts.id], -> it.name is field
 
-		clonedDoc = _.assign {}, opts.doc, "#that": [] if opts.scope
+		clonedDoc = if opts.type is \update-pushArray
+			_.assign {}, opts.doc, "#{opts.scope}": []
 		usedDoc = clonedDoc or opts.doc
-		normed = -> it.replace /\d/g, \$
 
 		attr =
 			form:
@@ -256,10 +257,11 @@ if Meteor.isClient
 					m \.control, m \input.input,
 						class: \is-danger if error
 						type: schema.autoform?type or that
-						name: name, id: name, step: \any, value: do ->
-							date = usedDoc?[name] and that is \date and
+						name: name, id: name, step: \any, value: ors arr =
+							state.form[opts.id]?[name]
+							usedDoc?[name] and that is \date and
 								moment usedDoc[name] .format \YYYY-MM-DD
-							state.form[opts.id]?[name] or date or usedDoc?[name]
+							_.get usedDoc, name
 					m \p.help.is-danger, error if error
 
 				else if schema.type is Object

@@ -31,7 +31,7 @@ if Meteor.isClient
 				(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
 			list: ->
 				byName = 'regis.nama_lengkap':
-					$options: \-i, $regex: ".*#{state.search or ''}.*"
+					$options: \i, $regex: ".*#{state.search or ''}.*"
 				byNoMR = no_mr: +(state.search or '')
 				(.fetch!) coll.pasien.find $or: [byName, byNoMR]
 			lastKlinik: (arr) ->
