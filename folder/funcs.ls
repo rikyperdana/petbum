@@ -259,7 +259,9 @@ if Meteor.isClient
 						type: schema.autoform?type or that
 						name: name, id: name, step: \any, value: ors arr =
 							state.form[opts.id]?[name]
-							_.get(usedDoc, name) and that is \date and
+							ands arr =
+								_.get usedDoc, name
+								that is \date
 								moment(_.get usedDoc, name)format \YYYY-MM-DD
 							_.get usedDoc, name
 					m \p.help.is-danger, error if error

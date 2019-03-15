@@ -6,6 +6,7 @@ if Meteor.isClient
 			rights: -> modules.filter -> it.name in
 				_.flatMap (_.keys Meteor.user!?roles), (i) ->
 					(.list) rights.find -> it.group is i
+		pageAccess: (list) -> userGroup! in list
 		pasien:
 			showForm:
 				patient: onclick: ->
@@ -91,59 +92,59 @@ if Meteor.isClient
 		m \.column
 
 	comp =
-		layout: (comp) ->
-			view: -> m \div,
-				m \link, rel: \stylesheet, href: 'https:/maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
-				m \nav.navbar.is-info,
-					role: \navigation, 'aria-label': 'main navigation',
-					m \.navbar-brand, m \a.navbar-item,
-						{style: "margin-left: 600px"}
-						_.upperCase (?full or attr.layout.hospital) modules.find ->
-							it.name is m.route.get!split \/ .1
-					m \.navbar-end, m \.navbar-item.has-dropdown,
-						class: \is-active if state.userMenu
-						m \a.navbar-link,
-							onclick: -> state.userMenu = not state.userMenu
-							m \span, Meteor.user!?username
-						m \.navbar-dropdown.is-right, do ->
-							logout = -> arr =
-								Meteor.logout!
-								m.route.set \/login
-								m.redraw!
-							arr =
-								if Meteor.user!?roles then ["Grup: #{userGroup!}, Peran: #{userRole!}"] else ['']
-								unless Meteor.userId! then [\Login, -> m.route.set \/login]
-								else [\Logout, -> logout!]
-							arr.map (i) -> m \a.navbar-item,
-								onclick: i?1, i.0
-				m \.columns,
-					Meteor.userId! and m \.column.is-2, m \aside.menu.box,
-						m \p.menu-label, 'Admin Menu'
-						m \ul.menu-list, attr.layout.rights!map (i) -> m \li,
-							m \a, {
-								href: "/#{i.name}"
-								oncreate: m.route.link
-								class: \is-active if state.activeMenu is i.name
-							}, i.full
+		layout: (comp) -> view: -> m \div,
+			m \link, rel: \stylesheet, href: 'https:/maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
+			m \nav.navbar.is-info,
+				role: \navigation, 'aria-label': 'main navigation',
+				m \.navbar-brand, m \a.navbar-item,
+					{style: "margin-left: 600px"}
+					_.upperCase (?full or attr.layout.hospital) modules.find ->
+						it.name is m.route.get!split \/ .1
+				m \.navbar-end, m \.navbar-item.has-dropdown,
+					class: \is-active if state.userMenu
+					m \a.navbar-link,
+						onclick: -> state.userMenu = not state.userMenu
+						m \span, Meteor.user!?username
+					m \.navbar-dropdown.is-right, do ->
+						logout = -> arr =
+							Meteor.logout!
+							m.route.set \/login
+							m.redraw!
+						arr =
+							if Meteor.user!?roles then ["Grup: #{userGroup!}, Peran: #{userRole!}"] else ['']
+							unless Meteor.userId! then [\Login, -> m.route.set \/login]
+							else [\Logout, -> logout!]
+						arr.map (i) -> m \a.navbar-item,
+							onclick: i?1, i.0
+			m \.columns,
+				Meteor.userId! and m \.column.is-2, m \aside.menu.box,
+					m \p.menu-label, 'Admin Menu'
+					m \ul.menu-list, attr.layout.rights!map (i) -> m \li,
+						m \a, {
+							href: "/#{i.name}"
+							oncreate: m.route.link
+							class: \is-active if state.activeMenu is i.name
+						}, i.full
+						if attr.pageAccess(<[regis jalan]>) then
 							if \regis is currentRoute! then m \ul,
 								[[\lama, 'Cari Pasien'], [\baru, 'Pasien Baru']]map (i) ->
 									m \li, m \a, {
 										href: "/regis/#{i.0}"
 										oncreate: m.route.link
 									}, _.startCase i.1
-							if same [\manajemen, currentRoute!, i.name]
-								m \ul, <[ users imports ]>map (i) -> m \li, m \a,
-									href: "/manajemen/#i"
-									oncreate: m.route.link
-									m \span, _.startCase i
-					m \.column,
-						unless Meteor.userId! then m loginComp
-						else if comp then m that
+						if same [\manajemen, currentRoute!, i.name]
+							m \ul, <[ users imports ]>map (i) -> m \li, m \a,
+								href: "/manajemen/#i"
+								oncreate: m.route.link
+								m \span, _.startCase i
+				m \.column,
+					unless Meteor.userId! then m loginComp
+					else if comp then m that
 		login: loginComp
 		welcome: -> view: -> m \.content,
 			m \h1, \Panduan
 			m \p, 'Selamat datang di SIMRSPB 2018'
-		pasien: -> view: -> m \.content,
+		pasien: -> view: -> if attr.pageAccess(<[regis jalan]>) then m \.content,
 			oncreate: Meteor.subscribe \coll, \daerah, $and: arr =
 				{provinsi: $exists: true}
 				{kabupaten: $exists: false}
@@ -433,7 +434,7 @@ if Meteor.isClient
 			else m \div
 		regis: -> this.pasien
 		jalan: -> this.pasien
-		bayar: -> view: -> m \.content,
+		bayar: -> view: -> if attr.pageAccess(<[bayar]>) then m \.content,
 			m \table.table,
 				oncreate: ->
 					Meteor.subscribe \coll, \tarif
@@ -492,7 +493,7 @@ if Meteor.isClient
 						title = "Pemasukan #{hari start} - #{hari end}"
 						obj = Tabel: csv, Pdf: makePdf.csv
 						obj[type] title, that
-		obat: -> view: -> m \.content,
+		obat: -> view: -> if attr.pageAccess(<[obat]>) then m \.content,
 			m \h5, \Apotik,
 			m \table.table,
 				oncreate: ->
@@ -546,7 +547,7 @@ if Meteor.isClient
 				action: ({start, end, type}) -> if start and end
 					Meteor.call \dispenses, start, end, (err, res) -> if res
 						csv "Pengeluaran Obat #{hari start}-#{hari end}", res
-		farmasi: -> view: -> m \.content,
+		farmasi: -> view: -> if attr.pageAccess(<[jalan obat farmasi]>) then m \.content,
 			if (userGroup \farmasi) and userRole(\admin) then elem.report do
 				title: 'Laporan Stok Barang'
 				action: ({start, end, type}) -> if start and end
@@ -647,7 +648,7 @@ if Meteor.isClient
 						i.nobatch, i.digudang, i.diapotik,
 						(hari i.masuk), (hari i.kadaluarsa)
 					]map (j) -> m \td, j
-		manajemen: -> view: ->
+		manajemen: -> view: -> if attr.pageAccess(<[manajemen]>)
 			if \users is m.route.param \subroute then m \.content,
 				oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
 				m \h1, 'Manajemen Pengguna'
@@ -775,7 +776,7 @@ if Meteor.isClient
 						_.startCase i.third
 						i.active
 				elem.pagins!
-		amprah: -> view: -> m \.content,
+		amprah: -> view: -> if attr.pageAccess(<[jalan obat farmasi]>) then m \.content,
 			oncreate: ->
 				Meteor.subscribe \users, onReady: -> m.redraw!
 				Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
