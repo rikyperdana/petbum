@@ -74,7 +74,7 @@ if Meteor.isClient
 	loginComp = -> view: -> m \.container, m \.columns,
 		m \.column
 		m \.column,
-			m \.content, m \h5, \Login
+			m \.content, m \h4, \Login
 			m \form,
 				onsubmit: (e) ->
 					e.preventDefault!
@@ -184,10 +184,6 @@ if Meteor.isClient
 				hooks:
 					before: (doc, cb) -> cb _.merge doc, regis:
 						petugas: "#{userGroup!}": Meteor.userId!
-						provinsi: (?daerah) coll.daerah.findOne provinsi: doc.provinsi
-						kabupaten: (?daerah) coll.daerah.findOne provinsi: doc.provinsi, kabupaten: doc.kabupaten
-						kecamatan: (?daerah) coll.daerah.findOne kabupaten: doc.kabupaten, kecamatan: doc.kecamatan
-						kelurahan: (?daerah) coll.daerah.findOne kecamatan: doc.kecamatan, kelurahan: doc.kelurahan
 					after: (id) ->
 						state.showAddPatient = null
 						m.route.set "/regis/lama/#id"
@@ -200,7 +196,7 @@ if Meteor.isClient
 							makePdf.icdx res if res
 					m \.column, m \input.input, type: \text, placeholder: 'No MR Pasien'
 					m \.column, m \input.button.is-primary, type: \submit, value: \Unduh
-				m \h5, 'Kodifikasi ICD 10'
+				m \h4, 'Kodifikasi ICD 10'
 				m \table.table,
 					oncreate: -> Meteor.subscribe \coll, \pasien,
 						{rawat: $elemMatch: $and: [
@@ -268,7 +264,7 @@ if Meteor.isClient
 							if i.rawat?reverse!?0?billRegis then rows!
 						else rows!
 				if userGroup(\jalan) and !isDr! then m \div,
-					m \h5, 'Daftar Antrian Panggilan Dokter'
+					m \h4, 'Daftar Antrian Panggilan Dokter'
 					m \table.table,
 						m \thead, m \tr, attr.pasien.headers.patientList.map (i) ->
 							m \th, _.startCase i
@@ -287,27 +283,34 @@ if Meteor.isClient
 				oncreate: ->
 					Meteor.subscribe \coll, \tarif
 					Meteor.subscribe \coll, \gudang
+					isDr! and Meteor.subscribe \users, username: $options: \-i, $regex: '^dr'
 					Meteor.subscribe \coll, \pasien,
 						{_id: m.route.param \idpasien}, onReady: -> m.redraw!
-					isDr! and Meteor.subscribe \users, username: $options: \-i, $regex: '^dr'
-				m \.content, m \h5, 'Rincian Pasien'
-				if coll.pasien.findOne m.route.param \idpasien then m \div,
-					m \table.table, [
-						[
-							{name: 'No. MR', data: that.no_mr}
-							{name: 'Tanggal Lahir', data: hari that.regis.tgl_lahir}
-						]
-					,
-						[
-							{name: 'Nama Lengkap', data: _.startCase that.regis.nama_lengkap}
-							{name: 'Tempat Lahir', data: _.startCase that.regis.tmpt_lahir}
-						]
-					,
-						[
-							{name: 'Tempat Tinggal', data: _.startCase that.regis.alamat}
-							{name: 'Umur', data: moment!diff(that.regis.tgl_lahir, \years) + ' tahun'}
-						]
-					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.data)]
+				[til 2]map -> m \br
+				m \.content, m \h4, 'Rincian Pasien'
+				if doc = coll.pasien.findOne m.route.param \idpasien then m \div,
+					m \table.table, _.chunk([
+						{name: 'No. MR', data: doc.no_mr}
+						{name: 'Nama Lengkap', data: doc.regis.nama_lengkap}
+						{name: 'Tanggal Lahir', data: hari doc.regis.tgl_lahir}
+						{name: 'Tempat Lahir', data: doc.regis.tmpt_lahir}
+						{name: 'Jenis kelamin', data: look(\kelamin, that)label if doc.regis.kelamin}
+						{name: \Agama, data: look(\agama, that)label if doc.regis.agama}
+						{name: 'Status nikah', data: look(\nikah, that)label if doc.regis.nikah}
+						{name: 'Pendidikan terakhir', data: look(\pendidikan, that)label if doc.regis.pendidikan}
+						{name: 'Golongan Darah', data: look(\darah, that)label if doc.regis.darah}
+						{name: 'Pekerjaan terakhir', data: look(\pekerjaan, that)label if doc.regis.pekerjaan}
+						{name: 'Tempat Tinggal', data: doc.regis.alamat}
+						{name: 'Umur', data: moment!diff(doc.regis.tgl_lahir, \years) + ' tahun'}
+						{name: 'Nama Bapak', data: doc.regis.ayah}
+						{name: 'Nama Ibu', data: doc.regis.ibu}
+						{name: 'Nama Suami/Istri', data: doc.regis.pasangan}
+						{name: \Kontak, data: doc.regis.kontak}
+						{name: \Provinsi, data: _.startCase that if state.regions.provinsi}
+						{name: \Kabupaten, data: _.startCase that if state.regions.kabupaten}
+						{name: \Kecamatan, data: _.startCase that if state.regions.kecamatan}
+						{name: \Kelurahan, data: _.startCase that if state.regions.kelurahan}
+					], 4)map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.data)]
 					if currentRoute! is \regis then m \div, [
 						[\Kartu, \is-info, onclick: -> makePdf.card m.route.param \idpasien]
 						[\Consent, \is-info, onclick: -> makePdf.consent!]
@@ -331,7 +334,7 @@ if Meteor.isClient
 								m.redraw!
 					[til 2]map -> m \br
 					state.docRawat and m \.content,
-						m \h5, 'Rincian Rawat'
+						m \h4, 'Rincian Rawat'
 						m \table.table,
 							attr.pasien.rawatDetails that.rawat.find(-> it.idrawat is state.docRawat)
 							.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
@@ -494,7 +497,7 @@ if Meteor.isClient
 						obj = Tabel: csv, Pdf: makePdf.csv
 						obj[type] title, that
 		obat: -> view: -> if attr.pageAccess(<[obat]>) then m \.content,
-			m \h5, \Apotik,
+			m \h4, \Apotik,
 			m \table.table,
 				oncreate: ->
 					Meteor.subscribe \coll, \gudang
@@ -565,7 +568,7 @@ if Meteor.isClient
 					onclick: -> state.showFormFarmasi = not state.showFormFarmasi
 					m \span, '+Tambah Jenis Barang'
 				if state.showFormFarmasi
-					m \h5, 'Form Barang Farmasi'
+					m \h4, 'Form Barang Farmasi'
 					m autoForm do
 						collection: coll.gudang
 						schema: new SimpleSchema schema.farmasi
@@ -592,7 +595,7 @@ if Meteor.isClient
 				oncreate: -> Meteor.subscribe \coll, \gudang,
 					{_id: m.route.param \idbarang}
 					onReady: -> m.redraw!
-				m \h5, 'Rincian Obat'
+				m \h4, 'Rincian Obat'
 				m \table.table,
 					if coll.gudang.findOne m.route.param \idbarang then [
 						[
@@ -613,7 +616,7 @@ if Meteor.isClient
 				state.modal and elem.modal do
 					title: 'Tetapkan Treshold'
 					content: m \div,
-						m \h5, 'Berapa batas minimum yang seharusnya ada di apotik?'
+						m \h4, 'Berapa batas minimum yang seharusnya ada di apotik?'
 						m \form,
 							onsubmit: (e) ->
 								e.preventDefault!
@@ -652,7 +655,7 @@ if Meteor.isClient
 			if \users is m.route.param \subroute then m \.content,
 				oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
 				m \h1, 'Manajemen Pengguna'
-				m \h5, 'Tambahkan pengguna baru'
+				m \h4, 'Tambahkan pengguna baru'
 				m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
@@ -669,7 +672,7 @@ if Meteor.isClient
 					m \.field, m \.control, m \input.button,
 						type: \submit, value: \Daftarkan
 				[til 2]map -> m \br
-				m \h5, 'Daftar Pengguna Sistem'
+				m \h4, 'Daftar Pengguna Sistem'
 				m \form,
 					onkeypress: (e) -> state.search = e.target.value
 					m \input.input, type: \text, placeholder: \Pencarian
@@ -701,7 +704,7 @@ if Meteor.isClient
 				elem.pagins!
 			else if \imports is m.route.param \subroute then m \.content,
 				m \h1, 'Importer Data'
-				m \h5, 'Unggah data csv'
+				m \h4, 'Unggah data csv'
 				m \.file, m \label.file-label,
 					m \input.file-input, type: \file, name: \csv, onchange: (e) ->
 						Papa.parse e.target.files.0, header: true, step: (result) ->
@@ -762,7 +765,7 @@ if Meteor.isClient
 						m \span.file-icon, m \i.fa.fa-upload
 						m \span.file-label, 'Pilih file .csv'
 				[til 2]map -> m \br
-				m \h5, 'Daftar Tarif Tindakan'
+				m \h4, 'Daftar Tarif Tindakan'
 				m \table.table,
 					oncreate: ->
 						Meteor.subscribe \coll, \tarif, onReady: -> m.redraw!
@@ -787,7 +790,7 @@ if Meteor.isClient
 					onclick: -> state.showForm[type] = not state.showForm[type]
 					m \span, "Request #{_.upperCase type}"
 				if state.showForm?[type] and !userGroup(\farmasi)
-					m \h5, 'Form Amprah'
+					m \h4, 'Form Amprah'
 					m autoForm do
 						collection: coll.amprah
 						schema: new SimpleSchema schema.amprah type
@@ -798,7 +801,7 @@ if Meteor.isClient
 							state.showForm = null
 							m.redraw!
 			m \br
-			m \h5, 'Daftar Amprah'
+			m \h4, 'Daftar Amprah'
 			m \table.table,
 				oncreate: ->
 					cond = ->

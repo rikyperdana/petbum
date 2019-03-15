@@ -14,7 +14,7 @@
 
 if Meteor.isClient
 
-	@state = pagins: limit: 5, page: 0
+	@state = regions: {}, pagins: limit: 5, page: 0
 	@currentRoute = -> m.route.get!split \/ .1
 	@isDr = -> _.split Meteor.user!?username, \. .0 in <[ dr drg ]>
 	@roles = -> Meteor.user!?roles
