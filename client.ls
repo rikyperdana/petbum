@@ -285,7 +285,13 @@ if Meteor.isClient
 					Meteor.subscribe \coll, \gudang
 					isDr! and Meteor.subscribe \users, username: $options: \-i, $regex: '^dr'
 					Meteor.subscribe \coll, \pasien,
-						{_id: m.route.param \idpasien}, onReady: -> m.redraw!
+						{_id: m.route.param \idpasien}, onReady: ->
+							Meteor.call \regions,
+								coll.pasien.findOne(m.route.param \idpasien)regis,
+								(err, res) ->
+									state.regions = res
+									m.redraw!
+							m.redraw!
 				[til 2]map -> m \br
 				m \.content, m \h4, 'Rincian Pasien'
 				if doc = coll.pasien.findOne m.route.param \idpasien then m \div,
@@ -304,7 +310,7 @@ if Meteor.isClient
 						{name: 'Umur', data: moment!diff(doc.regis.tgl_lahir, \years) + ' tahun'}
 						{name: 'Nama Bapak', data: doc.regis.ayah}
 						{name: 'Nama Ibu', data: doc.regis.ibu}
-						{name: 'Nama Suami/Istri', data: doc.regis.pasangan}
+						{name: 'Suami/Istri', data: doc.regis.pasangan}
 						{name: \Kontak, data: doc.regis.kontak}
 						{name: \Provinsi, data: _.startCase that if state.regions.provinsi}
 						{name: \Kabupaten, data: _.startCase that if state.regions.kabupaten}

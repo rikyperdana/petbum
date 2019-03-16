@@ -239,7 +239,9 @@ if Meteor.isServer
 		backupNow: backup
 
 		regions: ({provinsi, kabupaten, kecamatan, kelurahan}) ->
-			provinsi: (.daerah) coll.daerah.findOne provinsi: provinsi
-			kabupaten: (.daerah) coll.daerah.findOne provinsi: provinsi, kabupaten: kabupaten
-			kecamatan: (.daerah) coll.daerah.findOne kabupaten: kabupaten, kecamatan: kecamatan
-			kelurahan: (.daerah) coll.daerah.findOne kecamatan: kecamatan, kelurahan: kelurahan
+			if ands [provinsi, kabupaten, kecamatan, kelurahan]
+				provinsi: (.daerah) coll.daerah.findOne provinsi: provinsi
+				kabupaten: (.daerah) coll.daerah.findOne provinsi: provinsi, kabupaten: kabupaten
+				kecamatan: (.daerah) coll.daerah.findOne kabupaten: kabupaten, kecamatan: kecamatan
+				kelurahan: (.daerah) coll.daerah.findOne kecamatan: kecamatan, kelurahan: kelurahan
+			else {}
