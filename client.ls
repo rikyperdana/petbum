@@ -718,15 +718,15 @@ if Meteor.isClient
 							if data.no_mr
 								sel = no_mr: +data.no_mr
 								opt = regis:
-									nama_lengkap: _.startCase data.nama_lengkap
-									alamat: _.startCase that if data.alamat
+									nama_lengkap: _.startCase _.lowerCase data.nama_lengkap
+									alamat: _.startCase _.lowerCase that if data.alamat
 									agama: +that if data.agama
 									ayah: _.startCase that if data.ayah
 									nikah: +that if data.nikah
 									pekerjaan: +that if data.pekerjaan
 									pendidikan: +that if data.pendidikan
 									tgl_lahir: new Date that if Date.parse that if data.tgl_lahir
-									tmpt_lahir: _.startCase that if data.tmpt_lahir
+									tmpt_lahir: _.startCase _.lowerCase that if data.tmpt_lahir
 								Meteor.call \import, \pasien, sel, opt
 							if data.digudang
 								sel = nama: data.nama
