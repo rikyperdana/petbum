@@ -35,12 +35,12 @@ if Meteor.isClient
 
 	schema.fisik =
 		tekanan_darah: type: String, optional: true
-		nadi: type: Number, optional: true
-		suhu: type: Number, decimal: true, optional: true
-		pernapasan: type: Number, optional: true
-		berat: type: Number, optional: true
-		tinggi: type: Number, optional: true
-		lila: type: Number, optional: true
+		nadi: type: Number, optional: true, decimal: true
+		suhu: type: Number, optional: true, decimal: true
+		pernapasan: type: Number, optional: true, decimal: true
+		berat: type: Number, optional: true, decimal: true
+		tinggi: type: Number, optional: true, decimal: true
+		lila: type: Number, optional: true, decimal: true
 
 	schema.tindakan =
 		idtindakan:

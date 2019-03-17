@@ -55,7 +55,7 @@ selects.namaTindakan = (name) -> if Meteor.isClient
 		it.second is _.snakeCase (.label) selects.klinik.find ->
 			it.value is (.klinik) coll.pasien.findOne!rawat.find ->
 				it.idrawat is state.docRawat
-		it.third is afState.form.formNurse[current]
+		it.third is afState.form.formRawat[current]
 	a.map -> value: it._id, label: _.startCase it.nama
 
 selects.gudang = -> if Meteor.isClient

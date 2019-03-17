@@ -336,8 +336,8 @@ if Meteor.isClient
 						buttonContent: \Simpan
 						columns: 3
 						hooks:
-							before: (doc, cb) ->
-								cb _.merge doc, petugas: "#{userGroup!}": Meteor.userId!
+							before: (doc, cb) -> cb rawat:
+								[_.merge doc.rawat.0, petugas: "#{userGroup!}": Meteor.userId!]
 							after: ->
 								state.showAddRawat = false
 								m.redraw!
@@ -345,7 +345,7 @@ if Meteor.isClient
 					state.docRawat and m \.content,
 						m \h4, 'Rincian Rawat'
 						m \table.table,
-							attr.pasien.rawatDetails that.rawat.find(-> it.idrawat is state.docRawat)
+							attr.pasien.rawatDetails attr.pasien.currentPasien!rawat.find(-> it.idrawat is state.docRawat)
 							.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
 					state.docRawat and m autoForm do
 						collection: coll.pasien
@@ -353,15 +353,15 @@ if Meteor.isClient
 							if isDr! then schema.rawatDoctor
 							else schema.rawatNurse
 						type: \update-pushArray
-						id: \formNurse
+						id: \formRawat
 						scope: \rawat
-						doc: that
+						doc: attr.pasien.currentPasien!
 						buttonContent: \Simpan
 						columns: 3
 						hooks:
 							before: (doc, cb) ->
-								base = that.rawat.find -> it.idrawat is state.docRawat
-								Meteor.call \rmRawat, that._id, state.docRawat,
+								base = attr.pasien.currentPasien!rawat.find -> it.idrawat is state.docRawat
+								Meteor.call \rmRawat, attr.pasien.currentPasien!_id, state.docRawat,
 								(err, res) -> res and cb _.merge doc.rawat.0, base,
 									status_bayar: true if ors arr =
 										base.cara_bayar isnt 1
