@@ -185,8 +185,10 @@ if Meteor.isClient
 							{kecamatan: +doc.value}
 							{kelurahan: $exists: true}
 				hooks:
-					before: (doc, cb) -> cb _.merge doc, regis:
-						petugas: "#{userGroup!}": Meteor.userId!
+					before: (doc, cb) ->
+						Meteor.call \onePasien, doc.no_mr, (err, res) ->
+							unless res then cb _.merge doc, regis:
+								petugas: "#{userGroup!}": Meteor.userId!
 					after: (id) ->
 						state.showAddPatient = null
 						m.route.set "/regis/lama/#id"
