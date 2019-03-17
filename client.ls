@@ -25,6 +25,7 @@ if Meteor.isClient
 				{head: 'Anamesa Dokter', cell: doc?anamesa_dokter}
 				{head: \Diagnosa, cell: doc?diagnosa?join ', '}
 				{head: \Planning, cell: doc?planning}
+			currentPasien: -> coll.pasien.findOne m.route.param \idpasien
 			poliFilter: (arr) -> if arr then _.compact arr.map (i) ->
 				if userRole! is _.snakeCase look(\klinik, i.klinik)label then i
 				else if userGroup \regis then i
@@ -329,7 +330,7 @@ if Meteor.isClient
 						type: \update-pushArray
 						id: \formJalan
 						scope: \rawat
-						doc: that
+						doc: coll.pasien.findOne m.route.param \idpasien
 						buttonContent: \Simpan
 						columns: 3
 						hooks:
@@ -384,7 +385,7 @@ if Meteor.isClient
 								m \th, _.startCase i
 							m \th, \Rincian if userGroup \jalan
 							m \th, \Hapus if userRole \admin
-						m \tbody, attr.pasien.poliFilter(that?rawat?reverse!)?map (i) -> m \tr, [
+						m \tbody, attr.pasien.poliFilter(attr.pasien.currentPasien!rawat)?map (i) -> m \tr, [
 							hari i.tanggal
 							look(\klinik, i.klinik)label
 							look(\cara_bayar, i.cara_bayar)label
