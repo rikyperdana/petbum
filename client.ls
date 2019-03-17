@@ -56,7 +56,9 @@ if Meteor.isClient
 		manajemen:
 			headers: tarif: <[ nama harga first second third active ]>
 			userList: -> pagins _.reverse ors arr =
-				if state.search then Meteor.users.find(username: $regex: ".*#that.*")fetch!
+				if state.search then _.concat do
+					Meteor.users.find!fetch!filter (i) -> _.includes ((.0) _.keys i.roles), that
+					Meteor.users.find(username: $regex: ".*#that.*")fetch!
 				Meteor.users.find!fetch!
 		amprah:
 			headers: requests: <[ tanggal_minta ruangan peminta jumlah nama_barang penyerah diserah tanggal_serah]>
@@ -722,7 +724,7 @@ if Meteor.isClient
 									nama_lengkap: _.startCase _.lowerCase data.nama_lengkap
 									alamat: _.startCase _.lowerCase that if data.alamat
 									agama: +that if data.agama
-									ayah: _.startCase that if data.ayah
+									ayah: _.startCase _.lowerCase that if data.ayah
 									nikah: +that if data.nikah
 									pekerjaan: +that if data.pekerjaan
 									pendidikan: +that if data.pendidikan
