@@ -57,7 +57,9 @@ if Meteor.isClient
 			headers: tarif: <[ nama harga first second third active ]>
 			userList: -> pagins _.reverse ors arr =
 				if state.search then _.concat do
-					Meteor.users.find!fetch!filter (i) -> _.includes ((.0) _.keys i.roles), that
+					Meteor.users.find!fetch!filter (i) -> ors arr =
+						_.includes (_.join _.keys i.roles), that
+						_.includes (_.join _.values i.roles), that
 					Meteor.users.find(username: $regex: ".*#that.*")fetch!
 				Meteor.users.find!fetch!
 		amprah:
@@ -73,6 +75,10 @@ if Meteor.isClient
 			reqForm: -> arr =
 				\bhp unless userGroup \farmasi
 				if userGroup \obat then \obat
+			available: ->
+				_.sum look2(\gudang, state.modal.nama)batch.map (i) ->
+					if userGroup \farmasi then i.digudang
+					else i.diapotik
 
 	loginComp = -> view: -> m \.container, m \.columns,
 		m \.column
@@ -269,6 +275,7 @@ if Meteor.isClient
 							if i.rawat?reverse!?0?billRegis then rows!
 						else rows!
 				if userGroup(\jalan) and !isDr! then m \div,
+					[til 2]map -> m \br
 					m \h4, 'Daftar Antrian Panggilan Dokter'
 					m \table.table,
 						m \thead, m \tr, attr.pasien.headers.patientList.map (i) ->
@@ -846,16 +853,16 @@ if Meteor.isClient
 								m \th, _.startCase i
 							m \tbody, m \tr, tds arr =
 								state.modal.jumlah
-								_.sum look2(\gudang, state.modal.nama)batch.map (i) ->
-									if userGroup \farmasi then i.digudang
-									else i.diapotik
+								attr.amprah.available!
 						m autoForm do
 							schema: new SimpleSchema schema.responAmprah
 							id: \formResponAmprah
 							type: \method
 							meteormethod: \serahAmprah
 							hooks:
-								before: (doc, cb) -> cb _.merge doc, state.modal
+								before: (doc, cb) ->
+									if doc.diserah <= attr.amprah.available!
+										cb _.merge doc, state.modal
 								after: (doc) ->
 									state.modal = doc
 									m.redraw!
