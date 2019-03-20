@@ -11,6 +11,7 @@
 	Math.round diff
 @hari = -> moment it .format 'D MMM YYYY'
 @rupiah = -> "Rp #{numeral(+it or 0)format '0,0'}"
+@ols = -> m \ol, it.map -> m \li, it
 
 if Meteor.isClient
 
@@ -21,10 +22,10 @@ if Meteor.isClient
 	@tds = -> it.map (i) -> m \td, i
 	@userRole = ->
 		if it then roles!?[currentRoute!]?0 is that
-		else (.0.0) _.values roles!
+		else (?0?0) _.values roles!
 	@userGroup = ->
 		if it then roles!?[that]
-		else (.0) _.keys roles!
+		else (?0) _.keys roles!
 	@pagins = ->
 		position = state.pagins.page * state.pagins.limit
 		_.slice it, position, (position + state.pagins.limit)

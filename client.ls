@@ -151,8 +151,9 @@ if Meteor.isClient
 					else if comp then m that
 		login: loginComp
 		welcome: -> view: -> m \.content,
-			m \h1, \Panduan
-			m \p, 'Selamat datang di SIMRSPB 2018'
+			oncreate: -> Meteor.subscribe \users, (err, res) -> res and m.redraw!
+			m \h1, "Panduan bagi #{(.full) modules.find -> it.name is userGroup!}"
+			m \div, guide userGroup!, userRole!
 		pasien: -> view: -> if attr.pageAccess(<[regis jalan]>) then m \.content,
 			oncreate: Meteor.subscribe \coll, \daerah, $and: arr =
 				{provinsi: $exists: true}
@@ -372,12 +373,12 @@ if Meteor.isClient
 								base = attr.pasien.currentPasien!rawat.find -> it.idrawat is state.docRawat
 								Meteor.call \rmRawat, attr.pasien.currentPasien!_id, state.docRawat,
 								(err, res) -> res and cb _.merge doc.rawat.0, base,
+									petugas: "#{if isDr! then \dokter else \perawat}": Meteor.userId!
 									status_bayar: true if ors arr =
 										base.cara_bayar isnt 1
 										ands arr =
 											doc.rawat.0.obat
 											not doc.rawat.0.tindakan
-									petugas: "#{if isDr! then \dokter else \perawat}": Meteor.userId!
 							after: (doc) ->
 								if doc.pindah then coll.pasien.update do
 									{_id: m.route.param \idpasien},

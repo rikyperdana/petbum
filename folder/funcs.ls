@@ -80,6 +80,7 @@ if Meteor.isClient
 			form:
 				id: opts.id
 				onchange: ({target}) ->
+					state.submitted = false
 					if opts.onchange then that target
 					arr = <[ radio checkbox select ]>
 					unless theSchema(target.name)?autoform?type in arr
@@ -88,6 +89,7 @@ if Meteor.isClient
 
 				onsubmit: (e) ->
 					e.preventDefault!
+					state.submitted = true
 					temp = state.temp[opts.id]map -> "#{it.name}": it.value
 					formValues = _.filter e.target, (i) ->
 						a = -> (i.value isnt \on) and i.name
