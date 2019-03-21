@@ -649,7 +649,7 @@ if Meteor.isClient
 								type: \submit, value: \Tetapkan
 				if roles!?farmasi then m \.button.is-warning,
 					onclick: -> state.showForm = not state.showForm
-					m \span,'Tambahkan Batch'
+					m \span,'+Tambahkan Batch'
 				if state.showForm then m autoForm do
 					collection: coll.gudang
 					schema: new SimpleSchema schema.farmasi
