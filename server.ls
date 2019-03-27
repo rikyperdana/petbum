@@ -57,7 +57,7 @@ if Meteor.isServer
 						else
 							minim = -> min [i.jumlah, inc.diapotik]
 							batches.push do
-								idpasien: pasien._id
+								idpasien: pasien?_id
 								nama_obat: i.nama
 								nobatch: inc.nobatch
 								jumlah: minim!

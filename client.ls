@@ -568,7 +568,9 @@ if Meteor.isClient
 				title: 'Laporan Pengeluaran Obat'
 				action: ({start, end, type}) -> if start and end
 					Meteor.call \dispenses, start, end, (err, res) -> if res
-						csv "Pengeluaran Obat #{hari start}-#{hari end}", res
+						title = "Pengeluaran Obat #{hari start}-#{hari end}"
+						obj = Table: csv, Pdf: makePdf.csv
+						obj[type] title, that
 		farmasi: -> view: -> if attr.pageAccess(<[jalan obat farmasi]>) then m \.content,
 			if (userGroup \farmasi) and userRole(\admin) then elem.report do
 				title: 'Laporan Stok Barang'
@@ -632,7 +634,7 @@ if Meteor.isClient
 							state.modal = coll.gudang.findOne m.route.param \idbarang
 						m \th, 'Batas Minimum'
 						m \td, that?treshold
-				state.modal and elem.modal do
+				state.modal?_id and elem.modal do
 					title: 'Tetapkan Treshold'
 					content: m \div,
 						m \h4, 'Berapa batas minimum yang seharusnya ada di apotik?'
@@ -666,10 +668,29 @@ if Meteor.isClient
 				m \table.table,
 					m \thead, attr.gudang.headers.rincian.map (i) ->
 						m \th, _.startCase i
-					m \tbody, coll.gudang.findOne(m.route.param \idbarang)?batch.map (i) -> m \tr, [
-						i.nobatch, i.digudang, i.diapotik,
-						(hari i.masuk), (hari i.kadaluarsa)
-					]map (j) -> m \td, j
+					m \tbody, coll.gudang.findOne(m.route.param \idbarang)?batch.map (i) -> m \tr,
+						ondblclick: ->
+							state.modal = i
+							m.redraw!
+						tds [i.nobatch, i.digudang, i.diapotik, (hari i.masuk), (hari i.kadaluarsa)]
+				if state.modal?idbatch then elem.modal do
+					title: 'Rincian Batch'
+					content: m \table, do ->
+						contents =
+							['No. Batch', state.modal.nobatch]
+							[\Merek, state.modal?merek]
+							['Tanggal Masuk', hari state.modal.masuk]
+							['Tanggal Kadaluarsa', hari state.modal.kadaluarsa]
+							['Stok di Gudang', state.modal.digudang]
+							['Harga Jual', state.modal?jual]
+							['Nama Supplier', state.modal?suplier]
+							['Bisa diretur', state.modal?returnable or \Tidak]
+							['Sumber Anggaran', state.modal?anggaran]
+							['Tahun Pengadaan', state.modal?pengadaan]
+						contents.map (i) -> m \tr,
+							m \td, m \b, i.0
+							m \td, i?1
+
 		manajemen: -> view: -> if attr.pageAccess(<[manajemen]>)
 			if \users is m.route.param \subroute then m \.content,
 				oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
