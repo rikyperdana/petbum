@@ -516,7 +516,26 @@ if Meteor.isClient
 						obj = Tabel: csv, Pdf: makePdf.csv
 						obj[type] title, that
 		obat: -> view: -> if attr.pageAccess(<[obat]>) then m \.content,
-			m \h4, \Apotik,
+			m \h4, \Apotik
+			m \b, "Nama Pasien: #that" if state.bypass
+			m autoForm do
+				schema: new SimpleSchema do
+					no_mr: type: Number
+					nama: type: String, label: 'Nama Obat', autoform: options: selects.obat
+					jumlah: type: Number
+				type: \method
+				meteormethod: \serahObat
+				id: \bypassObat
+				columns: 3
+				onchange: (doc) -> if doc.name is \no_mr
+					Meteor.call \onePasien, doc.value, (err, res) -> if res
+						state.bypass = res.regis.nama_lengkap
+						m.redraw!
+				hooks:
+					before: (doc, cb) -> Meteor.call \onePasien,
+						doc.no_mr, (err, res) -> if res
+							cb _id: res._id, obat: [doc]
+					after: (doc) -> coll.rekap.insert doc.0
 			m \table.table,
 				oncreate: ->
 					Meteor.subscribe \coll, \gudang

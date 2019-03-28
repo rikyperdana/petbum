@@ -64,9 +64,9 @@ if Meteor.isClient
 			autoValue: -> randomId!
 		nama: type: String, label: 'Nama Obat', autoform: options: selects.obat
 		puyer: type: String, optional: true
-		aturan: type: Object
-		'aturan.kali': type: Number, label: 'Kali sehari'
-		'aturan.dosis': type: String
+		aturan: type: Object, optional: true
+		'aturan.kali': type: Number, label: 'Kali sehari', optional: true
+		'aturan.dosis': type: String, optional: true
 		jumlah: type: Number
 		harga:
 			type: Number
