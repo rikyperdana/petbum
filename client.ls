@@ -528,7 +528,7 @@ if Meteor.isClient
 				id: \bypassObat
 				columns: 3
 				onchange: (doc) -> if doc.name is \no_mr
-					Meteor.call \onePasien, doc.value, (err, res) -> if res
+					Meteor.call \onePasien, +doc.value, (err, res) -> if res
 						state.bypass = res.regis.nama_lengkap
 						m.redraw!
 				hooks:
@@ -580,8 +580,10 @@ if Meteor.isClient
 						state.modal = null
 						m.redraw!
 			m \.button.is-warning,
-				onclick: -> makePdf.rekap!
-				m \span, 'Cetak Rekap'
+				onclick: -> Meteor.subscribe \coll, \pasien,
+					{_id: $in: coll.rekap.find!fetch!map -> it.idpasien}
+					onReady: -> makePdf.rekap!
+				m \span, "Cetak #{coll.rekap.find!fetch!length} Rekap"
 			[til 3]map -> m \br
 			if userRole \admin then elem.report do
 				title: 'Laporan Pengeluaran Obat'
