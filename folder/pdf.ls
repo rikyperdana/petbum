@@ -95,7 +95,7 @@ if Meteor.isClient
 			pdf.download "#{zeros doc.no_mr}_payRegCard.pdf"
 
 		rekap: ->
-			fields = <[ no_mr_nama_pasien nama_obat nobatch jumlah ]>
+			fields = <[ no_mr_nama_pasien nama_obat nobatch jumlah satuan ]>
 			source = coll.rekap.find!fetch!map (i) ->
 				i.obat.map (j) -> j.batches.map (k) -> arr =
 					{
@@ -111,6 +111,7 @@ if Meteor.isClient
 					}
 					k.nobatch
 					k.jumlah.toString!
+					\?
 			rows = _.flattenDepth source, 2
 			headers = [fields.map -> _.startCase it]
 			if rows.length > 0
@@ -155,6 +156,7 @@ if Meteor.isClient
 					pageOrientation: \landscape
 					content: arr =
 						kop
+						name
 						table:
 							widths: [til headers.0.length]map -> \auto
 							body: [...headers, ...rows]

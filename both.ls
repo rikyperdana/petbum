@@ -197,7 +197,7 @@ if Meteor.isClient
 		'batch.$.merek': type: String, optional: true
 		'batch.$.masuk': type: Date
 		'batch.$.kadaluarsa': type: Date
-		'batch.$.digudang': type: Number
+		'batch.$.digudang': type: Number, label: 'Jumlah Barang'
 		'batch.$.awal':
 			type: Number
 			autoform: type: \hidden

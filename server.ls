@@ -173,8 +173,9 @@ if Meteor.isServer
 				'Nama Obat': obj.nama
 				'No. Batch': i.no_batch
 				'Jumlah': i.jumlah
-				'Harga': price
-				'Total': price * i.jumlah
+				'Satuan': look(\satuan, obj.satuan)label
+				'Harga': rupiah price
+				'Total': rupiah price * i.jumlah
 				'Stok Awal': awal
 				'Stok Akhir': awal - i.jumlah
 
