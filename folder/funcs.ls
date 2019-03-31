@@ -194,6 +194,14 @@ if Meteor.isClient
 			error = _.startCase _.find state.errors[opts.id],
 				(val, key) -> key is name
 
+			disabled: -> m \div,
+				label
+				m \input.input,
+					name: name, disabled: true, value: ors arr =
+						_.get usedDoc, name
+						schema.autoValue? name, _.map state.form[opts.id],
+							(val, key) -> value: val, name: key
+
 			hidden: -> m \input,
 				type: \hidden, name: name, id: name,
 				value: schema.autoValue? name, _.map state.form[opts.id],

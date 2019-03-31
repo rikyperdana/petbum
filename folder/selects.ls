@@ -65,10 +65,7 @@ selects.gudang = -> if Meteor.isClient
 selects.obat = -> if Meteor.isClient
 	joined = -> _.join it, ' '
 	a = _.compact coll.gudang.find!fetch!map (i) ->
-		if i.jenis in [1 2 3] then value: i._id, label: joined arr =
-			i.nama
-			"A#{_.sum i.batch.map -> it.diapotik}"
-			"G#{_.sum i.batch.map -> it.digudang}"
+		if i.jenis in [1 2 3] then value: i._id, label: i.nama
 	_.sortBy a, \label
 
 selects.bhp = -> if Meteor.isClient
