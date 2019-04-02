@@ -1,3 +1,13 @@
+Apr 2nd, 2019
+1. Ambang batas stok farmasi flat unit 10
+2. Auto jarakkan 1 hari untuk tanggal akhir laporan
+oke 3. Label satuan pada pdf
+4. Notifikasi pemberian ambang batas apotik
+5. Notifikasi obat yang dibawah ambang batas
+6. Halangi user untuk mengeluarkan obat yang diatas jumlah yang tersedia
+oke 7. Bug pada subscription di pihak farmasi
+8. ByPass jadi manual, tidak lookup pada sistem
+
 Mar 12th, 2019
 oke 1. Perbaiki state.showForm antara amprah & farmasi
 oke 2. Perbaiki form pencarian pasien
@@ -5,7 +15,7 @@ oke 3. Expected number error pada form edit pasien
 oke 4. General URL hacks
 oke 5. Pada box laporan jangan unduh bila belum ada tanggal awal & akhir
 oke 6. Masalah pada amprah apotik, lupa subscribe users collection
-rumit 7. Jarangan serahkan barang bila sedia 0
+rumit 7. Jangan serahkan barang bila sedia 0
 
 Feb 1st, 2019
 1. Pilihan dokter sesuai dengan poli yang terpilih

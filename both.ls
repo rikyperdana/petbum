@@ -213,7 +213,7 @@ if Meteor.isClient
 		'batch.$.jual': type: Number, decimal: true, optional: true
 		'batch.$.suplier': type: String, optional: true
 		'batch.$.returnable': type: Number, optional: true, autoform: options: selects.returnable
-		'batch.$.anggaran': type: Number, optional: true, autoform: options: selects.anggaran
+		'batch.$.anggaran': type: Number, autoform: options: selects.anggaran
 		'batch.$.pengadaan': type: Number, optional: true
 
 	schema.amprah = (type) ->
@@ -245,6 +245,7 @@ if Meteor.isClient
 
 	schema.bypassObat =
 		no_mr: type: Number
+		pasien: type: String
 		nama: type: String, label: 'Nama Obat', autoform: options: selects.obat
 		stok:
 			type: String

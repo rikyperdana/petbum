@@ -64,10 +64,15 @@ if Meteor.isClient
 				Meteor.users.find!fetch!
 		amprah:
 			headers: requests: <[ tanggal_minta ruangan peminta jumlah nama_barang penyerah diserah tanggal_serah]>
-			amprahList: -> reverse coll.amprah.find!fetch!filter (i) ->
-				if userGroup \farmasi then i.ruangan is \obat
-				else if userGroup \jalan then userGroup i.ruangan
-				else i
+			amprahList: ->
+				cond = ->
+					if userGroup \obat then penyerah: $exists: false
+					else if userGroup \farmasi then ruangan: \apotik
+					else ruangan: userGroup!
+				reverse coll.amprah.find()fetch!filter (i) ->
+					if userGroup \farmasi then i.ruangan is \obat
+					else if userGroup \jalan then userGroup i.ruangan
+					else i
 			buttonConds: (obj) -> ands arr =
 				not obj.diserah
 				userGroup! in <[obat farmasi]>
@@ -517,21 +522,17 @@ if Meteor.isClient
 						obj[type] title, that
 		obat: -> view: -> if attr.pageAccess(<[obat]>) then m \.content,
 			m \h4, \Apotik
-			m \b, "Nama Pasien: #that" if state.bypass
 			m autoForm do
 				schema: new SimpleSchema schema.bypassObat
 				type: \method
-				meteormethod: \serahObat
+				meteormethod: \bypassSerahObat
 				id: \bypassObat
 				columns: 3
-				onchange: (doc) -> if doc.name is \no_mr
-					Meteor.call \onePasien, +doc.value, (err, res) -> if res
-						state.bypass = res.regis.nama_lengkap
-						m.redraw!
 				hooks:
-					before: (doc, cb) -> Meteor.call \onePasien,
-						doc.no_mr, (err, res) -> if res
-							cb _id: res._id, obat: [doc]
+					before: (doc, cb) -> cb do
+						no_mr: doc.no_mr
+						nama_pasien: doc.pasien
+						obat: [doc]
 					after: (doc) -> coll.rekap.insert doc.0
 			m \table.table,
 				oncreate: ->
@@ -579,7 +580,7 @@ if Meteor.isClient
 			m \.button.is-warning,
 				onclick: -> Meteor.subscribe \coll, \pasien,
 					{_id: $in: coll.rekap.find!fetch!map -> it.idpasien}
-					onReady: -> makePdf.rekap!
+					onReady: -> makePdf.bypassRekap!
 				m \span, "Cetak #{coll.rekap.find!fetch!length} Rekap"
 			[til 3]map -> m \br
 			if userRole \admin then elem.report do
@@ -589,6 +590,7 @@ if Meteor.isClient
 						title = "Pengeluaran Obat #{hari start}-#{hari end}"
 						obj = Table: csv, Pdf: makePdf.csv
 						obj[type] title, that
+
 		farmasi: -> view: -> if attr.pageAccess(<[jalan obat farmasi]>) then m \.content,
 			if (userGroup \farmasi) and userRole(\admin) then elem.report do
 				title: 'Laporan Stok Barang'
@@ -598,6 +600,17 @@ if Meteor.isClient
 						obj = Tabel: csv, Pdf: makePdf.csv
 						obj[type] title, that
 			unless m.route.param(\idbarang) then m \div,
+				do ->
+					jumlah = coll.gudang.find(treshold: $exists: false)fetch!length
+					if jumlah > 0 then m \.notification.is-warning,
+						m \button.delete
+						m \b, "Terdapat #jumlah barang yang belum diberi ambang batas"
+				do ->
+					sumA = coll.gudang.find!fetch!filter ->
+						it.treshold > _.sumBy it.batch, \diapotik
+					if sumA.length > 0 then m \.notification.is-danger,
+						m \button.delete
+						m \b, "Terdapat #{sumA.length} barang yang stok apotiknya dibawah batas"
 				m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
@@ -862,12 +875,8 @@ if Meteor.isClient
 			m \br
 			m \h4, 'Daftar Amprah'
 			m \table.table,
-				oncreate: ->
-					cond = ->
-						if userGroup \obat then penyerah: $exists: false
-						else if userGroup \farmasi then ruangan: \apotik
-						else ruangan: userGroup!
-					Meteor.subscribe \coll, \amprah, cond!, onReady: -> m.redraw!
+				oncreate: -> <[amprah users]>map (i) ->
+					Meteor.subscribe \coll, i, onReady: -> m.redraw!
 				m \thead, m \tr,
 					attr.amprah.headers.requests.map (i) -> m \th, _.startCase i
 					if userGroup \obat then m \th, \Serah

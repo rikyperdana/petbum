@@ -111,7 +111,34 @@ if Meteor.isClient
 					}
 					k.nobatch
 					k.jumlah.toString!
-					\?
+					do ->
+						obat = coll.gudang.findOne j.nama_obat
+						look \satuan, obat.satuan .label
+			rows = _.flattenDepth source, 2
+			headers = [fields.map -> _.startCase it]
+			if rows.length > 0
+				Meteor.call \doneRekap
+				pdfMake.createPdf content:
+					[table: body: [...headers, ...rows]]
+				.download \cetak_rekap.pdf
+
+		bypassRekap: ->
+			fields = <[ no_mr_nama_pasien nama_obat nobatch jumlah satuan ]>
+			source = coll.rekap.find!fetch!map (i) ->
+				i.obat.map (j) -> j.batches.map (k) -> arr =
+					{
+						text: "#{i.no_mr}\n#{i.nama_pasien}"
+						rowSpan: _.sum i.obat.map -> it.batches.length
+					}
+					{
+						text: look2(\gudang, j.nama_obat)nama
+						rowSpan: j.batches.length
+					}
+					k.nobatch
+					k.jumlah.toString!
+					do ->
+						obat = coll.gudang.findOne j.nama_obat
+						look \satuan, obat.satuan .label
 			rows = _.flattenDepth source, 2
 			headers = [fields.map -> _.startCase it]
 			if rows.length > 0
