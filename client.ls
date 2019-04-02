@@ -519,21 +519,7 @@ if Meteor.isClient
 			m \h4, \Apotik
 			m \b, "Nama Pasien: #that" if state.bypass
 			m autoForm do
-				schema: new SimpleSchema do
-					no_mr: type: Number
-					nama: type: String, label: 'Nama Obat', autoform: options: selects.obat
-					stok:
-						type: String
-						label: 'Info Stok'
-						optional: true
-						autoform: type: \disabled
-						autoValue: (name, doc) ->
-							if ((?value) doc.find -> it.name is \nama)
-								barang = coll.gudang.findOne that
-								_.join arr =
-									"Apotik: #{_.sum barang.batch.map -> it.diapotik}"
-									"Gudang: #{_.sum barang.batch.map -> it.digudang}"
-					jumlah: type: Number
+				schema: new SimpleSchema schema.bypassObat
 				type: \method
 				meteormethod: \serahObat
 				id: \bypassObat
@@ -617,6 +603,7 @@ if Meteor.isClient
 						e.preventDefault!
 						state.search = _.lowerCase e.target.0.value
 					m \input.input, type: \text, placeholder: \Pencarian
+				m \br
 				if roles!?farmasi then m \button.button.is-success,
 					onclick: -> state.showFormFarmasi = not state.showFormFarmasi
 					m \span, '+Tambah Jenis Barang'
@@ -717,7 +704,7 @@ if Meteor.isClient
 							['Harga Jual', rupiah state.modal?jual]
 							['Nama Supplier', state.modal?suplier]
 							['Bisa diretur', state.modal?returnable or \Tidak]
-							['Sumber Anggaran', state.modal?anggaran]
+							['Sumber Anggaran', look \anggaran, state.modal?anggaran .label]
 							['Tahun Pengadaan', state.modal?pengadaan]
 						contents.map (i) -> m \tr,
 							m \td, m \b, i.0

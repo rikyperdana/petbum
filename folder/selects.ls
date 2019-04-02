@@ -84,13 +84,16 @@ selects.provinsi = -> if Meteor.isClient
 	.map -> value: it.provinsi, label: _.startCase it.daerah
 
 selects.kabupaten = -> if Meteor.isClient
-	coll.daerah.find!fetch!filter -> it.kabupaten and it.provinsi
-	.map -> value: it.kabupaten, label: _.startCase it.daerah
+	if +afState.form.formRegis[\regis.provinsi]
+		coll.daerah.find!fetch!filter -> it.provinsi is that and it.kabupaten
+		.map -> value: it.kabupaten, label: _.startCase it.daerah
 
 selects.kecamatan = -> if Meteor.isClient
-	coll.daerah.find!fetch!filter -> it.kecamatan and it.kabupaten
-	.map -> value: it.kecamatan, label: _.startCase it.daerah
+	if +afState.form.formRegis[\regis.kabupaten]
+		coll.daerah.find!fetch!filter -> it.kabupaten is that and it.kecamatan
+		.map -> value: it.kecamatan, label: _.startCase it.daerah
 
 selects.kelurahan = -> if Meteor.isClient
-	coll.daerah.find!fetch!filter -> it.kelurahan and it.kecamatan
-	.map -> value: it.kelurahan, label: _.startCase it.daerah
+	if +afState.form.formRegis[\regis.kecamatan]
+		coll.daerah.find!fetch!filter -> it.kecamatan is that and it.kelurahan
+		.map -> value: it.kelurahan, label: _.startCase it.daerah

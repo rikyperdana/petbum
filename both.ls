@@ -242,3 +242,19 @@ if Meteor.isClient
 			type: Date
 			autoform: type: \hidden
 			autoValue: -> new Date!
+
+	schema.bypassObat =
+		no_mr: type: Number
+		nama: type: String, label: 'Nama Obat', autoform: options: selects.obat
+		stok:
+			type: String
+			label: 'Info Stok'
+			optional: true
+			autoform: type: \disabled
+			autoValue: (name, doc) ->
+				if ((?value) doc.find -> it.name is \nama)
+					barang = coll.gudang.findOne that
+					_.join arr =
+						"Apotik: #{_.sum barang.batch.map -> it.diapotik}"
+						"Gudang: #{_.sum barang.batch.map -> it.digudang}"
+		jumlah: type: Number
