@@ -65,13 +65,9 @@ if Meteor.isClient
 		amprah:
 			headers: requests: <[ tanggal_minta ruangan peminta jumlah nama_barang penyerah diserah tanggal_serah]>
 			amprahList: ->
-				cond = ->
-					if userGroup \obat then penyerah: $exists: false
-					else if userGroup \farmasi then ruangan: \apotik
-					else ruangan: userGroup!
-				reverse coll.amprah.find()fetch!filter (i) ->
-					if userGroup \farmasi then i.ruangan is \obat
-					else if userGroup \jalan then userGroup i.ruangan
+				reverse coll.amprah.find!fetch!filter (i) ->
+					if userGroup \jalan then i.ruangan is userRole!
+					else if not userGroup \farmasi then i.ruangan is userGroup!
 					else i
 			buttonConds: (obj) -> ands arr =
 				not obj.diserah
@@ -79,7 +75,7 @@ if Meteor.isClient
 				not same [userGroup!, obj.ruangan]
 			reqForm: -> arr =
 				\bhp unless userGroup \farmasi
-				if userGroup \obat then \obat
+				if userGroup! in <[obat inap]> then \obat
 			available: ->
 				_.sum look2(\gudang, state.modal.nama)batch.map (i) ->
 					if userGroup \farmasi then i.digudang
@@ -601,13 +597,13 @@ if Meteor.isClient
 						obj[type] title, that
 			unless m.route.param(\idbarang) then m \div,
 				do ->
-					jumlah = coll.gudang.find(treshold: $exists: false)fetch!length
+					jumlah = coll.gudang.find('treshold.apotik': $exists: false)fetch!length
 					if jumlah > 0 then m \.notification.is-warning,
 						m \button.delete
 						m \b, "Terdapat #jumlah barang yang belum diberi ambang batas"
 				do ->
 					sumA = coll.gudang.find!fetch!filter ->
-						it.treshold > _.sumBy it.batch, \diapotik
+						it.treshold.apotik > _.sumBy it.batch, \diapotik
 					if sumA.length > 0 then m \.notification.is-danger,
 						m \button.delete
 						m \b, "Terdapat #{sumA.length} barang yang stok apotiknya dibawah batas"
@@ -637,11 +633,11 @@ if Meteor.isClient
 					m \thead, m \tr, attr.gudang.headers.farmasi.map (i) ->
 						m \th, _.startCase i
 					m \tbody, attr.farmasi.search(coll.gudang.find!fetch!)map (i) -> m \tr,
-						class: \has-text-danger if i.treshold > _.sumBy i.batch, \diapotik
+						class: \has-text-danger if i.treshold.apotik > _.sumBy i.batch, \diapotik
 						ondblclick: -> m.route.set "/farmasi/#{i._id}"
 						m \td, look(\barang, i.jenis)label
 						m \td, i.nama
-						m \td, i.treshold
+						m \td, i.treshold.apotik
 						<[ diapotik digudang ]>map (j) ->
 							m \td, _.sumBy i.batch, j
 			else m \div,
@@ -665,16 +661,16 @@ if Meteor.isClient
 						ondblclick: -> if userGroup(\obat)
 							state.modal = coll.gudang.findOne m.route.param \idbarang
 						m \th, 'Batas Minimum'
-						m \td, that?treshold
+						m \td, that?treshold?apotik
 				state.modal?_id and elem.modal do
-					title: 'Tetapkan Treshold'
+					title: 'Tetapkan Treshold Apotik'
 					content: m \div,
 						m \h4, 'Berapa batas minimum yang seharusnya ada di apotik?'
 						m \form,
 							onsubmit: (e) ->
 								e.preventDefault!
 								coll.gudang.update state.modal._id, $set:
-									treshold: +e.target.0.value
+									treshold: apotik: +e.target.0.value
 								state.modal = null
 								m.redraw!
 							m \.field, m \.control, m \input.input,
@@ -851,7 +847,7 @@ if Meteor.isClient
 						_.startCase i.third
 						i.active
 				elem.pagins!
-		amprah: -> view: -> if attr.pageAccess(<[jalan obat farmasi]>) then m \.content,
+		amprah: -> view: -> if attr.pageAccess(<[jalan inap obat farmasi]>) then m \.content,
 			oncreate: ->
 				Meteor.subscribe \users, onReady: -> m.redraw!
 				Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
@@ -859,7 +855,7 @@ if Meteor.isClient
 			_.compact(attr.amprah.reqForm!)map (type) -> m \div,
 				[til 1]map (i) -> m \br
 				m \.button.is-primary,
-					onclick: -> state.showForm[type] = not state.showForm[type]
+					onclick: -> state?showForm[type] = not state?showForm[type]
 					m \span, "Request #{_.upperCase type}"
 				if state.showForm?[type] and !userGroup(\farmasi)
 					m \h4, 'Form Amprah'
@@ -882,7 +878,7 @@ if Meteor.isClient
 					if userGroup \obat then m \th, \Serah
 				m \tbody, attr.amprah.amprahList!map (i) -> m \tr, tds arr =
 					hari i.tanggal_minta
-					(.full) modules.find -> it.name is i.ruangan
+					(?full or _.startCase i.ruangan) modules.find -> it.name is i.ruangan
 					_.startCase (.username) Meteor.users.findOne i.peminta
 					"#{i.jumlah} unit"
 					look2(\gudang, i.nama)?nama

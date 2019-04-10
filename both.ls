@@ -230,7 +230,9 @@ if Meteor.isClient
 		ruangan:
 			type: String
 			autoform: type: \hidden
-			autoValue: -> userGroup!
+			autoValue: ->
+				if userGroup \jalan then userRole!
+				else userGroup!
 
 	schema.responAmprah =
 		diserah: type: Number
