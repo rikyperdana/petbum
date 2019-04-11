@@ -47,7 +47,7 @@ if Meteor.isClient
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		apotik: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		gudang: headers:
-			farmasi: <[ jenis_barang nama_barang batas stok_diapotik stok_gudang ]>
+			farmasi: <[ jenis_barang nama_barang batas_apotik batas_gudang stok_diapotik stok_gudang ]>
 			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
 		farmasi:
 			fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
@@ -597,16 +597,19 @@ if Meteor.isClient
 						obj[type] title, that
 			unless m.route.param(\idbarang) then m \div,
 				do ->
-					jumlah = coll.gudang.find('treshold.apotik': $exists: false)fetch!length
+					jumlah = (.fetch!length) coll.gudang.find $or: arr =
+						{'treshold.apotik': $exists: false}
+						{'treshold.gudang': $exists: false}
 					if jumlah > 0 then m \.notification.is-warning,
 						m \button.delete
 						m \b, "Terdapat #jumlah barang yang belum diberi ambang batas"
 				do ->
-					sumA = coll.gudang.find!fetch!filter ->
-						it.treshold.apotik > _.sumBy it.batch, \diapotik
-					if sumA.length > 0 then m \.notification.is-danger,
+					sumA = (.length) coll.gudang.find!fetch!filter (i) -> ors arr =
+						i.treshold.apotik > _.sumBy i.batch, \diapotik
+						i.treshold.gudang > _.sumBy i.batch, \digudang
+					if sumA > 0 then m \.notification.is-danger,
 						m \button.delete
-						m \b, "Terdapat #{sumA.length} barang yang stok apotiknya dibawah batas"
+						m \b, "Terdapat #sumA barang yang stoknya dibawah batas"
 				m \form,
 					onsubmit: (e) ->
 						e.preventDefault!
@@ -638,6 +641,7 @@ if Meteor.isClient
 						m \td, look(\barang, i.jenis)label
 						m \td, i.nama
 						m \td, i.treshold.apotik
+						m \td, i.treshold.gudang
 						<[ diapotik digudang ]>map (j) ->
 							m \td, _.sumBy i.batch, j
 			else m \div,
@@ -658,19 +662,23 @@ if Meteor.isClient
 						]
 					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.cell)]
 					m \tr,
-						ondblclick: -> if userGroup(\obat)
+						ondblclick: -> if userGroup! in <[obat farmasi]>
 							state.modal = coll.gudang.findOne m.route.param \idbarang
-						m \th, 'Batas Minimum'
+						m \th, 'Batas min. Apotik'
 						m \td, that?treshold?apotik
+						m \th, 'Batas min. Gudang'
+						m \td, that?treshold?gudang
 				state.modal?_id and elem.modal do
-					title: 'Tetapkan Treshold Apotik'
+					title: 'Tetapkan Batas min.'
 					content: m \div,
-						m \h4, 'Berapa batas minimum yang seharusnya ada di apotik?'
+						m \h4, 'Berapa batas minimum yang seharusnya tersedia?'
 						m \form,
 							onsubmit: (e) ->
 								e.preventDefault!
-								coll.gudang.update state.modal._id, $set:
-									treshold: apotik: +e.target.0.value
+								opts = obat: \apotik, farmasi: \gudang
+								coll.gudang.update state.modal._id, $set: treshold: _.merge do
+									coll.gudang.findOne(state.modal._id)treshold
+									"#{opts[userGroup!]}": +e.target.0.value
 								state.modal = null
 								m.redraw!
 							m \.field, m \.control, m \input.input,
@@ -866,16 +874,16 @@ if Meteor.isClient
 						id: "formAmprah#type"
 						columns: 2
 						hooks: after: ->
-							state.showForm = null
+							state.showForm = obat: false, bhp: false
 							m.redraw!
 			m \br
 			m \h4, 'Daftar Amprah'
 			m \table.table,
-				oncreate: -> <[amprah users]>map (i) ->
-					Meteor.subscribe \coll, i, onReady: -> m.redraw!
+				oncreate: ->
+					Meteor.subscribe \users, onReady: -> m.redraw!
+					Meteor.subscribe \coll, \amprah, onReady: -> m.redraw!
 				m \thead, m \tr,
 					attr.amprah.headers.requests.map (i) -> m \th, _.startCase i
-					if userGroup \obat then m \th, \Serah
 				m \tbody, attr.amprah.amprahList!map (i) -> m \tr, tds arr =
 					hari i.tanggal_minta
 					(?full or _.startCase i.ruangan) modules.find -> it.name is i.ruangan

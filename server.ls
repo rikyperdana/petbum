@@ -117,7 +117,8 @@ if Meteor.isServer
 		serahAmprah: (doc) ->
 			coll.amprah.update doc._id, doc
 			batches = []
-			stock = if doc.ruangan is \obat then \digudang else \diapotik
+			# stock = if doc.ruangan is \obat then \digudang else \diapotik
+			stock = \digudang
 			coll.gudang.update doc.nama, $set: batch: reduce [],
 				coll.gudang.findOne(doc.nama)batch, (res, inc) -> arr =
 					...res
@@ -130,8 +131,7 @@ if Meteor.isServer
 							serah: minim!
 						obj = _.assign {}, inc,
 							"#stock": inc[stock] - minim!
-							if stock is \digudang then diapotik:
-								inc[\diapotik] + minim!
+							# if stock is \digudang then diapotik: inc[\diapotik] + minim!
 						doc.diserah -= minim!
 						obj
 			batches
