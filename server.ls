@@ -131,7 +131,10 @@ if Meteor.isServer
 							serah: minim!
 						obj = _.assign {}, inc,
 							"#stock": inc[stock] - minim!
-							# if stock is \digudang then diapotik: inc[\diapotik] + minim!
+							if doc.ruangan is \obat
+								diapotik: inc[\diapotik] + minim!
+							else if doc.ruangan is \depook
+								didepook: inc[\didepook] + minim!
 						doc.diserah -= minim!
 						obj
 			batches

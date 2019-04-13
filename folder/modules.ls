@@ -38,4 +38,9 @@
 	full: \Amprah
 	icon: \rv_hookup
 	color: \blue-grey
+,
+	name: \depook
+	full: 'Depo OK'
+	icon: \people
+	color: \green
 ]

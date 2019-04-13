@@ -208,6 +208,10 @@ if Meteor.isClient
 			type: Number
 			autoform: type: \hidden
 			autoValue: -> 0
+		'batch.$.didepook':
+			type: Number
+			autoform: type: \hidden
+			autoValue: -> 0
 		'batch.$.diretur': type: Boolean, optional: true, autoform: type: \hidden
 		'batch.$.beli': type: Number, decimal: true
 		'batch.$.jual': type: Number, decimal: true, optional: true

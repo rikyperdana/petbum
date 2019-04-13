@@ -47,8 +47,8 @@ if Meteor.isClient
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		apotik: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		gudang: headers:
-			farmasi: <[ jenis_barang nama_barang batas_apotik batas_gudang stok_diapotik stok_gudang ]>
-			rincian: <[ nobatch digudang diapotik masuk kadaluarsa ]>
+			farmasi: <[ jenis_barang nama_barang batas_apotik batas_gudang stok_diapotik stok_didepook stok_gudang ]>
+			rincian: <[ nobatch digudang diapotik didepook masuk kadaluarsa ]>
 		farmasi:
 			fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
 			search: -> it.filter (i) -> ors <[nama kandungan]>map (j) ->
@@ -75,7 +75,7 @@ if Meteor.isClient
 				not same [userGroup!, obj.ruangan]
 			reqForm: -> arr =
 				\bhp unless userGroup \farmasi
-				if userGroup! in <[obat inap]> then \obat
+				if userGroup! in <[obat inap depook]> then \obat
 			available: ->
 				_.sum look2(\gudang, state.modal.nama)batch.map (i) ->
 					if userGroup \farmasi then i.digudang
@@ -153,7 +153,7 @@ if Meteor.isClient
 		login: loginComp
 		welcome: -> view: -> m \.content,
 			oncreate: -> Meteor.subscribe \users, (err, res) -> res and m.redraw!
-			m \h1, "Panduan bagi #{(.full) modules.find -> it.name is userGroup!}"
+			m \h1, "Panduan bagi #{(?full) modules.find -> it.name is userGroup!}"
 			m \div, guide userGroup!, userRole!
 		pasien: -> view: -> if attr.pageAccess(<[regis jalan]>) then m \.content,
 			oncreate: Meteor.subscribe \coll, \daerah, $and: arr =
@@ -516,7 +516,7 @@ if Meteor.isClient
 						title = "Pemasukan #{hari start} - #{hari end}"
 						obj = Tabel: csv, Pdf: makePdf.csv
 						obj[type] title, that
-		obat: -> view: -> if attr.pageAccess(<[obat]>) then m \.content,
+		obat: -> view: -> if attr.pageAccess(<[obat depook]>) then m \.content,
 			m \h4, \Apotik
 			m autoForm do
 				schema: new SimpleSchema schema.bypassObat
@@ -587,7 +587,7 @@ if Meteor.isClient
 						obj = Table: csv, Pdf: makePdf.csv
 						obj[type] title, that
 
-		farmasi: -> view: -> if attr.pageAccess(<[jalan obat farmasi]>) then m \.content,
+		farmasi: -> view: -> if attr.pageAccess(<[jalan obat farmasi depook]>) then m \.content,
 			if (userGroup \farmasi) and userRole(\admin) then elem.report do
 				title: 'Laporan Stok Barang'
 				action: ({start, end, type}) -> if start and end
@@ -596,7 +596,7 @@ if Meteor.isClient
 						obj = Tabel: csv, Pdf: makePdf.csv
 						obj[type] title, that
 			unless m.route.param(\idbarang) then m \div,
-				do ->
+				if userGroup! in <[obat farmasi depook]>
 					jumlah = (.fetch!length) coll.gudang.find $or: arr =
 						{'treshold.apotik': $exists: false}
 						{'treshold.gudang': $exists: false}
@@ -604,7 +604,7 @@ if Meteor.isClient
 						m \button.delete
 						m \b, "Terdapat #jumlah barang yang belum diberi ambang batas"
 				do ->
-					sumA = (.length) coll.gudang.find!fetch!filter (i) -> ors arr =
+					sumA = (.length) coll.gudang.find!fetch!filter (i) -> if i.treshold then ors arr =
 						i.treshold.apotik > _.sumBy i.batch, \diapotik
 						i.treshold.gudang > _.sumBy i.batch, \digudang
 					if sumA > 0 then m \.notification.is-danger,
@@ -636,13 +636,13 @@ if Meteor.isClient
 					m \thead, m \tr, attr.gudang.headers.farmasi.map (i) ->
 						m \th, _.startCase i
 					m \tbody, attr.farmasi.search(coll.gudang.find!fetch!)map (i) -> m \tr,
-						class: \has-text-danger if i.treshold.apotik > _.sumBy i.batch, \diapotik
+						class: \has-text-danger if that.apotik > _.sumBy i.batch, \diapotik if i.treshold
 						ondblclick: -> m.route.set "/farmasi/#{i._id}"
 						m \td, look(\barang, i.jenis)label
 						m \td, i.nama
-						m \td, i.treshold.apotik
-						m \td, i.treshold.gudang
-						<[ diapotik digudang ]>map (j) ->
+						m \td, i.treshold?apotik
+						m \td, i.treshold?gudang
+						<[ diapotik didepook digudang ]>map (j) ->
 							m \td, _.sumBy i.batch, j
 			else m \div,
 				oncreate: -> Meteor.subscribe \coll, \gudang,
@@ -708,7 +708,7 @@ if Meteor.isClient
 						ondblclick: ->
 							state.modal = i
 							m.redraw!
-						tds [i.nobatch, i.digudang, i.diapotik, (hari i.masuk), (hari i.kadaluarsa)]
+						tds [i.nobatch, i.digudang, i.diapotik, i.didepook, (hari i.masuk), (hari i.kadaluarsa)]
 				if state.modal?idbatch then elem.modal do
 					title: 'Rincian Batch'
 					content: m \table, do ->
@@ -855,7 +855,7 @@ if Meteor.isClient
 						_.startCase i.third
 						i.active
 				elem.pagins!
-		amprah: -> view: -> if attr.pageAccess(<[jalan inap obat farmasi]>) then m \.content,
+		amprah: -> view: -> if attr.pageAccess(<[jalan inap obat farmasi depook]>) then m \.content,
 			oncreate: ->
 				Meteor.subscribe \users, onReady: -> m.redraw!
 				Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
@@ -884,7 +884,7 @@ if Meteor.isClient
 					Meteor.subscribe \coll, \amprah, onReady: -> m.redraw!
 				m \thead, m \tr,
 					attr.amprah.headers.requests.map (i) -> m \th, _.startCase i
-				m \tbody, attr.amprah.amprahList!map (i) -> m \tr, tds arr =
+				m \tbody, pagins(attr.amprah.amprahList!)map (i) -> m \tr, tds arr =
 					hari i.tanggal_minta
 					(?full or _.startCase i.ruangan) modules.find -> it.name is i.ruangan
 					_.startCase (.username) Meteor.users.findOne i.peminta
@@ -898,6 +898,8 @@ if Meteor.isClient
 						m \.button.is-primary,
 							onclick: -> state.modal = i
 							m \span, \Serah
+				m \br
+				elem.pagins!
 			if state.modal then elem.modal do
 				title: 'Respon Amprah'
 				content:
