@@ -6,7 +6,7 @@ if Meteor.isClient
 			rights: -> modules.filter -> it.name in
 				_.flatMap (_.keys Meteor.user!?roles), (i) ->
 					(.list) rights.find -> it.group is i
-		pageAccess: (list) -> userGroup! in list
+		pageAccess: -> userGroup! in it
 		pasien:
 			showForm:
 				patient: onclick: ->
@@ -25,7 +25,7 @@ if Meteor.isClient
 				{head: 'Anamesa Dokter', cell: doc?anamesa_dokter}
 				{head: \Diagnosa, cell: doc?diagnosa?join ', '}
 				{head: \Planning, cell: doc?planning}
-			currentPasien: -> coll.pasien.findOne m.route.param \idpasien
+			currentPasien: -> look2 \pasien, m.route.param \idpasien
 			poliFilter: (arr) -> if arr then _.compact arr.map (i) ->
 				if userRole! is _.snakeCase look(\klinik, i.klinik)label then i
 				else if userGroup \regis then i
@@ -46,10 +46,11 @@ if Meteor.isClient
 					_.last(it.rawat)billRegis
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		apotik: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
-		gudang: headers:
-			farmasi: <[ jenis_barang nama_barang batas_apotik batas_gudang stok_diapotik stok_didepook stok_gudang ]>
-			rincian: <[ nobatch digudang diapotik didepook masuk kadaluarsa ]>
 		farmasi:
+			headers:
+				farmasi: <[ jenis_barang nama_barang batas_apotik batas_gudang stok_diapotik stok_didepook stok_gudang ]>
+				rincian: <[ nobatch digudang diapotik didepook masuk kadaluarsa ]>
+			currentBarang: -> look2 \gudang, m.route.param \idbarang
 			fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
 			search: -> it.filter (i) -> ors <[nama kandungan]>map (j) ->
 				_.includes (_.lowerCase i[j]), _.lowerCase state.search
@@ -57,9 +58,8 @@ if Meteor.isClient
 			headers: tarif: <[ nama harga first second third active ]>
 			userList: -> pagins _.reverse ors arr =
 				if state.search then _.concat do
-					Meteor.users.find!fetch!filter (i) -> ors arr =
-						_.includes (_.join _.keys i.roles), that
-						_.includes (_.join _.values i.roles), that
+					Meteor.users.find!fetch!filter (i) -> ors <[keys values]>map (j) ->
+						_.includes (_.join _[j] i.roles), that
 					Meteor.users.find(username: $regex: ".*#that.*")fetch!
 				Meteor.users.find!fetch!
 		amprah:
@@ -171,7 +171,7 @@ if Meteor.isClient
 				schema: new SimpleSchema schema.regis
 				type: if m.route.param(\idpasien) then \update else \insert
 				id: \formRegis
-				doc: coll.pasien.findOne m.route.param \idpasien
+				doc: attr.pasien.currentPasien!
 				buttonContent: \Simpan
 				columns: 3
 				onchange: (doc) ->
@@ -301,14 +301,14 @@ if Meteor.isClient
 					Meteor.subscribe \coll, \pasien,
 						{_id: m.route.param \idpasien}, onReady: ->
 							Meteor.call \regions,
-								coll.pasien.findOne(m.route.param \idpasien)regis,
+								attr.pasien.currentPasien!regis
 								(err, res) ->
 									state.regions = res
 									m.redraw!
 							m.redraw!
 				[til 2]map -> m \br
 				m \.content, m \h4, 'Rincian Pasien'
-				if doc = coll.pasien.findOne m.route.param \idpasien then m \div,
+				if doc = attr.pasien.currentPasien! then m \div,
 					m \table.table, _.chunk([
 						{name: 'No. MR', data: doc.no_mr}
 						{name: 'Nama Lengkap', data: doc.regis.nama_lengkap}
@@ -343,7 +343,7 @@ if Meteor.isClient
 						type: \update-pushArray
 						id: \formJalan
 						scope: \rawat
-						doc: coll.pasien.findOne m.route.param \idpasien
+						doc: attr.pasien.currentPasien!
 						buttonContent: \Simpan
 						columns: 3
 						hooks:
@@ -410,14 +410,14 @@ if Meteor.isClient
 								m \span, \Lihat
 							if userRole \admin then m \.button.is-danger,
 								ondblclick: -> Meteor.call \rmRawat,
-									coll.pasien.findOne(_id: m.route.param \idpasien)_id
+									m.route.param \idpasien
 									i.idrawat, (err, res) -> res and m.redraw!
 								m \span, \Hapus
 						]map (j) -> m \td, j or \-
 					if state.modal then elem.modal do
 						title: 'Rincian rawat'
 						content: m \div,
-							m \h1, (.regis.nama_lengkap) coll.pasien.findOne m.route.param \idpasien
+							m \h1, attr.pasien.currentPasien!regis.nama_lengkap
 							m \table.table,
 								attr.pasien.rawatDetails state.modal
 								.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
@@ -487,8 +487,8 @@ if Meteor.isClient
 					it.harga
 				uraian =
 					['Cetak Kartu', 10000] if ands arr =
-						not coll.pasien.findOne(state.modal.pasienId)rawat?0?billRegis
-						coll.pasien.findOne(state.modal.pasienId)regis.petugas
+						not attr.pasien.currentPasien!rawat?0?billRegis
+						attr.pasien.currentPasien!regis.petugas
 					['Konsultasi Spesialis', look(\karcis, that.klinik)label*1000] unless state.modal.billRegis
 					... tindakans or []
 				params = <[ pasienId idrawat ]>map -> state.modal[it]
@@ -516,6 +516,7 @@ if Meteor.isClient
 						title = "Pemasukan #{hari start} - #{hari end}"
 						obj = Tabel: csv, Pdf: makePdf.csv
 						obj[type] title, that
+
 		obat: -> view: -> if attr.pageAccess(<[obat depook]>) then m \.content,
 			m \h4, \Apotik
 			m autoForm do
@@ -566,7 +567,7 @@ if Meteor.isClient
 				action: ->
 					Meteor.call \serahObat, state.modal, (err, res) -> if res
 						coll.pasien.update state.modal._id, $set: rawat:
-							coll.pasien.findOne(state.modal._id)rawat.map (i) ->
+							attr.pasien.currentPasien!rawat.map (i) ->
 								if i.idrawat is state.modal.idrawat
 									_.assign i, givenDrug: true
 								else i
@@ -587,7 +588,9 @@ if Meteor.isClient
 						obj = Table: csv, Pdf: makePdf.csv
 						obj[type] title, that
 
-		farmasi: -> view: -> if attr.pageAccess(<[jalan obat farmasi depook]>) then m \.content,
+		depook: -> this.obat
+
+		farmasi: -> view: -> if attr.pageAccess(<[jalan inap obat farmasi depook]>) then m \.content,
 			if (userGroup \farmasi) and userRole(\admin) then elem.report do
 				title: 'Laporan Stok Barang'
 				action: ({start, end, type}) -> if start and end
@@ -633,7 +636,7 @@ if Meteor.isClient
 							m.redraw!
 				m \table.table,
 					oncreate: -> Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
-					m \thead, m \tr, attr.gudang.headers.farmasi.map (i) ->
+					m \thead, m \tr, attr.farmasi.headers.farmasi.map (i) ->
 						m \th, _.startCase i
 					m \tbody, attr.farmasi.search(coll.gudang.find!fetch!)map (i) -> m \tr,
 						class: \has-text-danger if that.apotik > _.sumBy i.batch, \diapotik if i.treshold
@@ -650,20 +653,15 @@ if Meteor.isClient
 					onReady: -> m.redraw!
 				m \h4, 'Rincian Obat'
 				m \table.table,
-					if coll.gudang.findOne m.route.param \idbarang then [
-						[
-							{name: 'Nama Barang', cell: that.nama}
-							{name: 'Jenis Barang', cell: look(\barang, that.jenis)label}
-						]
-					,
-						[
-							{name: \Kandungan, cell: that.kandungan}
-							{name: \Satuan, cell: look(\satuan, that.satuan)label}
-						]
-					]map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.cell)]
+					if attr.farmasi.currentBarang! then _.chunk([
+						{name: 'Nama Barang', cell: that.nama}
+						{name: 'Jenis Barang', cell: look(\barang, that.jenis)label}
+						{name: \Kandungan, cell: that.kandungan}
+						{name: \Satuan, cell: look(\satuan, that.satuan)label}
+					], 2)map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.cell)]
 					m \tr,
 						ondblclick: -> if userGroup! in <[obat farmasi]>
-							state.modal = coll.gudang.findOne m.route.param \idbarang
+							state.modal = attr.farmasi.currentBarang!
 						m \th, 'Batas min. Apotik'
 						m \td, that?treshold?apotik
 						m \th, 'Batas min. Gudang'
@@ -677,7 +675,7 @@ if Meteor.isClient
 								e.preventDefault!
 								opts = obat: \apotik, farmasi: \gudang
 								coll.gudang.update state.modal._id, $set: treshold: _.merge do
-									coll.gudang.findOne(state.modal._id)treshold
+									attr.farmasi.currentBarang!treshold
 									"#{opts[userGroup!]}": +e.target.0.value
 								state.modal = null
 								m.redraw!
@@ -693,7 +691,7 @@ if Meteor.isClient
 					schema: new SimpleSchema schema.farmasi
 					type: \update-pushArray
 					scope: \batch
-					doc: coll.gudang.findOne m.route.param \idbarang
+					doc: attr.farmasi.currentBarang!
 					id: \formTambahObat
 					buttonContent: \Tambahkan
 					columns: 3
@@ -702,9 +700,9 @@ if Meteor.isClient
 						state.showForm = null
 						m.redraw!
 				m \table.table,
-					m \thead, attr.gudang.headers.rincian.map (i) ->
+					m \thead, attr.farmasi.headers.rincian.map (i) ->
 						m \th, _.startCase i
-					m \tbody, coll.gudang.findOne(m.route.param \idbarang)?batch.map (i) -> m \tr,
+					m \tbody, attr.farmasi.currentBarang!?batch.map (i) -> m \tr,
 						ondblclick: ->
 							state.modal = i
 							m.redraw!

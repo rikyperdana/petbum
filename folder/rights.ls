@@ -35,8 +35,7 @@ if Meteor.isClient
 		list: <[farmasi amprah]>
 	,
 		group: \depook
-		list: <[obat farmasi amprah]>
-	]
+		list: <[depook farmasi amprah]>
 
-	_.map rights, (i) -> _.assign i,
-		list: [...i.list, \panduan]
+	]map (i) -> _.assign i, list:
+		[...i.list, \panduan]
