@@ -1,12 +1,12 @@
 @modules = [
 	name: \regis
 	full: \Pendaftaran
-	icon: \people
+	icon: \users
 	color: \orange
 ,
 	name: \bayar
 	full: \Pembayaran
-	icon: \monetization_on
+	icon: \cash-register
 	color: \green
 ,
 	name: \jalan
@@ -16,31 +16,31 @@
 ,
 	name: \inap
 	full: 'Rawat Inap'
-	icon: \directions
+	icon: \procedures
 	color: \red
 ,
 	name: \obat
 	full: \Apotek
-	icon: \enhanced_encryption
+	icon: \mortar-pestle
 	color: \light-green
 ,
 	name: \farmasi
 	full: 'Gudang Farmasi'
-	icon: \local_pharmacy
+	icon: \book-medical
 	color: \orange
 ,
 	name: \manajemen
 	full: \Manajemen
-	icon: \people
+	icon: \tasks
 	color: \orange
 ,
 	name: \amprah
 	full: \Amprah
-	icon: \rv_hookup
+	icon: \shopping-basket
 	color: \blue-grey
 ,
 	name: \depook
 	full: 'Depo OK'
-	icon: \people
+	icon: \mortar-pestle
 	color: \green
 ]

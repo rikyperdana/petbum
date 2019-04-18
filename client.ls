@@ -103,7 +103,7 @@ if Meteor.isClient
 
 	comp =
 		layout: (comp) -> view: -> m \div,
-			m \link, rel: \stylesheet, href: 'https:/maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
+			m \link, rel: \stylesheet, href: 'https://use.fontawesome.com/releases/v5.8.1/css/all.css'
 			m \nav.navbar.is-info,
 				role: \navigation, 'aria-label': 'main navigation',
 				m \.navbar-brand, m \a.navbar-item,
@@ -114,6 +114,7 @@ if Meteor.isClient
 					class: \is-active if state.userMenu
 					m \a.navbar-link,
 						onclick: -> state.userMenu = not state.userMenu
+						m \span, m \i.fa.fa-user
 						m \span, Meteor.user!?username
 					m \.navbar-dropdown.is-right, do ->
 						logout = -> arr =
@@ -121,20 +122,24 @@ if Meteor.isClient
 							m.route.set \/login
 							m.redraw!
 						arr =
-							if Meteor.user!?roles then ["Grup: #{userGroup!}, Peran: #{userRole!}"] else ['']
-							unless Meteor.userId! then [\Login, -> m.route.set \/login]
-							else [\Logout, -> logout!]
+							if Meteor.user!?roles then ["Grup: #{userGroup!}, Peran: #{userRole!}", \user-tag] else ['']
+							unless Meteor.userId! then [\Login, \sign-in-alt', -> m.route.set \/login]
+							else [\Logout, \sign-out-alt, -> logout!]
 						arr.map (i) -> m \a.navbar-item,
-							onclick: i?1, i.0
+							onclick: i?2
+							m \span.icon.is-small, m "i.fa.fa-#{i?1}"
+							m \span, i?0
+
 			m \.columns,
 				Meteor.userId! and m \.column.is-2, m \aside.menu.box,
 					m \p.menu-label, 'Admin Menu'
 					m \ul.menu-list, attr.layout.rights!map (i) -> m \li,
-						m \a, {
+						m \a,
 							href: "/#{i.name}"
 							oncreate: m.route.link
 							class: \is-active if state.activeMenu is i.name
-						}, i.full
+							m \span.icon.is-small, m "i.fa.fa-#{i.icon}"
+							m \span, "    #{i.full}"
 						if attr.pageAccess(<[regis jalan]>) then
 							if \regis is currentRoute! then m \ul,
 								[[\lama, 'Cari Pasien'], [\baru, 'Pasien Baru']]map (i) ->

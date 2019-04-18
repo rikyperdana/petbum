@@ -1,3 +1,7 @@
+Apr 16th, 2019
+1. Cetak rekap pakai harga obat dikali jumlah barangnya
+2. Laporan pengeluaran obat harian (nama_barang, jumlahnya, harganya, stok awal, stok akhir)
+
 Apr 10th, 2019
 1. Kembalikan alur amprah obat terpusat pada Gudang Farmasi
 2. Buatkan storage obat baru bernama Depo OK, setara Apotik

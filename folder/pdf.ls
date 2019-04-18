@@ -123,7 +123,7 @@ if Meteor.isClient
 				.download \cetak_rekap.pdf
 
 		bypassRekap: ->
-			fields = <[ no_mr_nama_pasien nama_obat nobatch jumlah satuan ]>
+			fields = <[ no_mr_nama_pasien nama_obat nobatch jumlah satuan harga]>
 			source = coll.rekap.find!fetch!map (i) ->
 				i.obat.map (j) -> j.batches.map (k) -> arr =
 					{
@@ -139,6 +139,10 @@ if Meteor.isClient
 					do ->
 						obat = coll.gudang.findOne j.nama_obat
 						look \satuan, obat.satuan .label
+					rupiah k.jumlah * do ->
+						obat = coll.gudang.findOne j.nama_obat
+						batch = obat.batch.find (i) -> i.nobatch is k.nobatch
+						batch.jual
 			rows = _.flattenDepth source, 2
 			headers = [fields.map -> _.startCase it]
 			if rows.length > 0
