@@ -80,9 +80,9 @@ if Meteor.isServer
 					res.map (i) -> _.assign i, batches: [...i.batches, obj]
 				else [...res, nama_obat: inc.nama_obat, batches: [obj]]
 
-		bypassSerahObat: ({no_mr, nama_pasien, obat}) ->
+		bypassSerahObat: (doc) ->
 			batches = []
-			for i in obat
+			for i in doc.obat
 				coll.gudang.update i.nama, $set: batch: reduce [],
 					coll.gudang.findOne(i.nama)batch, (res, inc) -> arr =
 						...res
@@ -90,8 +90,6 @@ if Meteor.isServer
 						else
 							minim = -> min [i.jumlah, inc.diapotik]
 							batches.push do
-								no_mr: no_mr
-								nama_pasien: nama_pasien
 								nama_obat: i.nama
 								nobatch: inc.nobatch
 								jumlah: minim!
@@ -106,9 +104,9 @@ if Meteor.isServer
 					jumlah: inc.jumlah
 				if (res.find (i) -> i.no_mr is inc.no_mr)
 					res.map (i) -> if i.no_mr is inc.no_mr
-						no_mr: i.no_mr, nama_pasien: i.nama_pasien, obat: [...i.obat, obj]
-				else [...res, no_mr: inc.no_mr, nama_pasien: inc.nama_pasien, obat: [obj]]
-			.map (i) -> _.assign i, obat: reduce [], i.obat, (res, inc) ->
+						obat: [...i.obat, obj]
+				else [...res, obat: [obj]]
+			.map (i) -> _.assign doc, obat: reduce [], i.obat, (res, inc) ->
 				obj = nobatch: inc.nobatch, jumlah: inc.jumlah
 				if (res.find (i) -> i.nama_obat is inc.nama_obat)
 					res.map (i) -> _.assign i, batches: [...i.batches, obj]
