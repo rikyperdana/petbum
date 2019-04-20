@@ -209,3 +209,28 @@ if Meteor.isClient
 						[\Tanggal, ...headers[i]]
 						...rows[i]
 			.download title
+
+		ebiling: (doc) ->
+			title = "Billing Obat - #{doc.no_mr} - #{doc.nama_pasien} - #{hari new Date!}.pdf"
+			profile = layout: \noBorders, table:
+				widths: [til 4]map -> \*
+				body: x =
+					['Nama Lengkap', ": #{doc.nama_pasien}", 'No. MR', ": #{doc.no_mr}"]
+					['Alamat', ': ', \Tanggal, ": #{hari new Date!}"]
+					[\Poliklinik, ": #{doc.poli}", \Dokter, ": #{doc.dokter}"]
+			obats = table:
+				widths: [til 4]map -> \*
+				body: x =
+					['Nama Obat', \Jumlah, \Harga, \Total]map -> text: it, bold: true
+					... doc.obat.map (i) ->
+						harga = look2(\gudang, i.nama_obat)batch.0.jual
+						jumlah = _.sumBy i.batches, \jumlah
+						y =
+							look2 \gudang, i.nama_obat .nama
+							"#jumlah unit"
+							rupiah harga
+							rupiah jumlah * harga
+			pdfMake.createPdf do
+				pageOrientation: \landscape,
+				content: [kop, profile, '\n', obats], pageSize: \A5
+			.download title

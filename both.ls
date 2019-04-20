@@ -251,17 +251,22 @@ if Meteor.isClient
 
 	schema.bypassObat =
 		no_mr: type: Number
-		pasien: type: String
-		nama: type: String, label: 'Nama Obat', autoform: options: selects.obat
-		stok:
+		nama_pasien: type: String
+		poli: type: String
+		dokter: type: String
+		obat: type: Array
+		'obat.$': type: Object
+		'obat.$.nama': type: String, label: 'Nama Obat', autoform: options: selects.obat
+		'obat.$.stok':
 			type: String
 			label: 'Info Stok'
 			optional: true
 			autoform: type: \disabled
 			autoValue: (name, doc) ->
-				if ((?value) doc.find -> it.name is \nama)
+				num = (.1) name.split \.
+				if ((?value) doc.find -> it.name is "obat.#num.nama")
 					barang = coll.gudang.findOne that
 					_.join arr =
 						"Apotik: #{_.sum barang.batch.map -> it.diapotik}"
 						"Gudang: #{_.sum barang.batch.map -> it.digudang}"
-		jumlah: type: Number
+		'obat.$.jumlah': type: Number

@@ -114,7 +114,7 @@ if Meteor.isClient
 					class: \is-active if state.userMenu
 					m \a.navbar-link,
 						onclick: -> state.userMenu = not state.userMenu
-						m \span, m \i.fa.fa-user
+						m \span, m \i.fa.fa-user, style: "padding-right: 5px"
 						m \span, Meteor.user!?username
 					m \.navbar-dropdown.is-right, do ->
 						logout = -> arr =
@@ -127,7 +127,7 @@ if Meteor.isClient
 							else [\Logout, \sign-out-alt, -> logout!]
 						arr.map (i) -> m \a.navbar-item,
 							onclick: i?2
-							m \span.icon.is-small, m "i.fa.fa-#{i?1}"
+							m \span.icon.is-small, m "i.fa.fa-#{i?1}", style: "padding-right: 5px"
 							m \span, i?0
 
 			m \.columns,
@@ -529,13 +529,11 @@ if Meteor.isClient
 				type: \method
 				meteormethod: \bypassSerahObat
 				id: \bypassObat
-				columns: 3
+				columns: 2
 				hooks:
-					before: (doc, cb) -> cb do
-						no_mr: doc.no_mr
-						nama_pasien: doc.pasien
-						obat: [doc]
-					after: (doc) -> coll.rekap.insert doc.0
+					after: (doc) ->
+						coll.rekap.insert doc.0
+						makePdf.ebiling doc.0
 			m \table.table,
 				oncreate: ->
 					Meteor.subscribe \coll, \gudang
@@ -867,6 +865,7 @@ if Meteor.isClient
 				[til 1]map (i) -> m \br
 				m \.button.is-primary,
 					onclick: -> state?showForm[type] = not state?showForm[type]
+					m \span, m \i.fa.fa-shopping-basket
 					m \span, "Request #{_.upperCase type}"
 				if state.showForm?[type] and !userGroup(\farmasi)
 					m \h4, 'Form Amprah'
