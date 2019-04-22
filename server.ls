@@ -279,3 +279,5 @@ if Meteor.isServer
 				kecamatan: (.daerah) coll.daerah.findOne kabupaten: kabupaten, kecamatan: kecamatan
 				kelurahan: (.daerah) coll.daerah.findOne kecamatan: kecamatan, kelurahan: kelurahan
 			else {}
+
+		userProfile: (doc) -> Meteor.users.update doc.id, $set: profile: _.omit doc, \id

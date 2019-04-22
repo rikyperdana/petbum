@@ -530,10 +530,11 @@ if Meteor.isClient
 				meteormethod: \bypassSerahObat
 				id: \bypassObat
 				columns: 2
-				hooks:
-					after: (doc) ->
-						coll.rekap.insert doc.0
-						makePdf.ebiling doc.0
+				hooks: after: (doc) ->
+					coll.rekap.insert doc.0
+					makePdf.ebiling doc.0
+					afState.form = {}; afState.arrLen = {}
+					m.redraw!
 			m \table.table,
 				oncreate: ->
 					Meteor.subscribe \coll, \gudang
@@ -755,15 +756,19 @@ if Meteor.isClient
 					m \input.input, type: \text, placeholder: \Pencarian
 				m \table.table,
 					oncreate: -> Meteor.subscribe \users, onReady: -> m.redraw!
-					m \thead, m \tr, <[ Username Peran Aksi ]>map (i) -> m \th, i
+					m \thead, m \tr, <[ Username Peran Profil Aksi ]>map (i) -> m \th, i
 					m \tbody, attr.manajemen.userList!map (i) -> m \tr,
-						ondblclick: -> state.modal = i
 						m \td, i.username
-						m \td, JSON.stringify i.roles
+						m \td,
+							onclick: -> state.modal = _.merge i, type: \role
+							m \span, JSON.stringify i.roles
+						m \td, m \button.button,
+							onclick: -> state.modal = _.merge i, type: \profil
+							m \span, \Profil
 						m \td, m \.button.is-danger,
 							onclick: -> Meteor.call \rmRole, i._id
 							m \span, \Reset
-					if state.modal then elem.modal do
+					if state.modal?type is \role then elem.modal do
 						title: 'Berikan Peranan'
 						content: m autoForm do
 							schema: new SimpleSchema schema.addRole
@@ -778,6 +783,25 @@ if Meteor.isClient
 								after: ->
 									state.modal = null
 									m.redraw!
+					else if state.modal?type is \profil then elem.modal do
+						title: 'Profil Akun'
+						content: m \div,
+							m \table, <[nama_lengkap nik]>map (i) -> m \tr,
+								m \th, _.startCase i
+								m \td, Meteor.users.findOne(state.modal._id)?profile?[i]
+							m autoForm do
+								schema: new SimpleSchema do
+									nama_lengkap: type: String
+									nik: type: Number
+								type: \method
+								meteormethod: \userProfile
+								id: \userProfile
+								hooks:
+									before: (doc, cb) ->
+										cb _.merge doc, id: state.modal._id
+									after: ->
+										state.modal = null
+										m.redraw!
 				elem.pagins!
 			else if \imports is m.route.param \subroute then m \.content,
 				m \h1, 'Importer Data'

@@ -252,7 +252,7 @@ if Meteor.isClient
 	schema.bypassObat =
 		no_mr: type: Number
 		nama_pasien: type: String
-		poli: type: String
+		poli: type: Number, autoform: options: selects.klinik
 		dokter: type: String
 		obat: type: Array
 		'obat.$': type: Object

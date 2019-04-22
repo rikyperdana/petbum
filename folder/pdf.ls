@@ -217,7 +217,7 @@ if Meteor.isClient
 				body: x =
 					['Nama Lengkap', ": #{doc.nama_pasien}", 'No. MR', ": #{doc.no_mr}"]
 					['Alamat', ': ', \Tanggal, ": #{hari new Date!}"]
-					[\Poliklinik, ": #{doc.poli}", \Dokter, ": #{doc.dokter}"]
+					[\Poliklinik, ": #{look(\klinik, doc.poli)label}", \Dokter, ": #{doc.dokter}"]
 			list = doc.obat.map (i) ->
 				harga = look2(\gudang, i.nama_obat)batch.0.jual
 				jumlah = _.sumBy i.batches, \jumlah
