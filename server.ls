@@ -184,10 +184,6 @@ if Meteor.isServer
 						look2(\tarif, k.nama)harga
 
 		dispenses: (start, end) -> if start < end
-			getPrice = (nama_obat, no_batch) ->
-				coll.gudang.findOne(nama_obat)
-				.batch.find(-> it.nobatch is no_batch)
-				.beli
 			a = coll.rekap.find!fetch!filter -> start < it.printed < end
 			b = _.flattenDeep a.map (i) -> i.obat.map (j) -> j.batches.map (k) ->
 				nama_obat: j.nama_obat, no_batch: k.nobatch, jumlah: k.jumlah
@@ -199,18 +195,21 @@ if Meteor.isServer
 				else res.map -> unless matched(it) then it else
 					_.assign it, jumlah: it.jumlah + inc.jumlah
 			d = c.map (i) ->
-				price = getPrice i.nama_obat, i.no_batch
 				obj = coll.gudang.findOne i.nama_obat
+				price = (.beli) obj.batch.find -> it.nobatch is i.no_batch
 				awal = _.sum obj.batch.map ->
 					if it.nobatch is i.no_batch then it.awal
 				'Nama Obat': obj.nama
-				'No. Batch': i.no_batch
-				'Jumlah': i.jumlah
 				'Satuan': look(\satuan, obj.satuan)label
+				'Jenis': look(\barang, obj.jenis)label
+				'No. Batch': i.no_batch
+				'ED': hari (.kadaluarsa) obj.batch.find -> it.nobatch is i.no_batch
 				'Harga': rupiah price
-				'Total': rupiah price * i.jumlah
-				'Stok Awal': awal
-				'Stok Akhir': awal - i.jumlah
+				'Qty Awal': awal
+				'Keluar': i.jumlah
+				'Sisa Stok': awal - i.jumlah
+				'Total Keluar': rupiah price * i.jumlah
+				'Total Persediaan': rupiah price * (awal - i.jumlah)
 
 		visits: (start, end) ->
 			docs = coll.pasien.aggregate pipe =

@@ -589,8 +589,7 @@ if Meteor.isClient
 				action: ({start, end, type}) -> if start and end
 					Meteor.call \dispenses, start, end, (err, res) -> if res
 						title = "Pengeluaran Obat #{hari start}-#{hari end}"
-						obj = Table: csv, Pdf: makePdf.csv
-						obj[type] title, that
+						makePdf.csv title, res
 
 		depook: -> this.obat
 
