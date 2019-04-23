@@ -529,7 +529,7 @@ if Meteor.isClient
 				type: \method
 				meteormethod: \bypassSerahObat
 				id: \bypassObat
-				columns: 2
+				columns: 4
 				hooks: after: (doc) ->
 					coll.rekap.insert doc.0
 					makePdf.ebiling doc.0

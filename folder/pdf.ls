@@ -216,17 +216,20 @@ if Meteor.isClient
 				widths: [til 4]map -> \*
 				body: x =
 					['Nama Lengkap', ": #{doc.nama_pasien}", 'No. MR', ": #{doc.no_mr}"]
-					['Alamat', ': ', \Tanggal, ": #{hari new Date!}"]
+					['Cara Bayar', ": #{look \cara_bayar, doc.cara_bayar .label}", \Tanggal, ": #{hari new Date!}"]
 					[\Poliklinik, ": #{look(\klinik, doc.poli)label}", \Dokter, ": #{doc.dokter}"]
+					['No. SEP', ": #{if doc.no_sep then that}", 'Jenis Pasien', ": #{look \rawat, doc.rawat .label}"]
 			list = doc.obat.map (i) ->
-				harga = look2(\gudang, i.nama_obat)batch.0.jual
+				barang = look2 \gudang, i.nama_obat
+				harga = barang.batch.0.jual
+				satuan = look \satuan, barang.satuan .label
 				jumlah = _.sumBy i.batches, \jumlah
-				[(look2 \gudang, i.nama_obat .nama), jumlah, harga, jumlah * harga]
+				[(look2 \gudang, i.nama_obat .nama), jumlah, harga, jumlah * harga, satuan]
 			obats = table:
 				widths: [til 4]map -> \*
 				body: x =
 					['Nama Obat', \Jumlah, \Harga, \Total]map -> text: it, bold: true
-					... list.map (i) -> [i.0, "#{i.1} unit", (rupiah i.2), (rupiah i.3)]
+					... list.map (i) -> [i.0, "#{i.1} #{i.4}", (rupiah i.2), (rupiah i.3)]
 					['', '', {text: \Total, bold: true}, rupiah _.sum list.map -> it.3]
 			pdfMake.createPdf do
 				pageOrientation: \landscape,
