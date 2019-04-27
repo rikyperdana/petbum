@@ -492,8 +492,8 @@ if Meteor.isClient
 					it.harga
 				uraian =
 					['Cetak Kartu', 10000] if ands arr =
-						not attr.pasien.currentPasien!rawat?0?billRegis
-						attr.pasien.currentPasien!regis.petugas
+						not coll.pasien.findOne(state.modal.pasienId)rawat?0?billRegis
+						coll.pasien.findOne(state.modal.pasienId)regis.petugas
 					['Konsultasi Spesialis', look(\karcis, that.klinik)label*1000] unless state.modal.billRegis
 					... tindakans or []
 				params = <[ pasienId idrawat ]>map -> state.modal[it]
@@ -530,11 +530,13 @@ if Meteor.isClient
 				meteormethod: \bypassSerahObat
 				id: \bypassObat
 				columns: 4
-				hooks: after: (doc) ->
-					coll.rekap.insert doc.0
-					makePdf.ebiling doc.0
-					afState.form = {}; afState.arrLen = {}
-					m.redraw!
+				hooks:
+					before: (doc, cb) -> cb _.merge doc, source: userGroup!
+					after: (doc) ->
+						coll.rekap.insert doc.0
+						makePdf.ebiling doc.0
+						afState.form = {}; afState.arrLen = {}
+						m.redraw!
 			m \table.table,
 				oncreate: ->
 					Meteor.subscribe \coll, \gudang
@@ -635,7 +637,7 @@ if Meteor.isClient
 						buttonContent: \Simpan
 						columns: 3
 						hooks: after: ->
-							state.showForm = null
+							state.showFormFarmasi = null
 							m.redraw!
 				m \table.table,
 					oncreate: -> Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
@@ -740,11 +742,11 @@ if Meteor.isClient
 						if vals.1 is vals.2 then Meteor.call \newUser,
 							{username: vals.0, password: vals.1}
 							(err, res) -> res and m.redraw!
-					[
+					m \.columns, [
 						{type: \text, place: \Username}
 						{type: \password, place: \Password}
 						{type: \password, place: 'Ulangi password'}
-					]map (i) -> m \.field, m \.control, m \input.input,
+					]map (i) -> m \.column, m \.field, m \.control, m \input.input,
 						type: i.type, placeholder: i.place
 					m \.field, m \.control, m \input.button,
 						type: \submit, value: \Daftarkan

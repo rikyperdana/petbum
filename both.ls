@@ -272,4 +272,5 @@ if Meteor.isClient
 					_.join arr =
 						"Apotik: #{_.sum barang.batch.map -> it.diapotik}"
 						"Gudang: #{_.sum barang.batch.map -> it.digudang}"
+						"OK: #{_.sum barang.batch.map -> it.didepook}"
 		'obat.$.jumlah': type: Number

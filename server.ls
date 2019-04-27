@@ -81,25 +81,28 @@ if Meteor.isServer
 				else [...res, nama_obat: inc.nama_obat, batches: [obj]]
 
 		bypassSerahObat: (doc) ->
-			batches = []
+			batches = []; opts = obat: \diapotik, depook: \didepook
+			stock = opts[doc.source]
 			for i in doc.obat
 				coll.gudang.update i.nama, $set: batch: reduce [],
 					coll.gudang.findOne(i.nama)batch, (res, inc) -> arr =
 						...res
 						if i.jumlah < 1 then inc
 						else
-							minim = -> min [i.jumlah, inc.diapotik]
+							minim = -> min [i.jumlah, inc[stock]]
 							batches.push do
 								nama_obat: i.nama
+								idbatch: inc.idbatch
 								nobatch: inc.nobatch
 								jumlah: minim!
-							doc = _.assign {}, inc, diapotik:
-								inc.diapotik - minim!
+							doc = _.assign {}, inc, "#{stock}":
+								inc[stock] - minim!
 							i.jumlah -= minim!
 							doc
 			reduce [], batches, (res, inc) ->
 				obj =
 					nama_obat: inc.nama_obat
+					idbatch: inc.idbatch
 					nobatch: inc.nobatch
 					jumlah: inc.jumlah
 				if (res.find (i) -> i.no_mr is inc.no_mr)
@@ -107,7 +110,7 @@ if Meteor.isServer
 						obat: [...i.obat, obj]
 				else [...res, obat: [obj]]
 			.map (i) -> _.assign doc, obat: reduce [], i.obat, (res, inc) ->
-				obj = nobatch: inc.nobatch, jumlah: inc.jumlah
+				obj = idbatch: inc.idbatch, nobatch: inc.nobatch, jumlah: inc.jumlah
 				if (res.find (i) -> i.nama_obat is inc.nama_obat)
 					res.map (i) -> _.assign i, batches: [...i.batches, obj]
 				else [...res, nama_obat: inc.nama_obat, batches: [obj]]
@@ -205,6 +208,7 @@ if Meteor.isServer
 				'No. Batch': i.no_batch
 				'ED': hari (.kadaluarsa) obj.batch.find -> it.nobatch is i.no_batch
 				'Harga': rupiah price
+				'Barang Masuk': '-'
 				'Qty Awal': awal
 				'Keluar': i.jumlah
 				'Sisa Stok': awal - i.jumlah

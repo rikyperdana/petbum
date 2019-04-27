@@ -1,23 +1,23 @@
 Apr 23th, 2019
 1. Saat depook serahobat, yg berkurang malah di apotik
+2. Pisahkan barang masuk & qty awal berdasarkan area waktu terpilih
 
 Apr 16th, 2019
 1. Cetak rekap pakai harga obat dikali jumlah barangnya
-2. Laporan pengeluaran obat harian (nama_barang, jumlahnya, harganya, stok awal, stok akhir)
 
 Apr 10th, 2019
-1. Kembalikan alur amprah obat terpusat pada Gudang Farmasi
-2. Buatkan storage obat baru bernama Depo OK, setara Apotik
+oke 1. Kembalikan alur amprah obat terpusat pada Gudang Farmasi
+oke 2. Buatkan storage obat baru bernama Depo OK, setara Apotik
 
 Apr 2nd, 2019
-1. Ambang batas stok farmasi flat unit 10
+oke 1. Ambang batas stok farmasi flat unit 10
 2. Auto jarakkan 1 hari untuk tanggal akhir laporan
 oke 3. Label satuan pada pdf
-4. Notifikasi pemberian ambang batas apotik
-5. Notifikasi obat yang dibawah ambang batas
+oke 4. Notifikasi pemberian ambang batas apotik
+oke 5. Notifikasi obat yang dibawah ambang batas
 6. Halangi user untuk mengeluarkan obat yang diatas jumlah yang tersedia
 oke 7. Bug pada subscription di pihak farmasi
-8. ByPass jadi manual, tidak lookup pada sistem
+oke 8. ByPass jadi manual, tidak lookup pada sistem
 
 Mar 12th, 2019
 oke 1. Perbaiki state.showForm antara amprah & farmasi
