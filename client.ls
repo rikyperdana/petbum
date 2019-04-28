@@ -590,7 +590,8 @@ if Meteor.isClient
 				title: 'Laporan Pengeluaran Obat'
 				action: ({start, end, type}) -> if start and end
 					Meteor.call \dispenses, start, end, (err, res) -> if res
-						title = "Pengeluaran Obat #{hari start}-#{hari end}"
+						opts = obat: \Apotik, farmasi: 'Gudang Farmasi', depook: 'Depo OK'
+						title = "Pengeluaran Obat #{opts[userGroup!]} #{hari start}-#{hari end}"
 						makePdf.csv title, res
 
 		depook: -> this.obat
@@ -748,7 +749,7 @@ if Meteor.isClient
 						{type: \password, place: 'Ulangi password'}
 					]map (i) -> m \.column, m \.field, m \.control, m \input.input,
 						type: i.type, placeholder: i.place
-					m \.field, m \.control, m \input.button,
+					m \.field, m \.control, m \input.button.is-success,
 						type: \submit, value: \Daftarkan
 				[til 2]map -> m \br
 				m \h4, 'Daftar Pengguna Sistem'
@@ -763,7 +764,7 @@ if Meteor.isClient
 						m \td,
 							onclick: -> state.modal = _.merge i, type: \role
 							m \span, JSON.stringify i.roles
-						m \td, m \button.button,
+						m \td, m \button.button.is-info,
 							onclick: -> state.modal = _.merge i, type: \profil
 							m \span, \Profil
 						m \td, m \.button.is-danger,

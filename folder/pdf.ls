@@ -187,7 +187,8 @@ if Meteor.isClient
 					pageOrientation: \landscape
 					content: arr =
 						kop
-						name
+						{text: name, alignment: \center}
+						'\n'
 						table:
 							widths: [til headers.0.length]map -> \auto
 							body: [...headers, ...rows]

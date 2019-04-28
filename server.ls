@@ -189,27 +189,28 @@ if Meteor.isServer
 		dispenses: (start, end) -> if start < end
 			a = coll.rekap.find!fetch!filter -> start < it.printed < end
 			b = _.flattenDeep a.map (i) -> i.obat.map (j) -> j.batches.map (k) ->
-				nama_obat: j.nama_obat, no_batch: k.nobatch, jumlah: k.jumlah
+				nama_obat: j.nama_obat, idbatch: k.idbatch, jumlah: k.jumlah
 			c = reduce [], b, (res, inc) ->
 				matched = -> _.every arr =
 					it.nama_obat is inc.nama_obat
-					it.no_batch is inc.no_batch
+					it.idbatch is inc.idbatch
 				unless (res.find -> matched it) then [...res, inc]
 				else res.map -> unless matched(it) then it else
 					_.assign it, jumlah: it.jumlah + inc.jumlah
 			d = c.map (i) ->
 				obj = coll.gudang.findOne i.nama_obat
-				price = (.beli) obj.batch.find -> it.nobatch is i.no_batch
+				price = (.beli) obj.batch.find -> it.idbatch is i.idbatch
 				awal = _.sum obj.batch.map ->
-					if it.nobatch is i.no_batch then it.awal
+					if it.idbatch is i.idbatch then it.awal
+				batch = (idbatch) -> obj.batch.find -> it.idbatch is idbatch
 				'Nama Obat': obj.nama
 				'Satuan': look(\satuan, obj.satuan)label
 				'Jenis': look(\barang, obj.jenis)label
 				'No. Batch': i.no_batch
-				'ED': hari (.kadaluarsa) obj.batch.find -> it.nobatch is i.no_batch
+				'ED': hari batch(i.idbatch)kadaluarsa
 				'Harga': rupiah price
-				'Barang Masuk': '-'
-				'Qty Awal': awal
+				'Barang Masuk': if start < batch(i.idbatch)masuk < end then awal else ''
+				'Qty Awal': if batch(i.idbatch)masuk < start then awal else ''
 				'Keluar': i.jumlah
 				'Sisa Stok': awal - i.jumlah
 				'Total Keluar': rupiah price * i.jumlah
