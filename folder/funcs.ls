@@ -56,7 +56,8 @@ if Meteor.isClient
 			opts.fields
 			usedSchema._firstLevelSchemaKeys
 
-		optionList = (name) -> ors arr =
+		alphabetically = -> _.sortBy it, \label
+		optionList = (name) -> alphabetically ors arr =
 			theSchema(normed name)?allowedValues?map (i) ->
 				value: i, label: _.startCase i
 			if _.isFunction theSchema(normed name)?autoform?options

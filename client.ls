@@ -129,7 +129,6 @@ if Meteor.isClient
 							onclick: i?2
 							m \span.icon.is-small, m "i.fa.fa-#{i?1}", style: "padding-right: 5px"
 							m \span, i?0
-
 			m \.columns,
 				Meteor.userId! and m \.column.is-2, m \aside.menu.box,
 					m \p.menu-label, 'Admin Menu'
@@ -155,11 +154,14 @@ if Meteor.isClient
 				m \.column,
 					unless Meteor.userId! then m loginComp
 					else if comp then m that
+
 		login: loginComp
+
 		welcome: -> view: -> m \.content,
 			oncreate: -> Meteor.subscribe \users, (err, res) -> res and m.redraw!
 			m \h1, "Panduan bagi #{(?full) modules.find -> it.name is userGroup!}"
 			m \div, guide userGroup!, userRole!
+
 		pasien: -> view: -> if attr.pageAccess(<[regis jalan]>) then m \.content,
 			oncreate: Meteor.subscribe \coll, \daerah, $and: arr =
 				{provinsi: $exists: true}
@@ -462,6 +464,7 @@ if Meteor.isClient
 			else m \div
 		regis: -> this.pasien
 		jalan: -> this.pasien
+
 		bayar: -> view: -> if attr.pageAccess(<[bayar]>) then m \.content,
 			m \table.table,
 				oncreate: ->
@@ -882,6 +885,7 @@ if Meteor.isClient
 						_.startCase i.third
 						i.active
 				elem.pagins!
+
 		amprah: -> view: -> if attr.pageAccess(<[jalan inap obat farmasi depook]>) then m \.content,
 			oncreate: ->
 				Meteor.subscribe \users, onReady: -> m.redraw!
