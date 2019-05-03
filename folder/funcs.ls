@@ -81,7 +81,6 @@ if Meteor.isClient
 			form:
 				id: opts.id
 				onchange: ({target}) ->
-					state.submitted = false
 					if opts.onchange then that target
 					arr = <[ radio checkbox select ]>
 					unless theSchema(target.name)?autoform?type in arr
@@ -90,7 +89,6 @@ if Meteor.isClient
 
 				onsubmit: (e) ->
 					e.preventDefault!
-					state.submitted = true
 					temp = state.temp[opts.id]map -> "#{it.name}": it.value
 					formValues = _.filter e.target, (i) ->
 						a = -> (i.value isnt \on) and i.name
@@ -118,8 +116,7 @@ if Meteor.isClient
 					after = (err, res) -> opts.hooks?after res if res
 					formTypes = (doc) ->
 						insert: -> opts.collection.insert (doc or obj), after
-						update: -> opts.collection.update do
-							{_id: usedDoc._id}, {$set: (doc or obj)}, after
+						update: -> opts.collection.update usedDoc._id, {$set: (doc or obj)}, after
 						method: -> Meteor.call opts.meteormethod, (doc or obj), after
 						'update-pushArray': -> opts.collection.update do
 							{_id: usedDoc._id}

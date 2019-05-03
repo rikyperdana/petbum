@@ -6,12 +6,12 @@
 
 if Meteor.isClient
 	schema.regis =
-		no_mr: type: Number, min: 100000, max: 999999
+		no_mr: type: Number, min: 1, max: 999999
 		regis: type: Object
 		'regis.alias': type: Number, optional: true, autoform: options: selects.alias
 		'regis.nama_lengkap': type: String
 		'regis.no_ktp': type: Number, max: 9999999999999999, optional: true
-		'regis.tgl_lahir': type: Date
+		'regis.tgl_lahir': type: Date, optional: true
 		'regis.tmpt_lahir': type: String, optional: true
 		'regis.kelamin': type: Number, optional: true, autoform: options: selects.kelamin
 		'regis.agama': type: Number, optional: true, autoform: options: selects.agama

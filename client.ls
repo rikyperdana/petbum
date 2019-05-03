@@ -200,13 +200,10 @@ if Meteor.isClient
 							{kecamatan: +doc.value}
 							{kelurahan: $exists: true}
 				hooks:
-					before: (doc, cb) ->
-						Meteor.call \onePasien, doc.no_mr, (err, res) ->
-							unless res then cb _.merge doc, regis:
-								petugas: "#{userGroup!}": Meteor.userId!
 					after: (id) ->
 						state.showAddPatient = null
-						m.route.set "/regis/lama/#id"
+						if id is 1 then m.route.set "/regis/lama/#{m.route.param \idpasien}"
+						else m.route.set "/regis/lama/#id"
 			if userRole(\mr) then m \div,
 				m \br, oncreate: -> Meteor.subscribe \coll, \tarif
 				m \form.columns,
