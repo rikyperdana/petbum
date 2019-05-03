@@ -1,9 +1,17 @@
+Apr 29 Apr, 2019
+1. Pisahkan lembaran cetak rekap Apotik dan Depo OK
+2. Tetap keluarkan laporan walaupun pada range tersebut tidak ada transaksi
+3. Pisahkan juga laporan pengeluaran obat berdasarkan group yg login
+4. Sisa stok yg keluar mewakili persediaan group yg login
+5. Pada laporan pengeluaran barang sediakan baris akhir berisi total
+6. Belum terekam pada doc amprah dari batch mana saja barang diserahkan
+
 Apr 23th, 2019
-1. Saat depook serahobat, yg berkurang malah di apotik
-2. Pisahkan barang masuk & qty awal berdasarkan area waktu terpilih
+oke 1. Saat depook serahobat, yg berkurang malah di apotik
+oke 2. Pisahkan barang masuk & qty awal berdasarkan area waktu terpilih
 
 Apr 16th, 2019
-1. Cetak rekap pakai harga obat dikali jumlah barangnya
+oke 1. Cetak rekap pakai harga obat dikali jumlah barangnya
 
 Apr 10th, 2019
 oke 1. Kembalikan alur amprah obat terpusat pada Gudang Farmasi
