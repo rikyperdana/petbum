@@ -524,7 +524,10 @@ if Meteor.isClient
 
 		obat: -> view: -> if attr.pageAccess(<[obat depook]>) then m \.content,
 			m \h4, \Apotik
-			m autoForm do
+			m \button.button.is-success,
+				onclick: -> state.showForm = not state.showForm
+				m \span, \+ByPass
+			if state.showForm then m autoForm do
 				schema: new SimpleSchema schema.bypassObat
 				type: \method
 				meteormethod: \bypassSerahObat
@@ -573,13 +576,14 @@ if Meteor.isClient
 				action: ->
 					Meteor.call \serahObat, state.modal, (err, res) -> if res
 						coll.pasien.update state.modal._id, $set: rawat:
-							attr.pasien.currentPasien!rawat.map (i) ->
+							state.modal.rawat.map (i) ->
 								if i.idrawat is state.modal.idrawat
 									_.assign i, givenDrug: true
 								else i
 						res.map -> coll.rekap.insert it
 						state.modal = null
 						m.redraw!
+			[til 2]map -> m \br
 			m \.button.is-warning,
 				onclick: -> Meteor.subscribe \coll, \pasien,
 					{_id: $in: coll.rekap.find!fetch!map -> it.idpasien}
