@@ -82,6 +82,7 @@ if Meteor.isServer
 
 		bypassSerahObat: (doc) ->
 			batches = []; opts = obat: \diapotik, depook: \didepook
+			pasien = coll.pasien.findOne doc._id
 			stock = opts[doc.source]
 			for i in doc.obat
 				coll.gudang.update i.nama, $set: batch: reduce [],
@@ -91,6 +92,7 @@ if Meteor.isServer
 						else
 							minim = -> min [i.jumlah, inc[stock]]
 							batches.push do
+								idpasien: that._id if pasien
 								nama_obat: i.nama
 								idbatch: inc.idbatch
 								nobatch: inc.nobatch
@@ -99,6 +101,7 @@ if Meteor.isServer
 								inc[stock] - minim!
 							i.jumlah -= minim!
 							doc
+			either = if doc._id then idpasien: doc._id else doc
 			reduce [], batches, (res, inc) ->
 				obj =
 					nama_obat: inc.nama_obat
@@ -109,7 +112,7 @@ if Meteor.isServer
 					res.map (i) -> if i.no_mr is inc.no_mr
 						obat: [...i.obat, obj]
 				else [...res, obat: [obj]]
-			.map (i) -> _.assign doc, obat: reduce [], i.obat, (res, inc) ->
+			.map (i) -> _.assign either, obat: reduce [], i.obat, (res, inc) ->
 				obj = idbatch: inc.idbatch, nobatch: inc.nobatch, jumlah: inc.jumlah
 				if (res.find (i) -> i.nama_obat is inc.nama_obat)
 					res.map (i) -> _.assign i, batches: [...i.batches, obj]

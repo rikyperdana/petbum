@@ -127,7 +127,11 @@ if Meteor.isClient
 			source = coll.rekap.find!fetch!map (i) ->
 				i.obat.map (j) -> j.batches.map (k) -> arr =
 					{
-						text: "#{i.no_mr}\n#{i.nama_pasien}"
+						text:
+							if i.idpasien then "
+								#{coll.pasien.findOne(i.idpasien)no_mr.toString!}
+								\n#{coll.pasien.findOne(i.idpasien).regis.nama_lengkap}
+							" else "#{i.no_mr}\n#{i.nama_pasien}"
 						rowSpan: _.sum i.obat.map -> it.batches.length
 					}
 					{
@@ -153,14 +157,14 @@ if Meteor.isClient
 
 		icdx: (pasien) ->
 			headers = <[tanggal klinik dokter diagnosa terapi perawat icd10]>
-			rows = pasien.rawat.map (i) -> arr =
+			rows = pasien.rawat.map (i) -> if i.tindakan then arr =
 				hari i.tanggal
 				look(\klinik, i.klinik)label
-				Meteor.users.findOne(i.petugas.dokter)username
+				_.startCase Meteor.users.findOne(i.petugas.dokter)username
 				{ol: i.diagnosa}
 				{ul: i.tindakan.map (j) ->
 					_.startCase look2(\tarif, j.nama)nama}
-				Meteor.users.findOne(i.petugas.perawat)username
+				_.startCase Meteor.users.findOne(i.petugas.perawat)username
 				{ol: i.icdx}
 			columns =
 				['NO. MR', 'NAMA LENGKAP', 'TANGGAL LAHIR', 'JENIS KELAMIN']

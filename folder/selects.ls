@@ -42,7 +42,7 @@ selects.grupTindakan = -> if Meteor.isClient
 	a = coll.tarif?find!fetch!filter -> ands arr =
 		it.first is \jalan
 		it.second is _.snakeCase (.label) selects.klinik.find ->
-			it.value is (.klinik) coll.pasien.findOne!rawat.find ->
+			it.value is (.klinik) coll.pasien.findOne(m.route.param \idpasien)rawat.find ->
 				it.idrawat is state.docRawat
 	(_.uniqBy a, \third)map ->
 		value: it.third
@@ -53,7 +53,7 @@ selects.namaTindakan = (name) -> if Meteor.isClient
 	a = coll.tarif?find!fetch!filter -> ands arr =
 		it.first is \jalan
 		it.second is _.snakeCase (.label) selects.klinik.find ->
-			it.value is (.klinik) coll.pasien.findOne!rawat.find ->
+			it.value is (.klinik) coll.pasien.findOne(m.route.param \idpasien)rawat.find ->
 				it.idrawat is state.docRawat
 		it.third is afState.form.formRawat[current]
 	a.map -> value: it._id, label: _.startCase it.nama

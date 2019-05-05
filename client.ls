@@ -18,7 +18,7 @@ if Meteor.isClient
 				rawatFields: <[ tanggal_berobat poliklinik cara_bayar dokter bayar_pendaftaran status_bayar ]>
 				icdFields: <[ nama_pasien tanggal klinik dokter diagnosis nama_perawat cek ]>
 			rawatDetails: (doc) -> arr =
-				{head: \Tanggal, cell: hari doc.tanggal}
+				{head: \Tanggal, cell: hari that if doc.tanggal}
 				{head: \Klinik, cell: look(\klinik, doc.klinik)label}
 				{head: 'Cara Bayar', cell: look(\cara_bayar, doc.cara_bayar)label}
 				{head: 'Anamesa Perawat', cell: doc?anamesa_perawat}
@@ -107,7 +107,9 @@ if Meteor.isClient
 			m \nav.navbar.is-info,
 				role: \navigation, 'aria-label': 'main navigation',
 				m \.navbar-brand, m \a.navbar-item,
-					{style: "margin-left: 600px"}
+					href: \/dashboard
+					oncreate: m.route.link
+					style: "margin-left: 600px"
 					_.upperCase (?full or attr.layout.hospital) modules.find ->
 						it.name is m.route.get!split \/ .1
 				m \.navbar-end, m \.navbar-item.has-dropdown,
@@ -205,7 +207,9 @@ if Meteor.isClient
 						if id is 1 then m.route.set "/regis/lama/#{m.route.param \idpasien}"
 						else m.route.set "/regis/lama/#id"
 			if userRole(\mr) then m \div,
-				m \br, oncreate: -> Meteor.subscribe \coll, \tarif
+				m \br, oncreate: ->
+					Meteor.subscribe \coll, \tarif
+					Meteor.subscribe \users
 				m \form.columns,
 					onsubmit: (e) ->
 						e.preventDefault!
@@ -227,9 +231,9 @@ if Meteor.isClient
 							i.regis.nama_lengkap
 							hari j.tanggal
 							look(\klinik, j.klinik)label
-							\-
+							_.startCase Meteor.users.findOne(j.petugas.dokter)username
 							j.diagnosa?0
-							\-
+							_.startCase Meteor.users.findOne(j.petugas.perawat)username
 							m \.button.is-info,
 								onclick: -> state.modal = _.merge rawat: j, pasien: i
 								m \span, \Cek
@@ -445,8 +449,8 @@ if Meteor.isClient
 								m \table, m \tr, m \th, \Obat
 								m \table.table, that.map (i) -> m \tr, tds arr =
 									_.startCase look2(\gudang, i.nama)nama
-									"#{i.aturan.kali} kali"
-									"#{i.aturan.dosis} dosis"
+									if i.aturan?kali then "#that kali"
+									if i.aturan?dosis then "#that dosis"
 									"#{i.jumlah} unit"
 									if i.puyer then "puyer #that"
 						confirm: \Lanjutkan if ands arr =
@@ -570,11 +574,11 @@ if Meteor.isClient
 					that.obat.map (i) -> m \tr, tds arr =
 						look2(\gudang, i.nama)nama
 						"#{i.jumlah} unit"
-						"#{i.aturan.kali} kali"
-						"#{i.aturan.dosis} unit"
+						if i.aturan?kali then "#that kali"
+						if i.aturan?dosis then "#that unit"
 				confirm: \Serahkan
 				action: ->
-					Meteor.call \serahObat, state.modal, (err, res) -> if res
+					Meteor.call \bypassSerahObat, state.modal, (err, res) -> if res
 						coll.pasien.update state.modal._id, $set: rawat:
 							state.modal.rawat.map (i) ->
 								if i.idrawat is state.modal.idrawat
