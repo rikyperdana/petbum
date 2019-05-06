@@ -1,5 +1,5 @@
 May 6th, 2019
-1. Serah apotik dari jalur normal juga dapat pdf billing
+oke 1. Serah apotik dari jalur normal juga dapat pdf billing
 
 Apr 29th, 2019
 1. Pisahkan lembaran cetak rekap Apotik dan Depo OK
@@ -26,7 +26,7 @@ no 2. Auto jarakkan 1 hari untuk tanggal akhir laporan
 oke 3. Label satuan pada pdf
 oke 4. Notifikasi pemberian ambang batas apotik
 oke 5. Notifikasi obat yang dibawah ambang batas
-6. Halangi user untuk mengeluarkan obat yang diatas jumlah yang tersedia
+oke 6. Halangi user untuk mengeluarkan obat yang diatas jumlah yang tersedia
 oke 7. Bug pada subscription di pihak farmasi
 oke 8. ByPass jadi manual, tidak lookup pada sistem
 

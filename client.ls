@@ -584,7 +584,9 @@ if Meteor.isClient
 								if i.idrawat is state.modal.idrawat
 									_.assign i, givenDrug: true
 								else i
-						res.map -> coll.rekap.insert it
+						res.map ->
+							coll.rekap.insert it
+							makePdf.ebiling it
 						state.modal = null
 						m.redraw!
 			[til 2]map -> m \br

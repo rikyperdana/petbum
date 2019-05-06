@@ -189,14 +189,17 @@ if Meteor.isClient
 			.download title
 
 		ebiling: (doc) ->
-			title = "Billing Obat - #{doc.no_mr} - #{doc.nama_pasien} - #{hari new Date!}.pdf"
+			pasien = coll.pasien.findOne doc.idpasien
+			rawat = _.last that.rawat if pasien
+			dokter = Meteor.users.findOne rawat.dokter .username
+			title = "Billing Obat - #{pasien.no_mr or doc.no_mr} - #{pasien.regis.nama_lengkap or doc.nama_pasien} - #{hari new Date!}.pdf"
 			profile = layout: \noBorders, table:
 				widths: [til 4]map -> \*
 				body: x =
-					['Nama Lengkap', ": #{doc.nama_pasien}", 'No. MR', ": #{doc.no_mr}"]
-					['Cara Bayar', ": #{look \cara_bayar, doc.cara_bayar .label}", \Tanggal, ": #{hari new Date!}"]
-					[\Poliklinik, ": #{look(\klinik, doc.poli)label}", \Dokter, ": #{doc.dokter}"]
-					['No. SEP', ": #{if doc.no_sep then that else \-}", 'Jenis Pasien', ": #{look \rawat, doc.rawat .label}"]
+					['Nama Lengkap', ": #{pasien.regis.nama_lengkap or doc.nama_pasien}", 'No. MR', ": #{pasien.no_mr or doc.no_mr}"]
+					['Cara Bayar', ": #{look \cara_bayar, (rawat.cara_bayar or doc.cara_bayar) .label}", \Tanggal, ": #{hari new Date!}"]
+					[\Poliklinik, ": #{look(\klinik, (rawat.klinik or doc.poli))label}", \Dokter, ": #{dokter or doc.dokter}"]
+					['No. SEP', ": #{if doc.no_sep then that else \-}", 'Jenis Pasien', ": #{look \rawat, (doc.rawat or 1) .label}"]
 			list = doc.obat.map (i) ->
 				barang = look2 \gudang, i.nama_obat
 				harga = barang.batch.0.jual
