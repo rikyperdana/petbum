@@ -1,10 +1,10 @@
 if Meteor.isServer
 
-	backup = -> <[pasien gudang users rekap amprah]>map (i) ->
-		shell.exec "mongoexport -h localhost:3001 -d meteor -c #i -o ~/backup/#{_.kebabCase hari new Date}-#i.json"
+	backup = (db_port, location) -> <[pasien gudang users rekap amprah]>map (i) ->
+		shell.exec "mongoexport -h localhost:#db_port -d meteor -c #i -o #location/#{_.kebabCase hari new Date}-#i.json"
 
 	Meteor.startup ->
-		new Meteor.Cron events: "0 0 * * *": backup
+		# new Meteor.Cron events: "0 0 * * *": backup 3001, '~/backup'
 
 	Meteor.publish \coll, (name, sel = {}, opt = {}) ->
 		coll[name]find sel, opt
@@ -47,40 +47,7 @@ if Meteor.isServer
 				coll[name]findOne(recId)[scope]map (i) ->
 					if i["id#scope"] is elmId then doc else i
 
-		serahObat: ({_id, obat}) ->
-			batches = []; pasien = coll.pasien.findOne _id
-			for i in obat
-				coll.gudang.update i.nama, $set: batch: reduce [],
-					coll.gudang.findOne(i.nama)batch, (res, inc) -> arr =
-						...res
-						if i.jumlah < 1 then inc
-						else
-							minim = -> min [i.jumlah, inc.diapotik]
-							batches.push do
-								idpasien: pasien?_id
-								nama_obat: i.nama
-								nobatch: inc.nobatch
-								jumlah: minim!
-							doc = _.assign {}, inc, diapotik:
-								inc.diapotik - minim!
-							i.jumlah -= minim!
-							doc
-			reduce [], batches, (res, inc) ->
-				obj =
-					nama_obat: inc.nama_obat
-					nobatch: inc.nobatch
-					jumlah: inc.jumlah
-				if (res.find (i) -> i.idpasien is inc.idpasien)
-					res.map (i) -> if i.idpasien is inc.idpasien
-						idpasien: i.idpasien, obat: [...i.obat, obj]
-				else [...res, idpasien: inc.idpasien, obat: [obj]]
-			.map (i) -> _.assign i, obat: reduce [], i.obat, (res, inc) ->
-				obj = nobatch: inc.nobatch, jumlah: inc.jumlah
-				if (res.find (i) -> i.nama_obat is inc.nama_obat)
-					res.map (i) -> _.assign i, batches: [...i.batches, obj]
-				else [...res, nama_obat: inc.nama_obat, batches: [obj]]
-
-		bypassSerahObat: (doc) ->
+		serahObat: (doc) ->
 			batches = []; opts = obat: \diapotik, depook: \didepook
 			pasien = coll.pasien.findOne doc._id
 			stock = opts[doc.source]

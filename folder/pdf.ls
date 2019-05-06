@@ -95,34 +95,6 @@ if Meteor.isClient
 			pdf.download "#{zeros doc.no_mr}_payRegCard.pdf"
 
 		rekap: ->
-			fields = <[ no_mr_nama_pasien nama_obat nobatch jumlah satuan ]>
-			source = coll.rekap.find!fetch!map (i) ->
-				i.obat.map (j) -> j.batches.map (k) -> arr =
-					{
-						text: "
-							#{coll.pasien.findOne(i.idpasien)no_mr.toString!}
-							\n#{coll.pasien.findOne(i.idpasien)regis.nama_lengkap}
-						"
-						rowSpan: _.sum i.obat.map -> it.batches.length
-					}
-					{
-						text: look2(\gudang, j.nama_obat)nama
-						rowSpan: j.batches.length
-					}
-					k.nobatch
-					k.jumlah.toString!
-					do ->
-						obat = coll.gudang.findOne j.nama_obat
-						look \satuan, obat.satuan .label
-			rows = _.flattenDepth source, 2
-			headers = [fields.map -> _.startCase it]
-			if rows.length > 0
-				Meteor.call \doneRekap
-				pdfMake.createPdf content:
-					[table: body: [...headers, ...rows]]
-				.download \cetak_rekap.pdf
-
-		bypassRekap: ->
 			fields = <[ no_mr_nama_pasien nama_obat nobatch jumlah satuan harga]>
 			source = coll.rekap.find!fetch!map (i) ->
 				i.obat.map (j) -> j.batches.map (k) -> arr =
@@ -157,7 +129,7 @@ if Meteor.isClient
 
 		icdx: (pasien) ->
 			headers = <[tanggal klinik dokter diagnosa terapi perawat icd10]>
-			rows = pasien.rawat.map (i) -> if i.tindakan then arr =
+			rows = _.compact pasien.rawat.map (i) -> if i.tindakan then arr =
 				hari i.tanggal
 				look(\klinik, i.klinik)label
 				_.startCase Meteor.users.findOne(i.petugas.dokter)username
@@ -173,6 +145,7 @@ if Meteor.isClient
 					pasien.regis.nama_lengkap
 					hari pasien.regis.tgl_lahir
 					look(\kelamin, pasien.regis.kelamin)label
+			console.log rows, columns
 			pdfMake.createPdf content: arr =
 				kop
 				{text: 'FORM RESUME RAWAT JALAN', alignment: \center}
@@ -236,7 +209,10 @@ if Meteor.isClient
 					['Nama Obat', \Jumlah, \Harga, \Total]map -> text: it, bold: true
 					... list.map (i) -> [i.0, "#{i.1} #{i.4}", (rupiah i.2), (rupiah i.3)]
 					['', '', {text: \Total, bold: true}, rupiah _.sum list.map -> it.3]
+			petugas =
+				{text: '\nPEKANBARU, ' + moment!format('D/MM/YYYY') +
+				'\n\n\n\n\n' + (_.startCase Meteor.user!username), alignment: \right}
 			pdfMake.createPdf do
 				pageOrientation: \landscape,
-				content: [kop, profile, '\n', obats], pageSize: \A5
+				content: [kop, profile, '\n', obats, petugas], pageSize: \A5
 			.download title

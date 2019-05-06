@@ -530,11 +530,11 @@ if Meteor.isClient
 			m \h4, \Apotik
 			m \button.button.is-success,
 				onclick: -> state.showForm = not state.showForm
-				m \span, \+ByPass
+				m \span, 'Billing Obat'
 			if state.showForm then m autoForm do
 				schema: new SimpleSchema schema.bypassObat
 				type: \method
-				meteormethod: \bypassSerahObat
+				meteormethod: \serahObat
 				id: \bypassObat
 				columns: 4
 				hooks:
@@ -578,7 +578,7 @@ if Meteor.isClient
 						if i.aturan?dosis then "#that unit"
 				confirm: \Serahkan
 				action: ->
-					Meteor.call \bypassSerahObat, state.modal, (err, res) -> if res
+					Meteor.call \serahObat, state.modal, (err, res) -> if res
 						coll.pasien.update state.modal._id, $set: rawat:
 							state.modal.rawat.map (i) ->
 								if i.idrawat is state.modal.idrawat
@@ -591,7 +591,7 @@ if Meteor.isClient
 			m \.button.is-warning,
 				onclick: -> Meteor.subscribe \coll, \pasien,
 					{_id: $in: coll.rekap.find!fetch!map -> it.idpasien}
-					onReady: -> makePdf.bypassRekap!
+					onReady: -> makePdf.rekap!
 				m \span, "Cetak #{coll.rekap.find!fetch!length} Rekap"
 			[til 3]map -> m \br
 			if userRole \admin then elem.report do
