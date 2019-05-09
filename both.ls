@@ -215,7 +215,11 @@ if Meteor.isClient
 			autoValue: -> 0
 		'batch.$.diretur': type: Boolean, optional: true, autoform: type: \hidden
 		'batch.$.beli': type: Number, decimal: true
-		'batch.$.jual': type: Number, decimal: true, optional: true
+		'batch.$.jual':
+			type: Number
+			autoform: type: \hidden
+			autoValue: (name, docs) ->
+				1.25 * (?value) docs.find -> \beli is _.last it.name.split \.
 		'batch.$.suplier': type: String, optional: true
 		'batch.$.returnable': type: Number, optional: true, autoform: options: selects.returnable
 		'batch.$.anggaran': type: Number, autoform: options: selects.anggaran

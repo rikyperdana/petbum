@@ -195,21 +195,14 @@ if Meteor.isServer
 				c = $match: $and: x =
 					{'rawat.tanggal': $gt: start}
 					{'rawat.tanggal': $lt: end}
-			maped = docs.map (i) -> _.merge {},
+			docs.map (i) ->
 				hari: moment i.rawat.tanggal .format 'D MMM YYYY'
-				... <[tanggal klinik cara_bayar]>map (j) -> "#j": i.rawat[j]
-			grouped = _.groupBy maped, \hari
-			result = _.map grouped, (val, key) ->
-				hari: key, tanggal: (new Date key),
-				poli: _.merge ... selects.klinik.map (v, k) ->
-					"#{v.label}": (.length) val.filter -> it.klinik is k+1
-				bayar: _.merge ... selects.cara_bayar.map (v, k) ->
-					"#{v.label}": (.length) val.filter -> it.cara_bayar is k+1
-				status: _.merge ... [
-					{Baru: (.length) val.filter -> it.baru}
-					{Lama: val.length - (.length) val.filter -> it.baru}
-				]
-			_.sortBy result, \tanggal
+				klinik: look \klinik, i.rawat.klinik .label
+				cara_bayar: look \cara_bayar, i.rawat.cara_bayar .label
+				baru_lama: \Lama
+				pendaftar: _.startCase Meteor.users.findOne(i.rawat.petugas.regis)?username
+				perawat: _.startCase Meteor.users.findOne(i.rawat.petugas.perawat)?username
+				dokter: _.startCase Meteor.users.findOne(i.rawat.petugas.dokter)?username
 
 		stocks: (start, end) ->
 			coll.gudang.aggregate pipe =

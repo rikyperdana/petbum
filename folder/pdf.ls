@@ -171,27 +171,10 @@ if Meteor.isClient
 							body: [...headers, ...rows]
 				.download "#name.pdf"
 
-		visits: (docs) ->
-			headers = _.merge ... <[poli bayar status]>map (i) ->
-				"#i": _.keys docs.0[i]
-			rows = _.merge ... <[poli bayar status]>map (i) ->
-				"#i": docs.map (j) -> [j.hari]concat do
-					(_.values j[i])map -> it.toString!
-			range = <[first last]>map (i) -> (.hari) _[i] docs
-			title = "Laporan Kunjungan #{range.0} - #{range.1}.pdf"
-			pdfMake.createPdf pageOrientation: \landscape, content: arr =
-				kop
-				{text: "#title \n\n", alignment: \center, bold: true}
-				... <[poli bayar status]>map (i) ->
-					table: body: x =
-						[\Tanggal, ...headers[i]]
-						...rows[i]
-			.download title
-
 		ebiling: (doc) ->
 			pasien = coll.pasien.findOne doc.idpasien
 			rawat = _.last that.rawat if pasien
-			dokter = Meteor.users.findOne rawat.dokter .username
+			dokter = Meteor.users.findOne(rawat.dokter)username
 			title = "Billing Obat - #{pasien.no_mr or doc.no_mr} - #{pasien.regis.nama_lengkap or doc.nama_pasien} - #{hari new Date!}.pdf"
 			profile = layout: \noBorders, table:
 				widths: [til 4]map -> \*

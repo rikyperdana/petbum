@@ -202,6 +202,10 @@ if Meteor.isClient
 							{kecamatan: +doc.value}
 							{kelurahan: $exists: true}
 				hooks:
+					before: (doc, cb) ->
+						if \edit is m.route.param \jenis then cb doc
+						else Meteor.call \onePasien, doc.no_mr, (err, res) ->
+							unless res then cb doc
 					after: (id) ->
 						state.showAddPatient = null
 						if id is 1 then m.route.set "/regis/lama/#{m.route.param \idpasien}"
@@ -527,6 +531,7 @@ if Meteor.isClient
 						obj[type] title, that
 
 		obat: -> view: -> if attr.pageAccess(<[obat depook]>) then m \.content,
+			oncreate: -> Meteor.subscribe \users
 			m \h4, \Apotik
 			m \button.button.is-success,
 				onclick: -> state.showForm = not state.showForm
@@ -732,9 +737,10 @@ if Meteor.isClient
 							['Tanggal Masuk', hari state.modal.masuk]
 							['Tanggal Kadaluarsa', hari state.modal.kadaluarsa]
 							['Stok di Gudang', "#{state.modal.digudang} unit"]
+							['Harga Beli', rupiah state.modal?beli]
 							['Harga Jual', rupiah state.modal?jual]
 							['Nama Supplier', state.modal?suplier]
-							['Bisa diretur', state.modal?returnable or \Tidak]
+							['Bisa diretur', if state.modal?returnable then \Bisa else \Tidak]
 							['Sumber Anggaran', look \anggaran, state.modal?anggaran .label]
 							['Tahun Pengadaan', state.modal?pengadaan]
 						contents.map (i) -> m \tr,
