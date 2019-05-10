@@ -662,7 +662,7 @@ if Meteor.isClient
 					m \tbody, attr.farmasi.search(coll.gudang.find!fetch!)map (i) -> m \tr,
 						class: \has-text-danger if that.apotik > _.sumBy i.batch, \diapotik if i.treshold
 						ondblclick: -> m.route.set "/farmasi/#{i._id}"
-						m \td, look(\barang, i.jenis)label
+						m \td, look(\barang, i.jenis)?label
 						m \td, i.nama
 						m \td, i.treshold?apotik
 						m \td, i.treshold?gudang
@@ -896,7 +896,7 @@ if Meteor.isClient
 						_.startCase i.first
 						_.startCase i.second
 						_.startCase i.third
-						i.active
+						if i.active then \Aktif else \Non-aktif
 				elem.pagins!
 
 		amprah: -> view: -> if attr.pageAccess(<[jalan inap obat farmasi depook]>) then m \.content,
@@ -932,11 +932,10 @@ if Meteor.isClient
 				m \tbody, pagins(attr.amprah.amprahList!)map (i) -> m \tr, tds arr =
 					hari i.tanggal_minta
 					(?full or _.startCase i.ruangan) modules.find -> it.name is i.ruangan
-					_.startCase (.username) Meteor.users.findOne i.peminta
+					_.startCase (?username) Meteor.users.findOne i.peminta
 					"#{i.jumlah} unit"
 					look2(\gudang, i.nama)?nama
-					if i.penyerah
-						_.startCase (.username) Meteor.users.findOne that
+					if i.penyerah then _.startCase (?username) Meteor.users.findOne that
 					if i.diserah then "#that unit"
 					if i.tanggal_serah then hari that
 					if attr.amprah.buttonConds(i)
