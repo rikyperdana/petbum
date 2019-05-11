@@ -474,6 +474,7 @@ if Meteor.isClient
 			m \table.table,
 				oncreate: ->
 					Meteor.subscribe \coll, \tarif
+					Meteor.subscribe \coll, \gudang
 					Meteor.subscribe \coll, \pasien,
 						{rawat: $elemMatch: $or: [
 							{billRegis: $ne: true}
@@ -485,6 +486,7 @@ if Meteor.isClient
 					conds = ors arr =
 						not j.billRegis
 						if j.tindakan then not j.status_bayar
+						j.obat and j.givenDrug and !j.paidDrug
 					if j.cara_bayar is 1 then if conds then m \tr, [
 						i.no_mr, i.regis.nama_lengkap,
 						hari j.tanggal
@@ -498,7 +500,10 @@ if Meteor.isClient
 				tindakans = state.modal.tindakan?map -> arr =
 					_.startCase look2(\tarif, it.nama)nama
 					it.harga
-				uraian =
+				obats = state.modal.obat?map -> arr =
+					"#{_.startCase look2(\gudang, it.nama)nama} x #{it.jumlah}"
+					1.25 * _.max look2(\gudang, it.nama)batch.map -> it.beli
+				uraian = if state.modal.givenDrug then obats or [] else arr =
 					['Cetak Kartu', 10000] if ands arr =
 						not coll.pasien.findOne(state.modal.pasienId)rawat?0?billRegis
 						coll.pasien.findOne(state.modal.pasienId)regis.petugas
@@ -517,6 +522,7 @@ if Meteor.isClient
 							scope: \rawat, elmId: that.idrawat, doc: _.merge that,
 								if !that.billRegis then billRegis: true
 								else if !that.status_bayar then status_bayar: true
+								else if that.givenDrug then paidDrug: true
 						unless that.anamesa_perawat
 							makePdf.payRegCard ...params, _.compact uraian
 						else makePdf.payRawat ...params, _.compact uraian

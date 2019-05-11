@@ -28,6 +28,11 @@ if Meteor.isClient
 		'regis.ayah': type: String, optional: true
 		'regis.ibu': type: String, optional: true
 		'regis.pasangan': type: String, optional: true, label: 'Suami/Istri'
+		'regis.petugas': type: Object, optional: true
+		'regis.petugas.regis':
+			type: String
+			autoform: type: \hidden
+			autoValue: -> Meteor.userId!
 		'regis.tanggal':
 			type: Date
 			autoform: type: \hidden
