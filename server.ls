@@ -135,26 +135,37 @@ if Meteor.isServer
 				coll.pasien.remove no_mr: it.no_mr
 				coll.pasien.insert it
 
-		incomes: (start, end) -> if start < end then _.compact _.flattenDeep do
-			coll.pasien.find!fetch!map (i) -> i.rawat?map (j) ->
-				conds = ands arr =
-					start < j.tanggal < end
-					j.status_bayar or j.billRegis
-				card = if i.rawat.length > 1 then 10000 else false
-				'NO. MR': i.no_mr
-				'NAMA PASIEN': i.regis.nama_lengkap
-				'TANGGAL': hari j.tanggal
-				'JENIS PEMBAYARAN': (.join ' + ') _.compact arr =
-					\Regis
-					\Kartu if card
-					\Tindakan if j.tindakan
-				'KLINIK': look \klinik, j.klinik .label
-				'NO.KARCIS': j.nobill
-				'JUMLAH (Rp)': _.sum arr =
-					card
-					look(\karcis, j.klinik)label*1000
-					_.sum j.tindakan?map (k) ->
-						look2(\tarif, k.nama)harga
+		incomes: (start, end) -> if start < end
+			obj = (type, data) ->
+				'NO. MR': zeros data.no_mr
+				'NAMA PASIEN': _.startCase data.regis.nama_lengkap
+				'TANGGAL': hari data.rawat.tanggal
+				'JENIS PEMBAYARAN': _.startCase type
+				'KLINIK': look(\klinik, data.rawat.klinik)label
+				'NO. KARCIS': data.rawat.nobill.toString!
+				'JUMLAH': do ->
+					if type is \kartu then rupiah 10000
+					else if type is \karcis then rupiah look(\karcis, data.rawat.klinik)label*1000
+					else if type is \tindakan then if data.rawat.tindakan
+						rupiah _.sum that.map -> it.harga
+			kartu = coll.pasien.aggregate pipe =
+				a = $match: rawat: $elemMatch: $and: list =
+					{tanggal: $gt: start}
+					{tanggal: $lt: end}
+				b = $project: no_mr: 1, regis: 1, rawat: 1, onlyOne: $lt: [{$size: \$rawat}, 2]
+				c = $match: onlyOne: true
+				d = $unwind: \$rawat
+			rawat = coll.pasien.aggregate pipe =
+				a = $match: rawat: $elemMatch: $and: list =
+					{tanggal: $gt: start}
+					{tanggal: $lt: end}
+				b = $unwind: \$rawat
+				c = $match: $and: x =
+					{'rawat.tanggal': $gt: start}
+					{'rawat.tanggal': $lt: end}
+			arr =
+				... kartu.map (i) -> obj \kartu, i
+				... _.flatten rawat.map (i) -> <[karcis tindakan]>map (j) -> obj j, i
 
 		dispenses: (start, end) -> if start < end
 			a = coll.rekap.find!fetch!filter -> start < it.printed < end

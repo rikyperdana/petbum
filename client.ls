@@ -307,9 +307,9 @@ if Meteor.isClient
 								_.startCase userRole!
 			else if m.route.param \idpasien then m \div,
 				oncreate: ->
+					Meteor.subscribe \users
 					Meteor.subscribe \coll, \tarif
 					Meteor.subscribe \coll, \gudang
-					isDr! and Meteor.subscribe \users, username: $options: \-i, $regex: '^dr'
 					Meteor.subscribe \coll, \pasien,
 						{_id: m.route.param \idpasien}, onReady: ->
 							Meteor.call \regions,
