@@ -148,13 +148,15 @@ if Meteor.isServer
 					else if type is \karcis then rupiah look(\karcis, data.rawat.klinik)label*1000
 					else if type is \tindakan then if data.rawat.tindakan
 						rupiah _.sum that.map -> it.harga
+					else if type is \obat then _.sum data.obat.map (i) ->
+						obat = coll.gudang.findOne i.nama_obat
+						_.sum i.batches.map (j) ->
+							(.jual) obat.batch.find (k) -> k.idbatch is j.idbatch
 			kartu = coll.pasien.aggregate pipe =
-				a = $match: rawat: $elemMatch: $and: list =
-					{tanggal: $gt: start}
-					{tanggal: $lt: end}
-				b = $project: no_mr: 1, regis: 1, rawat: 1, onlyOne: $lt: [{$size: \$rawat}, 2]
-				c = $match: onlyOne: true
-				d = $unwind: \$rawat
+				a = $match: $and: x =
+					{'regis.tanggal': $gt: start}
+					{'regis.tanggal': $lt: end}
+					{rawat: $exists: true}
 			rawat = coll.pasien.aggregate pipe =
 				a = $match: rawat: $elemMatch: $and: list =
 					{tanggal: $gt: start}
@@ -163,9 +165,17 @@ if Meteor.isServer
 				c = $match: $and: x =
 					{'rawat.tanggal': $gt: start}
 					{'rawat.tanggal': $lt: end}
+			obat = do ->
+				rekap = coll.rekap.aggregate $match: $and:
+					[{tanggal: $gt: start}, {tanggal: $lt: end}]
+				rekap.map (i) ->
+					pasien = coll.pasien.findOne i.idpasien
+					rawat = pasien.rawat.find -> it.idrawat is i.idrawat
+					no_mr: pasien.no_mr, regis: pasien.regis, rawat: rawat, obat: i.obat
 			arr =
-				... kartu.map (i) -> obj \kartu, i
+				... kartu.map (i) -> obj \kartu, _.assign i, rawat: i.rawat.0
 				... _.flatten rawat.map (i) -> <[karcis tindakan]>map (j) -> obj j, i
+				... obat.map (i) -> obj \obat, i
 
 		dispenses: (start, end) -> if start < end
 			a = coll.rekap.find!fetch!filter -> start < it.printed < end

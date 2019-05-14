@@ -546,7 +546,7 @@ if Meteor.isClient
 				schema: new SimpleSchema schema.bypassObat
 				type: \method
 				meteormethod: \serahObat
-				id: \bypassObat
+				id: \formSerahObat
 				columns: 4
 				hooks:
 					before: (doc, cb) -> cb _.merge doc, source: userGroup!
@@ -592,11 +592,10 @@ if Meteor.isClient
 					Meteor.call \serahObat, state.modal, (err, res) -> if res
 						coll.pasien.update state.modal._id, $set: rawat:
 							state.modal.rawat.map (i) ->
-								if i.idrawat is state.modal.idrawat
-									_.assign i, givenDrug: true
-								else i
+								unless i.idrawat is state.modal.idrawat then i else
+									_.assign givenDrug: true, _.omit i, <[_id no_mr regis]>
 						res.map ->
-							coll.rekap.insert it
+							coll.rekap.insert _.merge it, idrawat: state.modal.idrawat, tanggal: new Date!
 							makePdf.ebiling it
 						state.modal = null
 						m.redraw!
