@@ -140,63 +140,28 @@ if Meteor.isServer
 			a = coll.pasien.aggregate pipe =
 				a = $match: rawat: $elemMatch: $and: [{tanggal: $gt: start}, {tanggal: $lt: end}]
 				b = $unwind: \$rawat
-				b = $match: $and: [{'rawat.tanggal': $gt: start}, {'rawat.tanggal': $lt: end}]
-			a.map (i) ->
+				b = $match: $and: [{'rawat.tanggal': $gt: start}, {'rawat.tanggal': $lt: end}, {'rawat.cara_bayar': $eq: 1}]
+			b = a.map (i) ->
 				no_mr: zeros i.no_mr
 				nama_pasien: i.regis.nama_lengkap
 				tanggal: hari i.rawat.tanggal
 				klinik: look(\klinik, i.rawat.klinik)label
-				tp_kartu: if i.rawat.first then rupiah 10000 else \-
-				tp_karcis: rupiah look(\karcis, i.rawat.klinik)label*1000
-				tp_tindakan: if i.rawat.tindakan then (rupiah _.sum that.map -> it.harga) else \-
-				tp_obat: unless i.rawat.obat then \- else rupiah _.sum do
+				tp_kartu: if i.rawat.first then 10000 else \-
+				tp_karcis: look(\karcis, i.rawat.klinik)label*1000
+				tp_tindakan: if i.rawat.tindakan then (_.sum that.map -> it.harga) else \-
+				tp_obat: unless i.rawat.obat then \- else _.sum do
 					coll.rekap.findOne(idrawat: i.rawat.idrawat)?obat.map (j) ->
 						obat = coll.gudang.findOne j.nama_obat
 						_.sum j.batches.map (k) -> (.jual) obat.batch.find (l) -> l.idbatch is k.idbatch
 				no_karcis: i.rawat.nobill.toString!
-
-		incomesX: (start, end) -> if start < end
-			obj = (type, data) ->
-				'NO. MR': zeros data.no_mr
-				'NAMA PASIEN': _.startCase data.regis.nama_lengkap
-				'TANGGAL': hari data.rawat.tanggal
-				'JENIS PEMBAYARAN': _.startCase type
-				'POLIKLINIK': look(\klinik, data.rawat.klinik)label
-				'NO. KARCIS': data.rawat.nobill.toString!
-				'JUMLAH': rupiah do ->
-					if type is \kartu then 10000
-					else if type is \karcis then look(\karcis, data.rawat.klinik)label*1000
-					else if type is \tindakan then if data.rawat.tindakan
-						_.sum that.map -> it.harga
-					else if type is \obat then _.sum data.obat.map (i) ->
-						obat = coll.gudang.findOne i.nama_obat
-						_.sum i.batches.map (j) ->
-							(.jual) obat.batch.find (k) -> k.idbatch is j.idbatch
-			kartu = coll.pasien.aggregate pipe =
-				a = $match: $and: x =
-					{'regis.tanggal': $gt: start}
-					{'regis.tanggal': $lt: end}
-					{rawat: $exists: true}
-			rawat = coll.pasien.aggregate pipe =
-				a = $match: rawat: $elemMatch: $and: list =
-					{tanggal: $gt: start}
-					{tanggal: $lt: end}
-				b = $unwind: \$rawat
-				c = $match: $and: x =
-					{'rawat.tanggal': $gt: start}
-					{'rawat.tanggal': $lt: end}
-			obat = do ->
-				rekap = coll.rekap.aggregate $match: $and:
-					[{tanggal: $gt: start}, {tanggal: $lt: end}]
-				rekap.map (i) ->
-					pasien = coll.pasien.findOne i.idpasien
-					rawat = pasien.rawat.find -> it.idrawat is i.idrawat
-					no_mr: pasien.no_mr, regis: pasien.regis, rawat: rawat, obat: i.obat
-			a = kartu.map (i) -> obj \kartu, _.assign i, rawat: i.rawat.0
-			b = rawat.map (i) -> obj \karcis, i
-			c = _.compact rawat.map (i) -> if i.rawat.tindakan then obj \tindakan, i
-			d = obat.map (i) -> obj \obat, i
-			[...a, ...b, ...c, ...d]
+			jumlah = (type) -> rupiah _.sum b.map -> it[type]
+			c = ['', '', '', 'Total', (jumlah \tp_kartu), (jumlah \tp_karcis), (jumlah \tp_tindakan), (jumlah \tp_obat), '']
+			currencied = b.map -> _.assign it,
+				tp_kartu: rupiah it.tp_kartu
+				tp_karcis: rupiah it.tp_karcis
+				tp_tindakan: rupiah it.tp_tindakan
+				tp_obat: rupiah it.tp_obat
+			d = [...currencied, c]
 
 		dispenses: (start, end) -> if start < end
 			a = coll.rekap.find!fetch!filter -> start < it.printed < end
