@@ -174,7 +174,7 @@ if Meteor.isClient
 		ebiling: (doc) ->
 			pasien = coll.pasien.findOne doc.idpasien
 			rawat = _.last that.rawat if pasien
-			dokter = Meteor.users.findOne(rawat.dokter)username
+			dokter = Meteor.users.findOne(rawat.dokter)?username
 			title = "Billing Obat - #{pasien.no_mr or doc.no_mr} - #{pasien.regis.nama_lengkap or doc.nama_pasien} - #{hari new Date!}.pdf"
 			profile = layout: \noBorders, table:
 				widths: [til 4]map -> \*

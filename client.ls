@@ -387,6 +387,7 @@ if Meteor.isClient
 								Meteor.call \rmRawat, attr.pasien.currentPasien!_id, state.docRawat,
 								(err, res) -> res and cb _.merge doc.rawat.0, base,
 									petugas: "#{if isDr! then \dokter else \perawat}": Meteor.userId!
+									first: attr.pasien.currentPasien!rawat.length is 0
 									status_bayar: true if ors arr =
 										base.cara_bayar isnt 1
 										ands arr =
@@ -589,7 +590,8 @@ if Meteor.isClient
 						if i.aturan?dosis then "#that unit"
 				confirm: \Serahkan
 				action: ->
-					Meteor.call \serahObat, state.modal, (err, res) -> if res
+					doc = _.assign state.modal, source: userGroup!
+					Meteor.call \serahObat, doc, (err, res) -> if res
 						coll.pasien.update state.modal._id, $set: rawat:
 							state.modal.rawat.map (i) ->
 								unless i.idrawat is state.modal.idrawat then i else

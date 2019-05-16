@@ -86,7 +86,6 @@ if Meteor.isServer
 				else [...res, nama_obat: inc.nama_obat, batches: [obj]]
 
 		serahAmprah: (doc) ->
-			coll.amprah.update doc._id, doc
 			batches = []
 			coll.gudang.update doc.nama, $set: batch: reduce [],
 				coll.gudang.findOne(doc.nama)batch, (res, inc) -> arr =
@@ -97,6 +96,7 @@ if Meteor.isServer
 						batches.push do
 							nama_obat: coll.gudang.findOne(doc.nama)nama
 							no_batch: inc.nobatch
+							idbatch: inc.idbatch
 							serah: minim!
 						obj = _.assign {}, inc,
 							digudang: inc.digudang - minim!
@@ -106,6 +106,7 @@ if Meteor.isServer
 								didepook: inc[\didepook] + minim!
 						doc.diserah -= minim!
 						obj
+			coll.amprah.update doc._id, _.merge doc, batch: batches
 			batches
 
 		doneRekap: ->
@@ -136,18 +137,37 @@ if Meteor.isServer
 				coll.pasien.insert it
 
 		incomes: (start, end) -> if start < end
+			a = coll.pasien.aggregate pipe =
+				a = $match: rawat: $elemMatch: $and: [{tanggal: $gt: start}, {tanggal: $lt: end}]
+				b = $unwind: \$rawat
+				b = $match: $and: [{'rawat.tanggal': $gt: start}, {'rawat.tanggal': $lt: end}]
+			a.map (i) ->
+				no_mr: zeros i.no_mr
+				nama_pasien: i.regis.nama_lengkap
+				tanggal: hari i.rawat.tanggal
+				klinik: look(\klinik, i.rawat.klinik)label
+				tp_kartu: if i.rawat.first then rupiah 10000 else \-
+				tp_karcis: rupiah look(\karcis, i.rawat.klinik)label*1000
+				tp_tindakan: if i.rawat.tindakan then (rupiah _.sum that.map -> it.harga) else \-
+				tp_obat: unless i.rawat.obat then \- else rupiah _.sum do
+					coll.rekap.findOne(idrawat: i.rawat.idrawat)?obat.map (j) ->
+						obat = coll.gudang.findOne j.nama_obat
+						_.sum j.batches.map (k) -> (.jual) obat.batch.find (l) -> l.idbatch is k.idbatch
+				no_karcis: i.rawat.nobill.toString!
+
+		incomesX: (start, end) -> if start < end
 			obj = (type, data) ->
 				'NO. MR': zeros data.no_mr
 				'NAMA PASIEN': _.startCase data.regis.nama_lengkap
 				'TANGGAL': hari data.rawat.tanggal
 				'JENIS PEMBAYARAN': _.startCase type
-				'KLINIK': look(\klinik, data.rawat.klinik)label
+				'POLIKLINIK': look(\klinik, data.rawat.klinik)label
 				'NO. KARCIS': data.rawat.nobill.toString!
-				'JUMLAH': do ->
-					if type is \kartu then rupiah 10000
-					else if type is \karcis then rupiah look(\karcis, data.rawat.klinik)label*1000
+				'JUMLAH': rupiah do ->
+					if type is \kartu then 10000
+					else if type is \karcis then look(\karcis, data.rawat.klinik)label*1000
 					else if type is \tindakan then if data.rawat.tindakan
-						rupiah _.sum that.map -> it.harga
+						_.sum that.map -> it.harga
 					else if type is \obat then _.sum data.obat.map (i) ->
 						obat = coll.gudang.findOne i.nama_obat
 						_.sum i.batches.map (j) ->
@@ -172,10 +192,11 @@ if Meteor.isServer
 					pasien = coll.pasien.findOne i.idpasien
 					rawat = pasien.rawat.find -> it.idrawat is i.idrawat
 					no_mr: pasien.no_mr, regis: pasien.regis, rawat: rawat, obat: i.obat
-			arr =
-				... kartu.map (i) -> obj \kartu, _.assign i, rawat: i.rawat.0
-				... _.flatten rawat.map (i) -> <[karcis tindakan]>map (j) -> obj j, i
-				... obat.map (i) -> obj \obat, i
+			a = kartu.map (i) -> obj \kartu, _.assign i, rawat: i.rawat.0
+			b = rawat.map (i) -> obj \karcis, i
+			c = _.compact rawat.map (i) -> if i.rawat.tindakan then obj \tindakan, i
+			d = obat.map (i) -> obj \obat, i
+			[...a, ...b, ...c, ...d]
 
 		dispenses: (start, end) -> if start < end
 			a = coll.rekap.find!fetch!filter -> start < it.printed < end
@@ -188,7 +209,11 @@ if Meteor.isServer
 				unless (res.find -> matched it) then [...res, inc]
 				else res.map -> unless matched(it) then it else
 					_.assign it, jumlah: it.jumlah + inc.jumlah
-			d = c.map (i) ->
+			c.map (i) -> _.merge i,
+				awal_farmasi: (.awal) coll.gudang.findOne(i.nama_obat)batch.find -> it.idbatch is i.idbatch
+				awal_apotik: (?diserah) coll.amprah.findOne ruangan: \obat, nama: i.nama_obat
+				awal_depook: (?diserah) coll.amprah.findOne ruangan: \depook, nama: i.nama_obat
+			/* d = c.map (i) ->
 				obj = coll.gudang.findOne i.nama_obat
 				price = (.beli) obj.batch.find -> it.idbatch is i.idbatch
 				awal = _.sum obj.batch.map ->
@@ -205,7 +230,7 @@ if Meteor.isServer
 				'Keluar': i.jumlah
 				'Sisa Stok': awal - i.jumlah
 				'Total Keluar': rupiah price * i.jumlah
-				'Total Persediaan': rupiah price * (awal - i.jumlah)
+				'Total Persediaan': rupiah price * (awal - i.jumlah) */
 
 		visits: (start, end) ->
 			docs = coll.pasien.aggregate pipe =
