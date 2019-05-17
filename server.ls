@@ -164,7 +164,7 @@ if Meteor.isServer
 				tp_obat: rupiah it.tp_obat
 			d = [...currencied, c]
 
-		dispenses: (start, end) -> if start < end
+		dispenses: (start, end, source) -> if start < end
 			a = coll.rekap.find!fetch!filter -> start < it.printed < end
 			b = _.flattenDeep a.map (i) -> i.obat.map (j) -> j.batches.map (k) ->
 				nama_obat: j.nama_obat, idbatch: k.idbatch, jumlah: k.jumlah
@@ -175,28 +175,25 @@ if Meteor.isServer
 				unless (res.find -> matched it) then [...res, inc]
 				else res.map -> unless matched(it) then it else
 					_.assign it, jumlah: it.jumlah + inc.jumlah
-			c.map (i) -> _.merge i,
-				awal_farmasi: (.awal) coll.gudang.findOne(i.nama_obat)batch.find -> it.idbatch is i.idbatch
-				awal_apotik: (?diserah) coll.amprah.findOne ruangan: \obat, nama: i.nama_obat
-				awal_depook: (?diserah) coll.amprah.findOne ruangan: \depook, nama: i.nama_obat
-			/* d = c.map (i) ->
+			stokAwal = (i, source) -> _.sum (.map -> it.batch.serah) coll.amprah.aggregate pipe =
+				a = $unwind: \$batch
+				b = $match: $and: [{nama: i.nama_obat}, {ruangan: \obat}, {'batch.idbatch': i.idbatch}]
+			d = c.map (i) -> _.merge i, awal: stokAwal i, source
+			d.map (i) ->
 				obj = coll.gudang.findOne i.nama_obat
-				price = (.beli) obj.batch.find -> it.idbatch is i.idbatch
-				awal = _.sum obj.batch.map ->
-					if it.idbatch is i.idbatch then it.awal
-				batch = (idbatch) -> obj.batch.find -> it.idbatch is idbatch
+				batch = obj.batch.find -> it.idbatch is i.idbatch
 				'Nama Obat': obj.nama
 				'Satuan': look(\satuan, obj.satuan)label
 				'Jenis': look(\barang, obj.jenis)label
-				'No. Batch': i.no_batch
-				'ED': hari batch(i.idbatch)kadaluarsa
-				'Harga': rupiah price
-				'Barang Masuk': if start < batch(i.idbatch)masuk < end then awal else ''
-				'Qty Awal': if batch(i.idbatch)masuk < start then awal else ''
+				'No. Batch': batch.nobatch
+				'ED': hari batch.kadaluarsa
+				'Harga': rupiah batch.jual
+				'Barang Masuk': if start < batch.masuk < end then i.awal else \-
+				'Qty Awal': if batch.masuk < start then i.awal else \-
 				'Keluar': i.jumlah
-				'Sisa Stok': awal - i.jumlah
-				'Total Keluar': rupiah price * i.jumlah
-				'Total Persediaan': rupiah price * (awal - i.jumlah) */
+				'Sisa Stok': i.awal - i.jumlah
+				'Total Keluar': rupiah batch.jual * i.jumlah
+				'Total Persediaan': rupiah batch.jual * (i.awal - i.jumlah)
 
 		visits: (start, end) ->
 			docs = coll.pasien.aggregate pipe =
