@@ -387,7 +387,7 @@ if Meteor.isClient
 								Meteor.call \rmRawat, attr.pasien.currentPasien!_id, state.docRawat,
 								(err, res) -> res and cb _.merge doc.rawat.0, base,
 									petugas: "#{if isDr! then \dokter else \perawat}": Meteor.userId!
-									first: attr.pasien.currentPasien!rawat.length is 0
+									first: true if attr.pasien.currentPasien!rawat.length is 0
 									status_bayar: true if ors arr =
 										base.cara_bayar isnt 1
 										ands arr =
@@ -503,7 +503,7 @@ if Meteor.isClient
 					it.harga
 				obats = state.modal.obat?map -> arr =
 					"#{_.startCase look2(\gudang, it.nama)nama} x #{it.jumlah}"
-					1.25 * _.max look2(\gudang, it.nama)batch.map -> it.beli
+					1.25 * it.jumlah * _.max look2(\gudang, it.nama)batch.map -> it.beli
 				uraian = if state.modal.givenDrug then obats or [] else arr =
 					['Cetak Kartu', 10000] if ands arr =
 						not coll.pasien.findOne(state.modal.pasienId)rawat?0?billRegis
