@@ -71,7 +71,7 @@ if Meteor.isClient
 					else i
 			buttonConds: (obj) -> ands arr =
 				not obj.diserah
-				userGroup! in <[obat farmasi]>
+				userGroup! is \farmasi
 				not same [userGroup!, obj.ruangan]
 			reqForm: -> arr =
 				\bhp unless userGroup \farmasi

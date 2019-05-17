@@ -86,7 +86,7 @@ if Meteor.isServer
 				else [...res, nama_obat: inc.nama_obat, batches: [obj]]
 
 		serahAmprah: (doc) ->
-			batches = []
+			batches = []; cloned = _.merge {}, doc
 			coll.gudang.update doc.nama, $set: batch: reduce [],
 				coll.gudang.findOne(doc.nama)batch, (res, inc) -> arr =
 					...res
@@ -106,7 +106,8 @@ if Meteor.isServer
 								didepook: inc[\didepook] + minim!
 						doc.diserah -= minim!
 						obj
-			coll.amprah.update doc._id, _.merge doc, batch: batches
+			coll.amprah.update doc._id, _.assign doc,
+				batch: batches, diserah: cloned.diserah
 			batches
 
 		doneRekap: ->
@@ -152,7 +153,7 @@ if Meteor.isServer
 				tp_obat: unless i.rawat.obat then \- else _.sum do
 					coll.rekap.findOne(idrawat: i.rawat.idrawat)?obat.map (j) ->
 						obat = coll.gudang.findOne j.nama_obat
-						_.sum j.batches.map (k) -> (.jual) obat.batch.find (l) -> l.idbatch is k.idbatch
+						_.sum j.batches.map (k) -> (.jual * k.jumlah) obat.batch.find (l) -> l.idbatch is k.idbatch
 				no_karcis: i.rawat.nobill.toString!
 			jumlah = (type) -> rupiah _.sum b.map -> it[type]
 			c = ['', '', '', 'Total', (jumlah \tp_kartu), (jumlah \tp_karcis), (jumlah \tp_tindakan), (jumlah \tp_obat), '']
