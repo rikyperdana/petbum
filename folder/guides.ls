@@ -1,7 +1,14 @@
 if Meteor.isClient
 
 	@guide = (group, role) ->
-		if group is \regis then m \div,
+		if role is \mr then m \div,
+			m \h5, 'Tabel Antrian Kodifikasi'
+			ols arr =
+				'Klik tombol cek pada baris data yang ingin dikerjakan'
+				'Sebuah modal akan muncul berikut informasi diagnosa dokter saat rawat'
+				'Klik tombol +Add untuk menambahkan ICD-X seperlunya'
+				'Jika telah yakin dengan data yang diisikan, klik Submit'
+		else if group is \regis then m \div,
 			m \p, 'Untuk setiap pasien yang datang, mohon gunakan menu "Cari Pasien" terlebih dahulu untuk memastikan keberadaannya di dalam sistem.'
 			m \h5, 'Menu Cari Pasien'
 			ols arr =

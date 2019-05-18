@@ -61,7 +61,7 @@ if Meteor.isClient
 				m \.column, m \input.input, type: \date, placeholder: \Mulai
 				m \.column, m \input.input, type: \date, placeholder: \Akhir
 				m \.column.is-2, m \.field, m \.control, m \.select, m \select,
-					<[Tabel Pdf]>map (i) -> m \option, i
+					<[Pdf Excel]>map (i) -> m \option, i
 				m \.column.is-1, m \input.button.is-info, type: \submit, value: \Unduh
 	@csv = (title, docs) ->
 		content = exportcsv.exportToCSV docs, true, \;

@@ -173,7 +173,7 @@ if Meteor.isClient
 				action: ({start, end, type}) -> if start and end
 					Meteor.call \visits, start, end, (err, res) -> if res
 						title = "Kunjungan #{hari start} - #{hari end}"
-						obj = Tabel: csv, Pdf: makePdf.csv
+						obj = Excel: csv, Pdf: makePdf.csv
 						obj[type] title, that
 			if m.route.param(\jenis) in <[baru edit]> then m autoForm do
 				collection: coll.pasien
@@ -534,7 +534,7 @@ if Meteor.isClient
 				action: ({start, end, type}) -> if start and end
 					Meteor.call \incomes, start, end, (err, res) -> if res
 						title = "Pemasukan #{hari start} - #{hari end}"
-						obj = Tabel: csv, Pdf: makePdf.csv
+						obj = Excel: csv, Pdf: makePdf.csv
 						obj[type] title, that
 
 		obat: -> view: -> if attr.pageAccess(<[obat depook]>) then m \.content,
@@ -624,7 +624,7 @@ if Meteor.isClient
 				action: ({start, end, type}) -> if start and end
 					Meteor.call \stocks, start, end, (err, res) -> if res
 						title = "Stok Barang #{hari start} - #{hari end}"
-						obj = Tabel: csv, Pdf: makePdf.csv
+						obj = Excel: csv, Pdf: makePdf.csv
 						obj[type] title, that
 			unless m.route.param(\idbarang) then m \div,
 				if userGroup! in <[obat farmasi depook]>
