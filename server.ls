@@ -147,6 +147,7 @@ if Meteor.isServer
 				nama_pasien: i.regis.nama_lengkap
 				tanggal: hari i.rawat.tanggal
 				klinik: look(\klinik, i.rawat.klinik)label
+				no_karcis: i.rawat.nobill.toString!
 				tp_kartu: if i.rawat.first then 10000 else \-
 				tp_karcis: look(\karcis, i.rawat.klinik)label*1000
 				tp_tindakan: if i.rawat.tindakan then (_.sum that.map -> it.harga) else \-
@@ -154,15 +155,16 @@ if Meteor.isServer
 					coll.rekap.findOne(idrawat: i.rawat.idrawat)?obat.map (j) ->
 						obat = coll.gudang.findOne j.nama_obat
 						_.sum j.batches.map (k) -> (.jual * k.jumlah) obat.batch.find (l) -> l.idbatch is k.idbatch
-				no_karcis: i.rawat.nobill.toString!
+			.map (i) -> _.assign i, total: i.tp_karcis + i.tp_tindakan + i.tp_obat
 			jumlah = (type) -> rupiah _.sum b.map -> it[type]
-			c = ['', '', '', 'Total', (jumlah \tp_kartu), (jumlah \tp_karcis), (jumlah \tp_tindakan), (jumlah \tp_obat), '']
-			currencied = b.map -> _.assign it,
-				tp_kartu: rupiah it.tp_kartu
-				tp_karcis: rupiah it.tp_karcis
-				tp_tindakan: rupiah it.tp_tindakan
-				tp_obat: rupiah it.tp_obat
-			d = [...currencied, c]
+			c = ['', '', '', '', 'Total', (jumlah \tp_kartu), (jumlah \tp_karcis), (jumlah \tp_tindakan), (jumlah \tp_obat), '']
+			currencied = b.map (i) -> _.assign i,
+				tp_kartu: rupiah i.tp_kartu
+				tp_karcis: rupiah i.tp_karcis
+				tp_tindakan: rupiah i.tp_tindakan
+				tp_obat: rupiah i.tp_obat
+				total: rupiah i.total
+			[...currencied, c]
 
 		dispenses: (start, end, source) -> if start < end
 			a = coll.rekap.find!fetch!filter -> start < it.printed < end
