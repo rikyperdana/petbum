@@ -144,8 +144,7 @@ if Meteor.isClient
 					pasien.no_mr.toString!
 					pasien.regis.nama_lengkap
 					hari pasien.regis.tgl_lahir
-					look(\kelamin, pasien.regis.kelamin)label
-			console.log rows, columns
+					look(\kelamin, pasien.regis.kelamin)?label or \-
 			pdfMake.createPdf content: arr =
 				kop
 				{text: 'FORM RESUME RAWAT JALAN', alignment: \center}

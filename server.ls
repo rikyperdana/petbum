@@ -179,7 +179,7 @@ if Meteor.isServer
 					_.assign it, jumlah: it.jumlah + inc.jumlah
 			stokAwal = (i, source) -> _.sum (.map -> it.batch.serah) coll.amprah.aggregate pipe =
 				a = $unwind: \$batch
-				b = $match: $and: [{nama: i.nama_obat}, {ruangan: userGroup!}, {'batch.idbatch': i.idbatch}]
+				b = $match: $and: [{nama: i.nama_obat}, {ruangan: source}, {'batch.idbatch': i.idbatch}]
 			d = c.map (i) -> _.merge i, awal: stokAwal i, source
 			d.map (i) ->
 				obj = coll.gudang.findOne i.nama_obat
