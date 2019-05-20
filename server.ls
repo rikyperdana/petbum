@@ -179,7 +179,7 @@ if Meteor.isServer
 					_.assign it, jumlah: it.jumlah + inc.jumlah
 			stokAwal = (i, source) -> _.sum (.map -> it.batch.serah) coll.amprah.aggregate pipe =
 				a = $unwind: \$batch
-				b = $match: $and: [{nama: i.nama_obat}, {ruangan: \obat}, {'batch.idbatch': i.idbatch}]
+				b = $match: $and: [{nama: i.nama_obat}, {ruangan: userGroup!}, {'batch.idbatch': i.idbatch}]
 			d = c.map (i) -> _.merge i, awal: stokAwal i, source
 			d.map (i) ->
 				obj = coll.gudang.findOne i.nama_obat
@@ -216,25 +216,31 @@ if Meteor.isServer
 				dokter: _.startCase Meteor.users.findOne(i.rawat.petugas.dokter)?username
 
 		stocks: (start, end) ->
-			coll.gudang.aggregate pipe =
-				a = $match: batch: $elemMatch: $and: arr =
-					{masuk: $gt: start}
-					{masuk: $lt: end}
+			a = coll.amprah.aggregate pipe =
+				a = $match: tanggal_serah: $lt: end
 				b = $unwind: \$batch
-				c = $match: $and: arr =
-					{'batch.masuk': $gt: start}
-					{'batch.masuk': $lt: end}
+			b = reduce [], a, (res, inc) ->
+				matched = -> _.every arr =
+					it.nama is inc.nama
+					it.batch.idbatch is inc.batch.idbatch
+				unless (res.find -> matched it) then [...res, inc] else
+					res.map -> unless matched(it) then it else
+						_.assign it, batch: _.assign it.batch, serah: it.batch.serah + inc.batch.serah
 			.map (i) ->
-				'Nama Obat': i.nama
-				'Kemasan': look(\satuan, i.satuan)label
-				'Satuan': look(\satuan, i.satuan)label
-				'Jenis': look(\barang, i.jenis)label
-				'Batch': i.batch.nobatch
-				'ED': hari i.batch.kadaluarsa
-				'Harga Satuan': rupiah i.batch.beli
-				'Stok Awal': i.batch.awal.toString!
-				'Sisa Stock': i.batch.digudang.toString!
-				'Total Nilai': rupiah i.batch.digudang * i.batch.beli
+				obat = coll.gudang.findOne i.nama
+				batch = obat.batch.find -> it.idbatch is i.batch.idbatch
+				'Nama Obat': obat.nama
+				'Satuan': look(\satuan, obat.satuan)label
+				'Jenis': look(\barang, obat.jenis)label
+				'No. Batch': batch.nobatch
+				'ED': hari batch.kadaluarsa
+				'Harga': rupiah batch.jual
+				'Barang Masuk': if start < batch.masuk < end then batch.awal else \-
+				'Stok Awal': if batch.masuk < start then batch.awal else \-
+				'Keluar': i.batch.serah
+				'Sisa Stok': batch.awal - i.batch.serah
+				'Total Keluar': rupiah batch.jual * i.batch.serah
+				'Total Persediaan': rupiah batch.jual * (batch.awal - i.batch.serah)
 
 		notify: (name) ->
 			obj = amprah: -> coll.amprah.find(diserah: $exists: false)fetch!length
