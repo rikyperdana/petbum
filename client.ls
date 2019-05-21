@@ -978,7 +978,7 @@ if Meteor.isClient
 						m \thead, m \tr, <[ nama_obat no_batch serahkan ]>map (i) ->
 							m \th, _.startCase i
 						m \tbody, state.modal.map (i) -> m \tr,
-							tds _.map i, -> it
+							tds [i.nama_obat, i.no_batch, i.serah]
 
 	m.route.prefix ''
 	m.route document.body, \/dashboard,

@@ -264,7 +264,8 @@ if Meteor.isClient
 		nama_pasien: type: String
 		rawat: type: Number, label: 'Jenis Pasien', autoform: options: selects.rawat
 		cara_bayar: type: Number, autoform: options: selects.cara_bayar
-		poli: type: Number, autoform: options: selects.klinik
+		poli: type: Number, optional: true, label: \Poliklinik, autoform: options: selects.klinik
+		ruangan: type: String, optional: true
 		dokter: type: String
 		no_sep: type: String, optional: true, label: 'No. SEP'
 		obat: type: Array

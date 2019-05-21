@@ -173,14 +173,19 @@ if Meteor.isClient
 		ebiling: (doc) ->
 			pasien = coll.pasien.findOne doc.idpasien
 			rawat = _.last that.rawat if pasien
-			dokter = Meteor.users.findOne(rawat.dokter)?username
-			title = "Billing Obat - #{pasien.no_mr or doc.no_mr} - #{pasien.regis.nama_lengkap or doc.nama_pasien} - #{hari new Date!}.pdf"
+			dokter = Meteor.users.findOne(rawat?dokter)?username
+			title = "Billing Obat - #{pasien?no_mr or doc.no_mr} - #{pasien?regis.nama_lengkap or doc.nama_pasien} - #{hari new Date!}.pdf"
+			sumber =
+				if rawat?klinik or doc.poli
+					[\Poliklinik, ": #{look(\klinik, that)label}"]
+				else if doc.ruangan
+					[\Ruangan, ": #{doc.ruangan}"]
 			profile = layout: \noBorders, table:
 				widths: [til 4]map -> \*
 				body: x =
-					['Nama Lengkap', ": #{pasien.regis.nama_lengkap or doc.nama_pasien}", 'No. MR', ": #{pasien.no_mr or doc.no_mr}"]
-					['Cara Bayar', ": #{look \cara_bayar, (rawat.cara_bayar or doc.cara_bayar) .label}", \Tanggal, ": #{hari new Date!}"]
-					[\Poliklinik, ": #{look(\klinik, (rawat.klinik or doc.poli))label}", \Dokter, ": #{dokter or doc.dokter}"]
+					['Nama Lengkap', ": #{pasien?regis.nama_lengkap or doc.nama_pasien}", 'No. MR', ": #{pasien?no_mr or doc.no_mr}"]
+					['Cara Bayar', ": #{look \cara_bayar, (rawat?cara_bayar or doc.cara_bayar) .label}", \Tanggal, ": #{hari new Date!}"]
+					[...sumber, \Dokter, ": #{dokter or doc.dokter}"]
 					['No. SEP', ": #{if doc.no_sep then that else \-}", 'Jenis Pasien', ": #{look \rawat, (doc.rawat or 1) .label}"]
 			list = doc.obat.map (i) ->
 				barang = look2 \gudang, i.nama_obat
