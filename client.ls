@@ -26,9 +26,6 @@ if Meteor.isClient
 				{head: \Diagnosa, cell: doc?diagnosa?join ', '}
 				{head: \Planning, cell: doc?planning}
 			currentPasien: -> look2 \pasien, m.route.param \idpasien
-			poliFilter: (arr) -> if arr then _.compact arr.map (i) ->
-				if userRole! is _.snakeCase look(\klinik, i.klinik)label then i
-				else if userGroup \regis then i
 			ownKliniks: -> roles!?jalan?map (i) ->
 				(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
 			list: ->
@@ -39,6 +36,7 @@ if Meteor.isClient
 			lastKlinik: (arr) ->
 				unless roles!?jalan then arr
 				else if isDr! then arr.filter -> ands list =
+					_.last(it.rawat)dokter is Meteor.userId!
 					_.last(it.rawat)anamesa_perawat
 					not _.last(it.rawat)anamesa_dokter
 				else arr.filter -> ands list =
@@ -411,7 +409,7 @@ if Meteor.isClient
 								m \th, _.startCase i
 							m \th, \Rincian if userGroup \jalan
 							m \th, \Hapus if userRole \admin
-						m \tbody, attr.pasien.poliFilter(attr.pasien.currentPasien!rawat)?map (i) -> m \tr, [
+						m \tbody, pagins attr.pasien.currentPasien!rawat?map (i) -> m \tr, [
 							hari i.tanggal
 							look(\klinik, i.klinik)label
 							look(\cara_bayar, i.cara_bayar)label
@@ -427,6 +425,7 @@ if Meteor.isClient
 									i.idrawat, (err, res) -> res and m.redraw!
 								m \span, \Hapus
 						]map (j) -> m \td, j or \-
+						elem.pagins!
 					if state.modal then elem.modal do
 						title: 'Rincian rawat'
 						content: m \div,
@@ -463,6 +462,7 @@ if Meteor.isClient
 							if !isDr! then !state.modal.anamesa_perawat else true
 							if isDr! then state.modal.anamesa_perawat else true
 							if isDr! then !state.modal.anamesa_dokter else true
+							userRole! is _.snakeCase look(\klinik, state.modal.klinik)label
 						action: ->
 							state.docRawat = state.modal.idrawat
 							state.spm = new Date!

@@ -123,8 +123,9 @@ if Meteor.isClient
 	schema.rawatNurse =
 		'rawat.$.anamesa_perawat': type: String, autoform: type: \textarea
 		'rawat.$.fisik': optional: true, type: new SimpleSchema schema.fisik
-		'rawat.$.cara_masuk': type: Number, optional: true, autoform: options: selects.cara_masuk, firstLabel: 'Pilih Satu'
-		'rawat.$.rujukan': type: Number, optional: true, autoform: options: selects.rujukan
+		'rawat.$.cara_masuk': type: Number, optional: true, autoform: options: selects.cara_masuk, firstLabel: 'Pilih satu'
+		'rawat.$.rujukan': type: Number, optional: true, autoform: options: selects.rujukan, firstLabel: 'Pilih satu'
+		'rawat.$.sumber_rujukan': type: String, optional: true
 		'rawat.$.riwayat': type: Object, optional: true
 		'rawat.$.riwayat.kesehatan': type: Object, optional: true
 		'rawat.$.riwayat.kesehatan.penyakit_sebelumnya': type: String, optional: true
@@ -133,30 +134,32 @@ if Meteor.isClient
 		'rawat.$.riwayat.kesehatan.pengobatan_dirumah': type: String, optional: true
 		'rawat.$.riwayat.kesehatan.alergi': type: String, optional: true
 		'rawat.$.riwayat.kesehatan.transfusi_darah': type: String, optional: true
-		'rawat.$.riwayat.kesehatan.merokok': type: String, optional: true
-		'rawat.$.riwayat.kesehatan.minuman_keras': type: String, optional: true
-		'rawat.$.riwayat.kesehatan.obat_terlarang': type: String, optional: true
-		'rawat.$.riwayat.kesehatan.imunisasi': type: String, optional: true, autoform: options: selects.imunisasi
-		'rawat.$.riwayat.keluarga': type: Object, optional: true
-		'rawat.$.riwayat.keluarga.penyakit': type: Number, optional: true, autoform: options:  selects.penyakit
-		'rawat.$.riwayat.keluarga.hubungan': type: String, optional: true
+		'rawat.$.riwayat.kesehatan.merokok': type: Number, optional: true, autoform: options: selects.yatidak, firstLabel: 'Pilih satu'
+		'rawat.$.riwayat.kesehatan.minuman_keras': type: Number, optional: true, autoform: options: selects.yatidak, firstLabel: 'Pilih satu'
+		'rawat.$.riwayat.kesehatan.obat_terlarang': type: Number, optional: true, autoform: options: selects.yatidak, firstLabel: 'Pilih satu'
+		'rawat.$.riwayat.kesehatan.imunisasi': type: Array, optional: true
+		'rawat.$.riwayat.kesehatan.imunisasi.$': type: String, optional: true, autoform: options: selects.imunisasi, firstLabel: 'Pilih satu'
+		'rawat.$.riwayat.keluarga': type: Array, optional: true, label: 'Riwayat penyakit keluarga'
+		'rawat.$.riwayat.keluarga.$': type: Object
+		'rawat.$.riwayat.keluarga.$.penyakit': type: Number, optional: true, autoform: options:  selects.penyakit, firstLabel: 'Pilih satu'
+		'rawat.$.riwayat.keluarga.$.hubungan': type: String, optional: true
 		'rawat.$.riwayat.reproduksi': type: Object, optional: true
-		'rawat.$.riwayat.reproduksi.wanita_hamil': type: Boolean, optional: true
-		'rawat.$.riwayat.reproduksi.pria_prostat': type: Boolean, optional: true
-		'rawat.$.riwayat.reproduksi.keikutsertaan_kb': type: Number, optional: true, autoform: options: selects.kb
+		'rawat.$.riwayat.reproduksi.wanita_hamil': type: Number, autoform: options: selects.yatidak, firstLabel: 'Pilih satu'
+		'rawat.$.riwayat.reproduksi.pria_prostat': type: Number, autoform: options: selects.yatidak, firstLabel: 'Pilih satu'
+		'rawat.$.riwayat.reproduksi.keikutsertaan_kb': type: Number, optional: true, autoform: options: selects.kb, firstLabel: 'Pilih satu'
 		'rawat.$.kenyamanan': type: Object, optional: true
-		'rawat.$.kenyamanan.nyeri': type: Boolean, optional: true
+		'rawat.$.kenyamanan.nyeri': type: Number, autoform: options: selects.yatidak, firstLabel: 'Pilih satu'
 		'rawat.$.kenyamanan.lokasi': type: String, optional: true
 		'rawat.$.kenyamanan.frekuensi': type: Number, optional: true, autoform: options: selects.frekuensi
-		'rawat.$.kenyamanan.karakteristik_nyeri': type: Number, optional: true, autoform: options: selects.nyeri
-		'rawat.$.status_psikologi': type: Number, optional: true, autoform: options: selects.psikologi
+		'rawat.$.kenyamanan.karakteristik_nyeri': type: Number, optional: true, autoform: options: selects.nyeri, firstLabel: 'Pilih satu'
+		'rawat.$.status_psikologi': type: Number, optional: true, autoform: options: selects.psikologi, firstLabel: 'Pilih satu'
 		'rawat.$.eliminasi': type: Object, optional: true
-		'rawat.$.eliminasi.bab': type: Number, optional: true, autoform: options: selects.bab
-		'rawat.$.eliminasi.bak': type: Number, optional: true, autoform: options: selects.bak
+		'rawat.$.eliminasi.bab': type: Number, optional: true, autoform: options: selects.bab, firstLabel: 'Pilih satu'
+		'rawat.$.eliminasi.bak': type: Number, optional: true, autoform: options: selects.bak, firstLabel: 'Pilih satu'
 		'rawat.$.komunikasi': type: Object, optional: true
-		'rawat.$.komunikasi.bicara': type: Number, optional: true, autoform: options: selects.bicara
-		'rawat.$.komunikasi.hambatan': type: Number, optional: true, autoform: options: selects.hambatan
-		'rawat.$.komunikasi.potensial': type: Number, optional: true, autoform: options: selects.potensial
+		'rawat.$.komunikasi.bicara': type: Number, optional: true, autoform: options: selects.bicara, firstLabel: 'Pilih satu'
+		'rawat.$.komunikasi.hambatan': type: Number, optional: true, autoform: options: selects.hambatan, firstLabel: 'Pilih satu'
+		'rawat.$.komunikasi.potensial': type: Number, optional: true, autoform: options: selects.potensial, firstLabel: 'Pilih satu'
 
 	schema.rawatDoctor =
 		'rawat.$.anamesa_dokter': type: String, autoform: type: \textarea
@@ -226,7 +229,7 @@ if Meteor.isClient
 			autoValue: (name, docs) ->
 				1.25 * (?value) docs.find -> \beli is _.last it.name.split \.
 		'batch.$.suplier': type: String, optional: true
-		'batch.$.returnable': type: Number, optional: true, autoform: options: selects.returnable
+		'batch.$.returnable': type: Number, optional: true, autoform: options: selects.yatidak
 		'batch.$.anggaran': type: Number, autoform: options: selects.anggaran
 		'batch.$.pengadaan': type: Number, optional: true
 
@@ -285,3 +288,20 @@ if Meteor.isClient
 						"Gudang: #{_.sum barang.batch.map -> it.digudang}"
 						"OK: #{_.sum barang.batch.map -> it.didepook}"
 		'obat.$.jumlah': type: Number
+		bhp: type: Array, optional: true
+		'bhp.$': type: Object
+		'bhp.$.nama': type: String, label: 'Nama bhp', autoform: options: selects.bhp
+		'bhp.$.stok':
+			type: String
+			label: 'Info Stok'
+			optional: true
+			autoform: type: \disabled
+			autoValue: (name, doc) ->
+				num = (.1) name.split \.
+				if ((?value) doc.find -> it.name is "bhp.#num.nama")
+					barang = coll.gudang.findOne that
+					_.join arr =
+						"Apotik: #{_.sum barang.batch.map -> it.diapotik}"
+						"Gudang: #{_.sum barang.batch.map -> it.digudang}"
+						"OK: #{_.sum barang.batch.map -> it.didepook}"
+		'bhp.$.jumlah': type: Number

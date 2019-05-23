@@ -127,7 +127,7 @@ if Meteor.isClient
 						if opts.hooks?before then that obj, (moded) ->
 							formTypes(moded)[opts.type]!
 						else formTypes![opts.type]!
-					afState.form = null; afState.temp = null
+						afState.form = null; afState.temp = null
 
 			radio: (name, value) ->
 				type: \radio, name: name, id: "#name#value"
