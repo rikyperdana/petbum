@@ -42,6 +42,8 @@ if Meteor.isClient
 				else arr.filter -> ands list =
 					not _.last(it.rawat)anamesa_perawat
 					_.last(it.rawat)billRegis
+			patientHistory: ->
+				_.reverse _.sortBy attr.pasien.currentPasien!rawat, \tanggal
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		apotik: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		farmasi:
@@ -409,7 +411,8 @@ if Meteor.isClient
 								m \th, _.startCase i
 							m \th, \Rincian if userGroup \jalan
 							m \th, \Hapus if userRole \admin
-						m \tbody, pagins attr.pasien.currentPasien!rawat?map (i) -> m \tr, [
+						# m \tbody, pagins attr.pasien.currentPasien!rawat?map (i) -> m \tr, [
+						m \tbody, pagins attr.pasien.patientHistory!map (i) -> m \tr, [
 							hari i.tanggal
 							look(\klinik, i.klinik)label
 							look(\cara_bayar, i.cara_bayar)label
@@ -619,6 +622,7 @@ if Meteor.isClient
 		depook: -> this.obat
 
 		farmasi: -> view: -> if attr.pageAccess(<[jalan inap obat farmasi depook]>) then m \.content,
+			oncreate: -> state.showForm = batch: false
 			if (userGroup \farmasi) and userRole(\admin) then elem.report do
 				title: 'Laporan Stok Barang'
 				action: ({start, end, type}) -> if start and end
@@ -712,9 +716,9 @@ if Meteor.isClient
 							m \.field, m \.control, m \input.button.is-success,
 								type: \submit, value: \Tetapkan
 				if roles!?farmasi then m \.button.is-warning,
-					onclick: -> state.showForm = not state.showForm
+					onclick: -> state.showForm.batch = not state.showForm.batch
 					m \span,'+Tambahkan Batch'
-				if state.showForm then m autoForm do
+				if state.showForm?batch then m autoForm do
 					collection: coll.gudang
 					schema: new SimpleSchema schema.farmasi
 					type: \update-pushArray

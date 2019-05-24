@@ -51,7 +51,7 @@ if Meteor.isServer
 			batches = []; opts = obat: \diapotik, depook: \didepook
 			pasien = coll.pasien.findOne doc._id
 			stock = opts[doc.source]
-			for i in [...doc.obat, ...doc.bhp]
+			for i in [...doc.obat, ...(doc.bhp or [])]
 				coll.gudang.update i.nama, $set: batch: reduce [],
 					coll.gudang.findOne(i.nama)batch, (res, inc) -> arr =
 						...res
