@@ -44,6 +44,13 @@ if Meteor.isClient
 					_.last(it.rawat)billRegis
 			patientHistory: ->
 				_.reverse _.sortBy attr.pasien.currentPasien!rawat, \tanggal
+			continuable: -> ands arr =
+				it.idrawat is (.idrawat) _.last attr.pasien.currentPasien!rawat
+				currentRoute! is \jalan
+				if !isDr! then !it.anamesa_perawat else true
+				if isDr! then it.anamesa_perawat else true
+				if isDr! then !it.anamesa_dokter else true
+				userRole! is _.snakeCase look(\klinik, it.klinik)label
 		bayar: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		apotik: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		farmasi:
@@ -420,8 +427,10 @@ if Meteor.isClient
 							... <[ billRegis status_bayar ]>map ->
 								if i[it] then \Sudah else \Belum
 							if userGroup \jalan then m \button.button.is-info,
-								onclick: -> state.modal = i
-								m \span, \Lihat
+								onclick: ->
+									if attr.pasien.continuable i then state.docRawat = i.idrawat
+									else state.modal = i
+								m \span, if attr.pasien.continuable i then \Lanjutkan else \Lihat
 							if userRole \admin then m \.button.is-danger,
 								ondblclick: -> Meteor.call \rmRawat,
 									m.route.param \idpasien
@@ -460,12 +469,6 @@ if Meteor.isClient
 									if i.aturan?dosis then "#that dosis"
 									"#{i.jumlah} unit"
 									if i.puyer then "puyer #that"
-						confirm: \Lanjutkan if ands arr =
-							currentRoute! is \jalan
-							if !isDr! then !state.modal.anamesa_perawat else true
-							if isDr! then state.modal.anamesa_perawat else true
-							if isDr! then !state.modal.anamesa_dokter else true
-							userRole! is _.snakeCase look(\klinik, state.modal.klinik)label
 						action: ->
 							state.docRawat = state.modal.idrawat
 							state.spm = new Date!
