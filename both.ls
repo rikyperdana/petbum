@@ -138,7 +138,7 @@ if Meteor.isClient
 		'rawat.$.riwayat.kesehatan.minuman_keras': type: Number, optional: true, autoform: options: selects.yatidak, firstLabel: 'Pilih satu'
 		'rawat.$.riwayat.kesehatan.obat_terlarang': type: Number, optional: true, autoform: options: selects.yatidak, firstLabel: 'Pilih satu'
 		'rawat.$.riwayat.kesehatan.imunisasi': type: Array, optional: true
-		'rawat.$.riwayat.kesehatan.imunisasi.$': type: String, optional: true, autoform: options: selects.imunisasi, firstLabel: 'Pilih satu'
+		'rawat.$.riwayat.kesehatan.imunisasi.$': type: Number, optional: true, autoform: options: selects.imunisasi, firstLabel: 'Pilih satu'
 		'rawat.$.riwayat.keluarga': type: Array, optional: true, label: 'Riwayat penyakit keluarga'
 		'rawat.$.riwayat.keluarga.$': type: Object
 		'rawat.$.riwayat.keluarga.$.penyakit': type: Number, optional: true, autoform: options:  selects.penyakit, firstLabel: 'Pilih satu'
@@ -148,10 +148,10 @@ if Meteor.isClient
 		'rawat.$.riwayat.reproduksi.pria_prostat': type: Number, autoform: options: selects.yatidak, firstLabel: 'Pilih satu'
 		'rawat.$.riwayat.reproduksi.keikutsertaan_kb': type: Number, optional: true, autoform: options: selects.kb, firstLabel: 'Pilih satu'
 		'rawat.$.kenyamanan': type: Object, optional: true
-		'rawat.$.kenyamanan.nyeri': type: Number, autoform: options: selects.yatidak, firstLabel: 'Pilih satu'
+		'rawat.$.kenyamanan.nyeri': type: Number, autoform: options: selects.nyeri, firstLabel: 'Pilih satu'
 		'rawat.$.kenyamanan.lokasi': type: String, optional: true
 		'rawat.$.kenyamanan.frekuensi': type: Number, optional: true, autoform: options: selects.frekuensi
-		'rawat.$.kenyamanan.karakteristik_nyeri': type: Number, optional: true, autoform: options: selects.nyeri, firstLabel: 'Pilih satu'
+		'rawat.$.kenyamanan.karakteristik_nyeri': type: Number, optional: true, autoform: options: selects.karakteristik_nyeri, firstLabel: 'Pilih satu'
 		'rawat.$.status_psikologi': type: Number, optional: true, autoform: options: selects.psikologi, firstLabel: 'Pilih satu'
 		'rawat.$.eliminasi': type: Object, optional: true
 		'rawat.$.eliminasi.bab': type: Number, optional: true, autoform: options: selects.bab, firstLabel: 'Pilih satu'
@@ -171,7 +171,7 @@ if Meteor.isClient
 			type: Number
 			autoform: type: \hidden
 			autoValue: -> moment!diff state.spm, \minutes
-		'rawat.$.pindah': type: Number, optional: true, autoform: options: selects.klinik
+		'rawat.$.pindah': type: Number, optional: true, label: \Konsultasi, autoform: options: selects.klinik
 		'rawat.$.keluar': type: Number, optional: true, autoform: options: selects.keluar
 
 	schema.rawatMR =

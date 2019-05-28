@@ -22,8 +22,9 @@
 	imunisasi: <[ dpt1 dpt2 dpt3 bcg campak polio1 polio2 polio3 hepatitis mmr ]>
 	penyakit: <[ asma diabetes hipertensi cancer anemia jantung lainnya ]>
 	kb: <[ iud susuk suntik pil steril vasectomi ]>
+	nyeri: <[ya tidak]>
 	frekuensi: <[ sering kadang jarang ]>
-	nyeri: <[ terbakar tertindih menyebar tajam tumpul berdenyut lainnya ]>
+	karakteristik_nyeri: <[ terbakar tertindih menyebar tajam tumpul berdenyut lainnya ]>
 	psikologi: <[ tenang marah cemas gelisah takut lainnya ]>
 	bab: <[ asma diare konstipasi colostomy ]>
 	bak: <[ normal retensia inkontinesia poliuria disuria lainnya ]>

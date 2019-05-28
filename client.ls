@@ -25,6 +25,22 @@ if Meteor.isClient
 				{head: 'Anamesa Dokter', cell: doc?anamesa_dokter}
 				{head: \Diagnosa, cell: doc?diagnosa?join ', '}
 				{head: \Planning, cell: doc?planning}
+				...[<[tekanan_darah mmHg]> <[nadi pulse]> <[suhu Celcius]> <[pernafasan RR]> <[berat Kg]> <[tinggi cm]> <[lila cm]>]map ->
+					{head: "Fisik #{_.startCase it.0}", cell: if doc.fisik?[it.0] then "#that #{it?1 or ''}"}
+				...<[penyakit_sebelumnya operasi dirawat pengobatan_dirumah alergi transfusi darah merokok minuman_keras obat_terlarang]>map ->
+					{head: "Riwayat #{_.startCase it}", cell: doc.riwayat?[it]}
+				...(doc.riwayat?kesehatan?imunisasi or [])map (i, j) ->
+					{head: "Imunisasi #{j+1}", cell: look(\imunisasi, i)?label}
+				...(doc.riwayat?keluarga or [])map (i, j) ->
+					{head: "Penyakit keluarga/hubungan #{j+1}", cell: "#{look(\penyakit, i.penyakit)?label}/#{i.hubungan}"}
+				...<[wanita_hamil pria_prostat keikutsertaan_kb]>map ->
+					{head: "Reproduksi #{_.startCase it}", cell: if doc.riwayat?reproduksi?[it] then look(\yatidak, that)?label}
+				...<[nyeri frekuensi karakteristik_nyeri]>map ->
+					{head: "Kenyamanan #{_.startCase it}", cell: look(it, doc.kenyamanan?[it])?label}
+				{head: 'Kenyamanan Lokasi', cell: doc.kenyamanan?lokasi}
+				{head: 'Status Psikologi', cell: if doc.status_psikologi then look(\psikologi, that)?label}
+				...<[bab bak]>map -> {head: "Eliminasi #{_.startCase it}", cell: if doc.eliminasi?[it] then look(it, that)?label}
+				...<[bicara hambatan potensial]>map -> {head: "Komunikasi #{_.startCase it}", cell: if doc.komunikasi?[it] then look(it, that)?label}
 			currentPasien: -> look2 \pasien, m.route.param \idpasien
 			ownKliniks: -> roles!?jalan?map (i) ->
 				(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
@@ -55,7 +71,7 @@ if Meteor.isClient
 		apotik: header: <[ no_mr nama tanggal cara_bayar klinik aksi ]>
 		farmasi:
 			headers:
-				farmasi: <[ jenis_barang nama_barang batas_apotik batas_gudang stok_diapotik stok_didepook stok_gudang ]>
+				farmasi: <[ jenis_barang nama_barang satuan batas_depook batas_apotik batas_gudang stok_diapotik stok_didepook stok_gudang ]>
 				rincian: <[ nobatch digudang diapotik didepook masuk kadaluarsa ]>
 			currentBarang: -> look2 \gudang, m.route.param \idbarang
 			fieldSerah: <[ nama_obat jumlah_obat aturan_kali aturan_dosis ]>
@@ -445,12 +461,6 @@ if Meteor.isClient
 							m \table.table,
 								attr.pasien.rawatDetails state.modal
 								.map (i) -> i.cell and m \tr, [(m \th, i.head), (m \td, i.cell)]
-							if state.modal.fisik then m \div,
-								m \br
-								m \table, m \tr, m \th, \Fisik
-								m \table.table,
-									m \thead, m \tr, _.map that, (v, k) -> m \th, _.startCase k
-									m \tbody, m \tr, _.map that, (v, k) -> m \td, v
 							if state.modal.tindakan then m \div,
 								m \br
 								m \table, m \tr, m \th, \Tindakan
@@ -643,6 +653,7 @@ if Meteor.isClient
 						m \b, "Terdapat #jumlah barang yang belum diberi ambang batas"
 				do ->
 					sumA = (.length) coll.gudang.find!fetch!filter (i) -> if i.treshold then ors arr =
+						i.treshold.depook > _.sumBy i.batch, \didepook
 						i.treshold.apotik > _.sumBy i.batch, \diapotik
 						i.treshold.gudang > _.sumBy i.batch, \digudang
 					if sumA > 0 then m \.notification.is-danger,
@@ -678,6 +689,8 @@ if Meteor.isClient
 						ondblclick: -> m.route.set "/farmasi/#{i._id}"
 						m \td, look(\barang, i.jenis)?label
 						m \td, i.nama
+						m \td, look(\satuan, i.satuan)?label
+						m \td, i.treshold?depook
 						m \td, i.treshold?apotik
 						m \td, i.treshold?gudang
 						<[ diapotik didepook digudang ]>map (j) ->
@@ -695,10 +708,12 @@ if Meteor.isClient
 						{name: \Satuan, cell: look(\satuan, that.satuan)label}
 					], 2)map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.cell)]
 					m \tr,
-						ondblclick: -> if userGroup! in <[obat farmasi]>
+						ondblclick: -> if userGroup! in <[obat farmasi depook]>
 							state.modal = attr.farmasi.currentBarang!
 						m \th, 'Batas min. Apotik'
 						m \td, that?treshold?apotik
+						m \th, 'Batas min. Depo OK'
+						m \td, that?treshold?depook
 						m \th, 'Batas min. Gudang'
 						m \td, that?treshold?gudang
 				state.modal?_id and elem.modal do
@@ -708,7 +723,7 @@ if Meteor.isClient
 						m \form,
 							onsubmit: (e) ->
 								e.preventDefault!
-								opts = obat: \apotik, farmasi: \gudang
+								opts = obat: \apotik, farmasi: \gudang, depook: \depook
 								coll.gudang.update state.modal._id, $set: treshold: _.merge do
 									attr.farmasi.currentBarang!treshold
 									"#{opts[userGroup!]}": +e.target.0.value
