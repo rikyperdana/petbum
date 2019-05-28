@@ -242,9 +242,17 @@ if Meteor.isServer
 				'Total Keluar': rupiah batch.jual * i.batch.serah
 				'Total Persediaan': rupiah batch.jual * (batch.awal - i.batch.serah)
 
-		notify: (name) ->
-			obj = amprah: -> coll.amprah.find(diserah: $exists: false)fetch!length
-			obj[name]?!
+		notify: (name, param1, param2) ->
+			obj =
+				amprah: -> coll.amprah.find(diserah: $exists: false)fetch!length
+				obat: -> (.length) coll.pasien.aggregate [$match: rawat: $elemMatch: givenDrug: $exists: false]
+				depook: -> (.length) coll.pasien.aggregate [$match: rawat: $elemMatch: givenDrug: $exists: false]
+				jalan: -> (.length) coll.pasien.aggregate pipe =
+					a = $match: rawat: $elemMatch: $and: arr =
+						{klinik: $eq: (.value) selects.klinik.find -> param1 is _.snakeCase it.label}
+						if param2 then anamesa_dokter: $exists: false
+						else anamesa_perawat: $exists: false
+			obj[name]? param1, param2
 
 		nextMR: ->
 			list = coll.pasien.aggregate pipe =

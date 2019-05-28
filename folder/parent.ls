@@ -15,7 +15,7 @@
 
 if Meteor.isClient
 
-	@state = regions: {}, pagins: limit: 10, page: 0
+	@state = regions: {}, notify: {}, pagins: limit: 10, page: 0
 	@currentRoute = -> m.route.get!split \/ .1
 	@isDr = -> _.split Meteor.user!?username, \. .0 in <[ dr drg ]>
 	@roles = -> Meteor.user!?roles

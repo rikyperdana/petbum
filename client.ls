@@ -158,12 +158,17 @@ if Meteor.isClient
 				Meteor.userId! and m \.column.is-2, m \aside.menu.box,
 					m \p.menu-label, 'Admin Menu'
 					m \ul.menu-list, attr.layout.rights!map (i) -> m \li,
+						oncreate: -> Meteor.call \notify, i.name,
+							...(if userGroup \jalan then [userRole!, isDr!] or [])
+							(err, res) ->
+								if res then state.notify[i.name] = res
+								m.redraw!
 						m \a,
 							href: "/#{i.name}"
 							oncreate: m.route.link
 							class: \is-active if state.activeMenu is i.name
 							m \span.icon.is-small, m "i.fa.fa-#{i.icon}"
-							m \span, "    #{i.full}"
+							m \span, "    #{i.full} #{state.notify?[i.name] or ''}"
 						if attr.pageAccess(<[regis jalan]>) then
 							if \regis is currentRoute! then m \ul,
 								[[\lama, 'Cari Pasien'], [\baru, 'Pasien Baru']]map (i) ->
