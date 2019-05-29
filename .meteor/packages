@@ -24,7 +24,7 @@ stevezhu:lodash              # So good I don't wanna code without it
 aldeed:collection2@=2.0.1    # Data structure validator
 aldeed:autoform@=5.8.1       # Needed only to allow autoform prop in schema
 momentjs:moment              # To deal with date/time formatting
-accounts-password@1.5.1            # Password based user logging system
+accounts-password@1.5.1      # Password based user logging system
 harrison:papa-parse          # To encode csv file to be processed
 alanning:roles               # Users roling system
 nilsdannemann:pdfmake        # Client-sided pdf creation library
