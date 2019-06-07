@@ -33,12 +33,12 @@ if Meteor.isServer
 				access \manajemen, \admin
 				check args, id: type: String
 			rmRawat: -> ands arr =
-				access \regis, \admin
+				ors <[regis jalan]>map -> access it
 				check args,
 					idpasien: type: String
 					idrawat: type: String
 			updateArrayElm: -> ands arr =
-				ors <[jalan farmasi]>map -> access it
+				access \bayar
 				check (_.omit args, \doc), _.merge {},
 					... <[name scope recId elmId]>map ->
 						"#it": type: String
@@ -71,14 +71,19 @@ if Meteor.isServer
 				else coll[name]insert _.merge selector, modifier
 			else coll[name]insert _.merge selector, modifier
 
-		rmRawat: ({idpasien, idrawat}) -> coll.pasien.update idpasien,
-			$set: rawat: coll.pasien.findOne(idpasien)rawat.filter ->
-				it.idrawat isnt idrawat
+		rmRawat: (doc) ->
+			{idpasien, idrawat} = doc
+			if secureMethods(name: \rmRawat, userId: this.userId, args: doc)
+				coll.pasien.update idpasien, $set: rawat:
+					coll.pasien.findOne(idpasien)rawat.filter ->
+						it.idrawat isnt idrawat
 
-		updateArrayElm: ({name, recId, scope, elmId, doc}) ->
-			coll[name]update recId, $set: "#scope":
-				coll[name]findOne(recId)[scope]map (i) ->
-					if i["id#scope"] is elmId then doc else i
+		updateArrayElm: (obj) ->
+			{name, scope, recId, elmId, doc} = obj
+			if secureMethods(name: \updateArrayElm, userId: this.userId, args: obj)
+				coll[name]update recId, $set: "#scope":
+					coll[name]findOne(recId)[scope]map (i) ->
+						if i["id#scope"] is elmId then doc else i
 
 		serahObat: (doc) ->
 			{_id, source, obat, bhp} = doc
@@ -156,9 +161,9 @@ if Meteor.isServer
 				sortedIn = _.sortBy source, (i) -> new Date i.masuk .getTime!
 				sortedEd = _.sortBy sortedIn, (i) -> new Date i.kadaluarsa .getTime!
 
-		icdX: ({rawat, pasien, icdx}) ->
-			coll.pasien.update pasien._id, $set: rawat:
-				coll.pasien.findOne(pasien._id)rawat.map (i) ->
+		icdX: ({rawat, idpasien, icdx}) ->
+			coll.pasien.update idpasien, $set: rawat:
+				coll.pasien.findOne(idpasien)rawat.map (i) ->
 					unless i.idrawat is rawat.idrawat then i
 					else _.merge rawat, icdx: icdx
 

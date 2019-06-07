@@ -129,12 +129,12 @@ if Meteor.isClient
 
 		icdx: (pasien) ->
 			headers = <[tanggal klinik dokter diagnosa terapi perawat icd10]>
-			rows = _.compact pasien.rawat.map (i) -> if i.tindakan then arr =
+			rows = _.compact pasien.rawat.map (i) -> if i.icdx then arr =
 				hari i.tanggal
 				look(\klinik, i.klinik)label
 				_.startCase Meteor.users.findOne(i.petugas.dokter)username
 				{ol: i.diagnosa}
-				{ul: i.tindakan.map (j) ->
+				{ul: (or [\-]) i.tindakan?map (j) ->
 					_.startCase look2(\tarif, j.nama)nama}
 				_.startCase Meteor.users.findOne(i.petugas.perawat)username
 				{ol: i.icdx}

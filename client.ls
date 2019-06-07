@@ -281,8 +281,9 @@ if Meteor.isClient
 							type: \method
 							meteormethod: \icdX
 							hooks:
-								before: (doc, cb) ->
-									cb _.merge {}, state.modal, doc
+								before: (doc, cb) -> cb _.merge {}, doc,
+									idpasien: state.modal.pasien._id
+									rawat: state.modal.rawat
 								after: ->
 									state.modal = null
 									m.redraw!
@@ -544,18 +545,18 @@ if Meteor.isClient
 						uraian.map (i) -> if i then m \tr, [(m \th, i.0), (m \td, rupiah i.1)]
 						m \tr, [(m \th, 'Total Biaya'), (m \td, rupiah _.sum uraian.map -> it?1)]
 					confirm: \Sudah
-					action: ->
-						Meteor.call \updateArrayElm,
-							name: \pasien, recId: that.pasienId,
-							scope: \rawat, elmId: that.idrawat, doc: _.merge that,
-								if !that.billRegis then billRegis: true
-								else if !that.status_bayar then status_bayar: true
-								else if that.givenDrug then paidDrug: true
-						unless that.anamesa_perawat
-							makePdf.payRegCard ...params, _.compact uraian
-						else makePdf.payRawat ...params, _.compact uraian
-						state.modal = null
-						m.redraw!
+					action: -> Meteor.call \updateArrayElm,
+						name: \pasien, recId: that.pasienId, scope: \rawat,
+						elmId: that.idrawat, doc: _.merge that,
+							if !that.billRegis then billRegis: true
+							else if !that.status_bayar then status_bayar: true
+							else if that.givenDrug then paidDrug: true
+						(err, res) -> if res
+							unless state.modal.anamesa_perawat
+								makePdf.payRegCard ...params, _.compact uraian
+							else makePdf.payRawat ...params, _.compact uraian
+							state.modal = null
+							m.redraw!
 			if userRole \admin then elem.report do
 				title: 'Laporan Pemasukan'
 				action: ({start, end, type}) -> if start and end
