@@ -98,7 +98,7 @@ if Meteor.isClient
 		'rawat.$.cara_bayar': type: Number, autoform: options: selects.cara_bayar
 		'rawat.$.no_sep': type: String, optional: true, label: 'No. SEP'
 		'rawat.$.klinik': type: Number, label: 'Poliklinik', autoform: options: selects.klinik
-		'rawat.$.dokter': type: String, optional: true, autoform: options: selects.dokter
+		'rawat.$.dokter': type: String, autoform: options: selects.dokter
 		'rawat.$.billRegis':
 			type: Number
 			autoform: type: \hidden

@@ -12,25 +12,58 @@ if Meteor.isServer
 	Meteor.publish \users, (sel = {}, opt = {}) ->
 		Meteor.users.find sel, opt
 
+	secureMethods = ({name, userId, args}) ->
+		access = (group, role) -> if Meteor.users.findOne(userId)roles[group]
+			(role in that) or that
+		check = (obj, criteria) -> new SimpleSchema criteria .newContext!validate obj
+		methods =
+			newUser: -> ands arr =
+				access \manajemen, \admin
+				check args,
+					username: type: String
+					password: type: String
+			addRole: -> ands arr =
+				access \manajemen, \admin
+				check args,
+					id: type: String
+					roles: type: String
+					group: type: String, optional: true
+					poli: type: String, optional: true
+			rmRole: -> ands arr =
+				access \manajemen, \admin
+				check args, id: type: String
+			rmRawat: -> ands arr =
+				access \regis, \admin
+				check args,
+					idpasien: type: String
+					idrawat: type: String
+			updateArrayElm: -> ands arr =
+				ors <[jalan farmasi]>map -> access it
+				check (_.omit args, \doc), _.merge {},
+					... <[name scope recId elmId]>map ->
+						"#it": type: String
+		methods[name]!
+
 	Meteor.methods do
 
 		newUser: (doc) ->
-			if Accounts.findUserByUsername doc.username
-				for i in <[ username password ]>
-					Accounts["set#{_.startCase i}"] that._id, doc[i]
-			else Accounts.createUser doc
+			{username, password} = doc
+			if secureMethods(name: \newUser, userId: this.userId, args: doc)
+				if Accounts.findUserByUsername username
+					for i in <[ username password ]>
+						Accounts["set#{_.startCase i}"] that._id, doc[i]
+				else Accounts.createUser doc
 
-		addRole: ({id, roles, group, poli}) ->
-			Roles.addUsersToRoles id, (poli or roles), group
+		addRole: (doc) ->
+			{id, roles, group, poli} = doc
+			if secureMethods(name: \addRole, userId: this.userId, args: doc)
+				Roles.addUsersToRoles id, (poli or roles), group
 
-		rmRole: (id) -> Meteor.users.update {_id: id}, $set: roles: {}
+		rmRole: (doc) ->
+			if secureMethods(name: \rmRole, userId: this.userId, args: doc)
+				Meteor.users.update {_id: doc.id}, $set: roles: {}
 
-		importRoles: (doc) ->
-			if Accounts.findUserByUsername doc.username
-				Roles.addUsersToRoles do
-					that._id, (doc.poli or doc.role), doc.group
-
-		import: (name, selector, modifier, arrName) ->
+		import: ({name, selector, modifier, arrName}) ->
 			find = coll[name]find selector
 			if arrName
 				if find then coll[name]update do
@@ -38,7 +71,7 @@ if Meteor.isServer
 				else coll[name]insert _.merge selector, modifier
 			else coll[name]insert _.merge selector, modifier
 
-		rmRawat: (idpasien, idrawat) -> coll.pasien.update idpasien,
+		rmRawat: ({idpasien, idrawat}) -> coll.pasien.update idpasien,
 			$set: rawat: coll.pasien.findOne(idpasien)rawat.filter ->
 				it.idrawat isnt idrawat
 
@@ -48,10 +81,11 @@ if Meteor.isServer
 					if i["id#scope"] is elmId then doc else i
 
 		serahObat: (doc) ->
+			{_id, source, obat, bhp} = doc
 			batches = []; opts = obat: \diapotik, depook: \didepook
-			pasien = coll.pasien.findOne doc._id
-			stock = opts[doc.source]
-			for i in [...doc.obat, ...(doc.bhp or [])]
+			pasien = coll.pasien.findOne _id
+			stock = opts[source]
+			for i in [...obat, ...(bhp or [])]
 				coll.gudang.update i.nama, $set: batch: reduce [],
 					coll.gudang.findOne(i.nama)batch, (res, inc) -> arr =
 						...res
@@ -64,11 +98,11 @@ if Meteor.isServer
 								idbatch: inc.idbatch
 								nobatch: inc.nobatch
 								jumlah: minim!
-							doc = _.assign {}, inc, "#{stock}":
+							obj = _.assign {}, inc, "#{stock}":
 								inc[stock] - minim!
 							i.jumlah -= minim!
-							doc
-			either = if doc._id then idpasien: doc._id else doc
+							obj
+			either = if _id then idpasien: _id else doc
 			reduce [], batches, (res, inc) ->
 				obj =
 					nama_obat: inc.nama_obat
@@ -86,27 +120,28 @@ if Meteor.isServer
 				else [...res, nama_obat: inc.nama_obat, batches: [obj]]
 
 		serahAmprah: (doc) ->
+			{_id, nama, diserah, ruangan} = doc
 			batches = []; cloned = _.merge {}, doc
-			coll.gudang.update doc.nama, $set: batch: reduce [],
-				coll.gudang.findOne(doc.nama)batch, (res, inc) -> arr =
+			coll.gudang.update nama, $set: batch: reduce [],
+				coll.gudang.findOne(nama)batch, (res, inc) -> arr =
 					...res
-					if doc.diserah < 1 or inc.digudang < 1 then inc
+					if diserah < 1 or inc.digudang < 1 then inc
 					else
-						minim = -> min [doc.diserah, inc.digudang]
+						minim = -> min [diserah, inc.digudang]
 						batches.push do
-							nama_obat: coll.gudang.findOne(doc.nama)nama
+							nama_obat: coll.gudang.findOne(nama)nama
 							no_batch: inc.nobatch
 							idbatch: inc.idbatch
 							serah: minim!
 						obj = _.assign {}, inc,
 							digudang: inc.digudang - minim!
-							if doc.ruangan is \obat
+							if ruangan is \obat
 								diapotik: inc[\diapotik] + minim!
-							else if doc.ruangan is \depook
+							else if ruangan is \depook
 								didepook: inc[\didepook] + minim!
-						doc.diserah -= minim!
+						diserah -= minim!
 						obj
-			coll.amprah.update doc._id, _.assign doc,
+			coll.amprah.update _id, _.assign doc,
 				batch: batches, diserah: cloned.diserah
 			batches
 
@@ -115,7 +150,7 @@ if Meteor.isServer
 			opt = {$set: printed: new Date!}
 			coll.rekap.update sel, opt, multi: true
 
-		sortByDate: (idbarang) ->
+		sortByDate: ({idbarang}) ->
 			coll.gudang.update idbarang, $set: batch: do ->
 				source = coll.gudang.findOne idbarang .batch
 				sortedIn = _.sortBy source, (i) -> new Date i.masuk .getTime!
@@ -127,7 +162,7 @@ if Meteor.isServer
 					unless i.idrawat is rawat.idrawat then i
 					else _.merge rawat, icdx: icdx
 
-		onePasien: -> coll.pasien.findOne no_mr: +it
+		onePasien: ({no_mr}) -> coll.pasien.findOne no_mr: +no_mr
 
 		mergePatients: ->
 			grouped = _.groupBy coll.pasien.find!fetch!, \no_mr
@@ -137,7 +172,7 @@ if Meteor.isServer
 				coll.pasien.remove no_mr: it.no_mr
 				coll.pasien.insert it
 
-		incomes: (start, end) -> if start < end
+		incomes: ({start, end}) -> if start < end
 			a = coll.pasien.aggregate pipe =
 				a = $match: rawat: $elemMatch: $and: [{tanggal: $gt: start}, {tanggal: $lt: end}]
 				b = $unwind: \$rawat
@@ -166,7 +201,7 @@ if Meteor.isServer
 				total: rupiah i.total
 			[...currencied, c]
 
-		dispenses: (start, end, source) -> if start < end
+		dispenses: ({start, end, source}) -> if start < end
 			a = coll.rekap.find!fetch!filter -> start < it.printed < end
 			b = _.flattenDeep a.map (i) -> i.obat.map (j) -> j.batches.map (k) ->
 				nama_obat: j.nama_obat, idbatch: k.idbatch, jumlah: k.jumlah
@@ -197,7 +232,7 @@ if Meteor.isServer
 				'Total Keluar': rupiah batch.jual * i.jumlah
 				'Total Persediaan': rupiah batch.jual * (i.awal - i.jumlah)
 
-		visits: (start, end) ->
+		visits: ({start, end}) ->
 			docs = coll.pasien.aggregate pipe =
 				a = $match: rawat: $elemMatch: $and: list =
 					{tanggal: $gt: start}
@@ -215,7 +250,7 @@ if Meteor.isServer
 				perawat: _.startCase Meteor.users.findOne(i.rawat.petugas.perawat)?username
 				dokter: _.startCase Meteor.users.findOne(i.rawat.petugas.dokter)?username
 
-		stocks: (start, end) ->
+		stocks: ({start, end}) ->
 			a = coll.amprah.aggregate pipe =
 				a = $match: tanggal_serah: $lt: end
 				b = $unwind: \$batch
@@ -242,17 +277,17 @@ if Meteor.isServer
 				'Total Keluar': rupiah batch.jual * i.batch.serah
 				'Total Persediaan': rupiah batch.jual * (batch.awal - i.batch.serah)
 
-		notify: (name, param1, param2) ->
+		notify: ({name, params}) ->
 			obj =
 				amprah: -> coll.amprah.find(diserah: $exists: false)fetch!length
 				obat: -> (.length) coll.pasien.aggregate [$match: rawat: $elemMatch: givenDrug: $exists: false]
 				depook: -> (.length) coll.pasien.aggregate [$match: rawat: $elemMatch: givenDrug: $exists: false]
 				jalan: -> (.length) coll.pasien.aggregate pipe =
 					a = $match: rawat: $elemMatch: $and: arr =
-						{klinik: $eq: (.value) selects.klinik.find -> param1 is _.snakeCase it.label}
-						if param2 then anamesa_dokter: $exists: false
+						{klinik: $eq: (.value) selects.klinik.find -> params.0 is _.snakeCase it.label}
+						if params.1 then anamesa_dokter: $exists: false
 						else anamesa_perawat: $exists: false
-			obj[name]? param1, param2
+			obj[name]? ...params
 
 		nextMR: ->
 			list = coll.pasien.aggregate pipe =

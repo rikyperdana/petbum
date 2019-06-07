@@ -158,9 +158,11 @@ if Meteor.isClient
 				Meteor.userId! and m \.column.is-2, m \aside.menu.box,
 					m \p.menu-label, 'Admin Menu'
 					m \ul.menu-list, attr.layout.rights!map (i) -> m \li,
-						oncreate: -> Meteor.call \notify, i.name,
-							...(if userGroup \jalan then [userRole!, isDr!] else [])
-							(err, res) ->
+						oncreate: ->
+							args = name: i.name, params: arr =
+								userRole! if userGroup \jalan
+								isDr! if userGroup \jalan
+							Meteor.call \notify, args, (err, res) ->
 								if res then state.notify[i.name] = res
 								m.redraw!
 						m \a,
@@ -199,7 +201,7 @@ if Meteor.isClient
 			if userGroup \regis and userRole \admin then elem.report do
 				title: 'Laporan Kunjungan Poliklinik'
 				action: ({start, end, type}) -> if start and end
-					Meteor.call \visits, start, end, (err, res) -> if res
+					Meteor.call \visits, {start, end}, (err, res) -> if res
 						title = "Kunjungan #{hari start} - #{hari end}"
 						obj = Excel: csv, Pdf: makePdf.csv
 						obj[type] title, that
@@ -213,7 +215,7 @@ if Meteor.isClient
 				columns: 3
 				onchange: (doc) ->
 					if doc.name is \no_mr
-						Meteor.call \onePasien, doc.value, (err, res) ->
+						Meteor.call \onePasien, {no_mr: doc.value}, (err, res) ->
 							if res then afState.errors.formRegis = no_mr: \Terpakai
 							else delete afState.errors.formRegis.no_mr
 							m.redraw!
@@ -232,7 +234,7 @@ if Meteor.isClient
 				hooks:
 					before: (doc, cb) ->
 						if \edit is m.route.param \jenis then cb doc
-						else Meteor.call \onePasien, doc.no_mr, (err, res) ->
+						else Meteor.call \onePasien, {no_mr: doc.no_mr}, (err, res) ->
 							unless res then cb doc
 					after: (id) ->
 						state.showAddPatient = null
@@ -245,7 +247,7 @@ if Meteor.isClient
 				m \form.columns,
 					onsubmit: (e) ->
 						e.preventDefault!
-						Meteor.call \onePasien, e.target.0.value, (err, res) ->
+						Meteor.call \onePasien, {no_mr: e.target.0.value}, (err, res) ->
 							makePdf.icdx res if res
 					m \.column, m \input.input, type: \text, placeholder: 'No MR Pasien'
 					m \.column, m \input.button.is-primary, type: \submit, value: \Unduh
@@ -412,8 +414,10 @@ if Meteor.isClient
 						hooks:
 							before: (doc, cb) ->
 								base = attr.pasien.currentPasien!rawat.find -> it.idrawat is state.docRawat
-								Meteor.call \rmRawat, attr.pasien.currentPasien!_id, state.docRawat,
-								(err, res) -> res and cb _.merge doc.rawat.0, base,
+								obj =
+									idpasien: attr.pasien.currentPasien!_id
+									idrawat: state.docRawat
+								Meteor.call \rmRawat, obj, (err, res) -> res and cb _.merge doc.rawat.0, base,
 									petugas: "#{if isDr! then \dokter else \perawat}": Meteor.userId!
 									first: true if attr.pasien.currentPasien!rawat.length is 0
 									status_bayar: true if ors arr =
@@ -453,9 +457,11 @@ if Meteor.isClient
 									else state.modal = i
 								m \span, if attr.pasien.continuable i then \Lanjutkan else \Lihat
 							if userRole \admin then m \.button.is-danger,
-								ondblclick: -> Meteor.call \rmRawat,
-									m.route.param \idpasien
-									i.idrawat, (err, res) -> res and m.redraw!
+								ondblclick: ->
+								obj =
+									idpasien: m.route.param \idpasien
+									idrawat: i.idrawat
+								Meteor.call \rmRawat, obj, (err, res) -> res and m.redraw!
 								m \span, \Hapus
 						]map (j) -> m \td, j or \-
 						elem.pagins!
@@ -553,7 +559,7 @@ if Meteor.isClient
 			if userRole \admin then elem.report do
 				title: 'Laporan Pemasukan'
 				action: ({start, end, type}) -> if start and end
-					Meteor.call \incomes, start, end, (err, res) -> if res
+					Meteor.call \incomes, {start, end}, (err, res) -> if res
 						title = "Pemasukan #{hari start} - #{hari end}"
 						obj = Excel: csv, Pdf: makePdf.csv
 						obj[type] title, that
@@ -632,7 +638,7 @@ if Meteor.isClient
 			if userRole \admin then elem.report do
 				title: 'Laporan Pengeluaran Obat'
 				action: ({start, end, type}) -> if start and end
-					Meteor.call \dispenses, start, end, userGroup!, (err, res) -> if res
+					Meteor.call \dispenses, {start, end, group: userGroup!}, (err, res) -> if res
 						opts = obat: \Apotik, farmasi: 'Gudang Farmasi', depook: 'Depo OK'
 						title = "Pengeluaran Obat #{opts[userGroup!]} #{hari start}-#{hari end}"
 						makePdf.csv title, res
@@ -644,7 +650,7 @@ if Meteor.isClient
 			if (userGroup \farmasi) and userRole(\admin) then elem.report do
 				title: 'Laporan Stok Barang'
 				action: ({start, end, type}) -> if start and end
-					Meteor.call \stocks, start, end, (err, res) -> if res
+					Meteor.call \stocks, {start, end}, (err, res) -> if res
 						title = "Stok Barang #{hari start} - #{hari end}"
 						obj = Excel: csv, Pdf: makePdf.csv
 						obj[type] title, that
@@ -751,7 +757,7 @@ if Meteor.isClient
 					buttonContent: \Tambahkan
 					columns: 3
 					hooks: after: ->
-						Meteor.call \sortByDate, m.route.param \idbarang
+						Meteor.call \sortByDate, idbarang: m.route.param \idbarang
 						state.showForm = null
 						m.redraw!
 				m \table.table,
@@ -818,7 +824,7 @@ if Meteor.isClient
 							onclick: -> state.modal = _.merge i, type: \profil
 							m \span, \Profil
 						m \td, m \.button.is-danger,
-							onclick: -> Meteor.call \rmRole, i._id
+							onclick: -> Meteor.call \rmRole, id: i._id
 							m \span, \Reset
 					if state.modal?type is \role then elem.modal do
 						title: 'Berikan Peranan'
@@ -874,7 +880,7 @@ if Meteor.isClient
 									pendidikan: +that if data.pendidikan
 									tgl_lahir: new Date that if Date.parse that if data.tgl_lahir
 									tmpt_lahir: _.startCase _.lowerCase that if data.tmpt_lahir
-								Meteor.call \import, \pasien, sel, opt
+								Meteor.call \import, \pasien, selector: sel, modifier: opt
 							if data.digudang
 								sel = nama: data.nama
 								opt =
@@ -895,7 +901,7 @@ if Meteor.isClient
 									pengadaan: that if data.pengadaan
 									no_spk: that if data.no_spk
 									tanggal_spk: new Date that if data.tanggal_spk
-								Meteor.call \import, \gudang, sel, opt
+								Meteor.call \import, \gudang, selector: sel, modifier: opt
 							if data.harga
 								sel = nama: _.snakeCase data.nama
 								opt =
@@ -904,7 +910,7 @@ if Meteor.isClient
 									second: data.second
 									third: that if data.third
 									active: true
-								Meteor.call \import, \tarif, sel, opt
+								Meteor.call \import, \tarif, selector: sel, modifier: opt
 							if data.password
 								<[ newUser importRoles ]>map (i) ->
 									Meteor.call i, data
