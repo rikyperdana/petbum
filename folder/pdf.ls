@@ -154,7 +154,7 @@ if Meteor.isClient
 				{table: body: [headers.map(-> _.startCase it), ...rows]}
 			.download "icdX_#{pasien.no_mr}.pdf"
 
-		csv: (name, docs) ->
+		csv: (name, docs, head) ->
 			rows = docs.map -> _.map it, -> it.toString!
 			headers = [_.map docs.0, (val, key) ->
 				text: key, bold: true, alignment: \center]
@@ -167,7 +167,7 @@ if Meteor.isClient
 						'\n'
 						table:
 							widths: [til headers.0.length]map -> \auto
-							body: [...headers, ...rows]
+							body: [...(head or headers), ...rows]
 				.download "#name.pdf"
 
 		ebiling: (doc) ->

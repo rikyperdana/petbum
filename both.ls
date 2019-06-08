@@ -1,6 +1,6 @@
-<[ pasien gudang tarif rekap amprah daerah]>map (i) ->
+<[pasien gudang tarif rekap amprah daerah]>map (i) ->
 	coll[i] = new Meteor.Collection i
-	coll[i]allow _.merge ... <[ insert update remove ]>map -> "#it": -> true
+	coll[i]allow _.merge ... <[insert update]>map -> "#it": -> true
 	if Meteor.isClient then <[added changed]>map (j) ->
 		coll[i]find!observe "#j": -> m.redraw!
 
