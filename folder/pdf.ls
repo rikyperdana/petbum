@@ -116,9 +116,9 @@ if Meteor.isClient
 						obat = coll.gudang.findOne j.nama_obat
 						look \satuan, obat.satuan .label
 					rupiah k.jumlah * do ->
-						obat = coll.gudang.findOne j.nama_obat
-						batch = obat.batch.find (i) -> i.nobatch is k.nobatch
-						batch.jual
+						coll.gudang.findOne j.nama_obat
+						.batch.find (i) -> i.nobatch is k.nobatch
+						.jual
 			rows = _.flattenDepth source, 2
 			headers = [fields.map -> _.startCase it]
 			if rows.length > 0
@@ -165,9 +165,7 @@ if Meteor.isClient
 						kop
 						{text: name, alignment: \center}
 						'\n'
-						table:
-							widths: [til headers.0.length]map -> \auto
-							body: [...(head or headers), ...rows]
+						table: body: [...headers, ...rows]
 				.download "#name.pdf"
 
 		ebiling: (doc) ->

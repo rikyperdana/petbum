@@ -639,7 +639,7 @@ if Meteor.isClient
 			if userRole \admin then elem.report do
 				title: 'Laporan Pengeluaran Obat'
 				action: ({start, end, type}) -> if start and end
-					Meteor.call \dispenses, {start, end, group: userGroup!}, (err, res) -> if res
+					Meteor.call \dispenses, {start, end, source: userGroup!}, (err, res) -> if res
 						opts = obat: \Apotik, farmasi: 'Gudang Farmasi', depook: 'Depo OK'
 						title = "Pengeluaran Obat #{opts[userGroup!]} #{hari start}-#{hari end}"
 						makePdf.csv title, res

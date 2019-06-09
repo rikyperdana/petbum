@@ -7,10 +7,10 @@ if Meteor.isServer
 		# new Meteor.Cron events: "0 0 * * *": backup 3001, '~/backup'
 
 	Meteor.publish \coll, (name, sel = {}, opt = {}) ->
-		coll[name]find sel, opt
+		Meteor.users.findOne(this.userId)?roles and coll[name]find sel, opt
 
 	Meteor.publish \users, (sel = {}, opt = {}) ->
-		Meteor.users.find sel, opt
+		Meteor.users.findOne(this.userId)?roles and Meteor.users.find sel, opt
 
 	secureMethods = ({name, userId, args}) ->
 		access = (group, role) -> if Meteor.users.findOne(userId)roles[group]
