@@ -87,7 +87,8 @@ if Meteor.isClient
 						state.form[opts.id][target.name] = target.value
 					opts.autosave and $ "form##{opts.id}" .submit!
 
-				onsubmit: (e) ->
+				onsubmit: (e) -> unless afState.disable
+					afState.disable = true
 					e.preventDefault!
 					temp = state.temp[opts.id]map -> "#{it.name}": it.value
 					formValues = _.filter e.target, (i) ->
@@ -113,7 +114,9 @@ if Meteor.isClient
 							!theSchema(normed i.name)?autoValue
 						a.map -> "#{it.name}": it.type
 
-					after = (err, res) -> opts.hooks?after res if res
+					after = (err, res) -> if res
+						afState.disable = false
+						opts.hooks?after res
 					formTypes = (doc) ->
 						insert: -> opts.collection.insert (doc or obj), after
 						update: -> opts.collection.update usedDoc._id, {$set: (doc or obj)}, after

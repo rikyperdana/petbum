@@ -562,8 +562,9 @@ if Meteor.isClient
 				action: ({start, end, type}) -> if start and end
 					Meteor.call \incomes, {start, end}, (err, res) -> if res
 						title = "Pemasukan #{hari start} - #{hari end}"
+						header = ['No. MR', 'Nama Pasien', \Tanggal, \Poliklinik, 'No. Karcis', \Kartu, \Karcis, \Tindakan, \Obat, \Total]
 						obj = Excel: csv, Pdf: makePdf.csv
-						obj[type] title, that
+						obj[type] title, that, [header]
 
 		obat: -> view: -> if attr.pageAccess(<[obat depook]>) then m \.content,
 			oncreate: -> Meteor.subscribe \users
