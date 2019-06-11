@@ -124,7 +124,9 @@ if Meteor.isClient
 						'update-pushArray': -> opts.collection.update do
 							{_id: usedDoc._id}
 							{$push: "#{opts.scope}": $each: _.values obj[opts.scope]}
-							(err, res) -> opts.hooks?after doc if res
+							(err, res) ->
+								afState.disable = false
+								opts.hooks?after doc if res
 
 					if _.values(state.errors[opts.id])length is 0
 						if opts.hooks?before then that obj, (moded) ->
