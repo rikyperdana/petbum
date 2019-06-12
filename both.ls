@@ -196,6 +196,7 @@ if Meteor.isClient
 	schema.farmasi = _.assign {}, schema.gudang,
 		kandungan: type: String, optional: true
 		satuan: type: Number, label: 'Satuan terkecil', autoform: options: selects.satuan
+		fornas: type: Number, optional: true, autoform: options: selects.yatidak
 		batch: type: Array
 		'batch.$': type: Object
 		'batch.$.idbatch':

@@ -269,7 +269,7 @@ if Meteor.isServer
 				'Harga': rupiah i.jual
 				'Barang Masuk': if start < i.masuk < end then i.awal else \-
 				'Stok Awal': if i.masuk < start then i.awal else \-
-				'Keluar': _.sum i.amprah.map -> it.serah
+				'Keluar': (or \-) _.sum i.amprah.map -> it.serah
 				'Sisa Stok': i.awal - _.sum i.amprah.map -> it.serah
 				'Total Keluar': rupiah i.jual * _.sum i.amprah.map -> it.serah
 				'Total Persediaan': rupiah (* i.jual) i.awal - _.sum i.amprah.map -> it.serah
