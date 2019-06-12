@@ -761,7 +761,7 @@ if Meteor.isClient
 					columns: 3
 					hooks: after: ->
 						Meteor.call \sortByDate, idbarang: m.route.param \idbarang
-						state.showForm = null
+						state.showForm.batch = null
 						m.redraw!
 				m \table.table,
 					m \thead, attr.farmasi.headers.rincian.map (i) ->

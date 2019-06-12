@@ -195,7 +195,7 @@ if Meteor.isClient
 
 	schema.farmasi = _.assign {}, schema.gudang,
 		kandungan: type: String, optional: true
-		satuan: type: Number, autoform: options: selects.satuan
+		satuan: type: Number, label: 'Satuan terkecil', autoform: options: selects.satuan
 		batch: type: Array
 		'batch.$': type: Object
 		'batch.$.idbatch':
@@ -222,7 +222,7 @@ if Meteor.isClient
 			autoform: type: \hidden
 			autoValue: -> 0
 		'batch.$.diretur': type: Boolean, optional: true, autoform: type: \hidden
-		'batch.$.beli': type: Number, decimal: true
+		'batch.$.beli': type: Number, decimal: true, label: 'Harga beli pada satuan terkecil'
 		'batch.$.jual':
 			type: Number
 			autoform: type: \hidden
