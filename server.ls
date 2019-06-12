@@ -256,31 +256,23 @@ if Meteor.isServer
 				dokter: _.startCase Meteor.users.findOne(i.rawat.petugas.dokter)?username
 
 		stocks: ({start, end}) ->
-			a = coll.amprah.aggregate pipe =
-				a = $match: tanggal_serah: $lt: end
-				b = $unwind: \$batch
-			b = reduce [], a, (res, inc) ->
-				matched = -> _.every arr =
-					it.nama is inc.nama
-					it.batch.idbatch is inc.batch.idbatch
-				unless (res.find -> matched it) then [...res, inc] else
-					res.map -> unless matched(it) then it else
-						_.assign it, batch: _.assign it.batch, serah: it.batch.serah + inc.batch.serah
+			_.flatten coll.gudang.find!fetch!map (i) -> i.batch.map (j) ->
+				_.merge i, j, amprah: do -> _.flatten do
+					coll.amprah.find!fetch!filter (k) -> k.nama is i._id
+					.map -> it.batch.filter -> it.idbatch is j.idbatch
 			.map (i) ->
-				obat = coll.gudang.findOne i.nama
-				batch = obat.batch.find -> it.idbatch is i.batch.idbatch
-				'Nama Obat': obat.nama
-				'Satuan': look(\satuan, obat.satuan)label
-				'Jenis': look(\barang, obat.jenis)label
-				'No. Batch': batch.nobatch
-				'ED': hari batch.kadaluarsa
-				'Harga': rupiah batch.jual
-				'Barang Masuk': if start < batch.masuk < end then batch.awal else \-
-				'Stok Awal': if batch.masuk < start then batch.awal else \-
-				'Keluar': i.batch.serah
-				'Sisa Stok': batch.awal - i.batch.serah
-				'Total Keluar': rupiah batch.jual * i.batch.serah
-				'Total Persediaan': rupiah batch.jual * (batch.awal - i.batch.serah)
+				'Nama Obat': i.nama
+				'Satuan': look(\satuan, i.satuan)label
+				'Jenis': look(\barang, i.jenis)label
+				'No. Batch': i.nobatch
+				'ED': hari i.kadaluarsa
+				'Harga': rupiah i.jual
+				'Barang Masuk': if start < i.masuk < end then i.awal else \-
+				'Stok Awal': if i.masuk < start then i.awal else \-
+				'Keluar': _.sum i.amprah.map -> it.serah
+				'Sisa Stok': i.awal - _.sum i.amprah.map -> it.serah
+				'Total Keluar': rupiah i.jual * _.sum i.amprah.map -> it.serah
+				'Total Persediaan': rupiah (* i.jual) i.awal - _.sum i.amprah.map -> it.serah
 
 		notify: ({name, params}) ->
 			obj =

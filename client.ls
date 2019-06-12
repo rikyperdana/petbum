@@ -612,7 +612,7 @@ if Meteor.isClient
 				content: m \table.table,
 					m \tr, attr.farmasi.fieldSerah.map (i) ->
 						m \th, _.startCase i
-					that.obat.map (i) -> m \tr, tds arr =
+					that.obat?map (i) -> m \tr, tds arr =
 						look2(\gudang, i.nama)nama
 						"#{i.jumlah} unit"
 						if i.aturan?kali then "#that kali"
@@ -653,7 +653,7 @@ if Meteor.isClient
 				title: 'Laporan Stok Barang'
 				action: ({start, end, type}) -> if start and end
 					Meteor.call \stocks, {start, end}, (err, res) -> if res
-						title = "Stok Barang #{hari start} - #{hari end}"
+						title = "Stok Barang Farmasi #{hari start} - #{hari end}"
 						obj = Excel: csv, Pdf: makePdf.csv
 						obj[type] title, that
 			unless m.route.param(\idbarang) then m \div,
