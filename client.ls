@@ -594,7 +594,8 @@ if Meteor.isClient
 						onReady: -> m.redraw!
 				m \thead, attr.apotik.header.map (i) -> m \th, _.startCase i
 				m \tbody, coll.pasien.find!fetch!map (i) -> i.rawat.map (j) ->
-					okay = ->
+					okay = -> ands arr =
+						j.obat
 						if j.cara_bayar is 1
 							j.status_bayar and not j.givenDrug
 						else not j.givenDrug
@@ -612,7 +613,7 @@ if Meteor.isClient
 				content: m \table.table,
 					m \tr, attr.farmasi.fieldSerah.map (i) ->
 						m \th, _.startCase i
-					that.obat?map (i) -> m \tr, tds arr =
+					that.obat.map (i) -> m \tr, tds arr =
 						look2(\gudang, i.nama)nama
 						"#{i.jumlah} unit"
 						if i.aturan?kali then "#that kali"

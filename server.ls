@@ -257,7 +257,7 @@ if Meteor.isServer
 
 		stocks: ({start, end}) ->
 			_.flatten coll.gudang.find!fetch!map (i) -> i.batch.map (j) ->
-				_.merge i, j, amprah: do -> _.flatten do
+				_.merge {}, i, j, amprah: do -> _.flatten do
 					coll.amprah.find!fetch!filter (k) -> k.nama is i._id
 					.map -> it.batch.filter -> it.idbatch is j.idbatch
 			.map (i) ->
