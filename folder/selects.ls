@@ -63,11 +63,12 @@ selects.gudang = -> if Meteor.isClient
 	coll.gudang.find!fetch!map (i) ->
 		value: i._id, label: i.nama
 
-selects.obat = -> if Meteor.isClient
-	joined = -> _.join it, ' '
+selects.obat = (name) -> if Meteor.isClient
+	current = "#{_.initial name.split(\.) .join \.}.search"
 	a = _.compact coll.gudang.find!fetch!map (i) ->
 		if i.jenis in [1 2 3] then value: i._id, label: i.nama
-	_.sortBy a, \label
+	b = a.filter -> _.includes _.lowerCase(it.label), afState.form.formRawat[current]
+	_.sortBy b, \label
 
 selects.bhp = -> if Meteor.isClient
 	_.compact coll.gudang.find!fetch!map (i) ->
