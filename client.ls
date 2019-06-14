@@ -163,8 +163,12 @@ if Meteor.isClient
 								userRole! if userGroup \jalan
 								isDr! if userGroup \jalan
 							Meteor.call \notify, args, (err, res) ->
-								if res then state.notify[i.name] = res
-								m.redraw!
+								if res
+									state.notify[i.name] = res
+									m.redraw!
+								else
+									state.notify[i.name] = false
+									m.redraw!
 						m \a,
 							href: "/#{i.name}"
 							oncreate: m.route.link
