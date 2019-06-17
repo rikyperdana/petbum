@@ -67,7 +67,7 @@ if Meteor.isClient
 			type: String
 			autoform: type: \hidden
 			autoValue: -> randomId!
-		search: type: String, label: 'Pencarian Obat', autoform: value: undefined
+		search: type: String, optional: true, label: 'Pencarian Obat', autoform: value: undefined
 		nama: type: String, label: 'Pilihan Obat', autoform: options: selects.obat
 		puyer: type: String, optional: true
 		aturan: type: Object, optional: true
@@ -275,7 +275,8 @@ if Meteor.isClient
 		no_sep: type: String, optional: true, label: 'No. SEP'
 		obat: type: Array
 		'obat.$': type: Object
-		'obat.$.nama': type: String, label: 'Nama Obat', autoform: options: selects.obat
+		'obat.$.search': type: String, label: 'Pencarian Obat'
+		'obat.$.nama': type: String, label: 'Pilihan Obat', autoform: options: selects.obat
 		'obat.$.stok':
 			type: String
 			label: 'Info Stok'

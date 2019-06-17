@@ -384,6 +384,7 @@ if Meteor.isClient
 						[\Edit, \is-warning, onclick: -> m.route.set "/regis/edit/#{m.route.param \idpasien}"]
 						['+Rawat Jalan', \is-success, attr.pasien.showForm.rawat ]
 					]map (i) -> m ".button.#{i.1}", (_.merge style: 'margin-right: 10px', i.2), i.0
+					m \button.button.is-warning, 'Rekap Rawat'
 					state.showAddRawat and m autoForm do
 						collection: coll.pasien
 						schema: new SimpleSchema schema.rawatRegis
