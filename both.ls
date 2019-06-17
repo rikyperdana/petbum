@@ -287,8 +287,8 @@ if Meteor.isClient
 				if ((?value) doc.find -> it.name is "obat.#num.nama")
 					barang = coll.gudang.findOne that
 					_.join arr =
-						"Apotik: #{_.sum barang.batch.map -> it.diapotik}"
-						"Gudang: #{_.sum barang.batch.map -> it.digudang}"
+						"Apo: #{_.sum barang.batch.map -> it.diapotik}"
+						"Gud: #{_.sum barang.batch.map -> it.digudang}"
 						"OK: #{_.sum barang.batch.map -> it.didepook}"
 		'obat.$.jumlah': type: Number
 		bhp: type: Array, optional: true

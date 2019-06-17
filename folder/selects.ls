@@ -64,11 +64,13 @@ selects.gudang = -> if Meteor.isClient
 		value: i._id, label: i.nama
 
 selects.obat = (name) -> if Meteor.isClient
-	current = "#{_.initial name.split(\.) .join \.}.search"
+	current = if _.includes name, \obat.
+		then "#{_.initial name.split(\.) .join \.}.search"
 	form = if afState.form then that.formRawat or that.formSerahObat
 	a = coll.gudang.find!fetch!filter (i) -> ands arr =
 		i.jenis in [1 2 3]
-		_.includes _.lowerCase(i.nama), form[current]
+		unless current then true
+		else _.includes _.lowerCase(i.nama), form[current]
 		ors list =
 			i.treshold?apotik < _.sum i.batch.map -> it.diapotik
 			i.treshold?depook < _.sum i.batch.map -> it.didepook
