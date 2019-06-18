@@ -293,7 +293,8 @@ if Meteor.isClient
 		'obat.$.jumlah': type: Number
 		bhp: type: Array, optional: true
 		'bhp.$': type: Object
-		'bhp.$.nama': type: String, label: 'Nama bhp', autoform: options: selects.bhp
+		'bhp.$.search': type: String, label: 'Pencarian BHP'
+		'bhp.$.nama': type: String, label: 'Pilihan BHP', autoform: options: selects.bhp
 		'bhp.$.stok':
 			type: String
 			label: 'Info Stok'

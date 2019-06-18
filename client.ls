@@ -162,13 +162,9 @@ if Meteor.isClient
 							args = name: i.name, params: arr =
 								userRole! if userGroup \jalan
 								isDr! if userGroup \jalan
-							Meteor.call \notify, args, (err, res) ->
-								if res
-									state.notify[i.name] = res
-									m.redraw!
-								else
-									state.notify[i.name] = false
-									m.redraw!
+							Meteor.call \notify, args, (err, res) -> if res
+								state.notify[i.name] = res
+								m.redraw!
 						m \a,
 							href: "/#{i.name}"
 							oncreate: m.route.link
@@ -666,9 +662,10 @@ if Meteor.isClient
 						obj[type] title, that
 			unless m.route.param(\idbarang) then m \div,
 				if userGroup! in <[obat farmasi depook]>
-					jumlah = (.fetch!length) coll.gudang.find $or: arr =
-						{'treshold.apotik': $exists: false}
-						{'treshold.gudang': $exists: false}
+					jumlah = (.length) coll.gudang.find!fetch!filter ->
+						if userGroup \obat then not it.treshold?apotik
+						else if userGroup \depook then not it.treshold?depook
+						else if userGroup \farmasi then not it.treshold?gudang
 					if jumlah > 0 then m \.notification.is-warning,
 						m \button.delete
 						m \b, "Terdapat #jumlah barang yang belum diberi ambang batas"
@@ -706,7 +703,10 @@ if Meteor.isClient
 					m \thead, m \tr, attr.farmasi.headers.farmasi.map (i) ->
 						m \th, _.startCase i
 					m \tbody, attr.farmasi.search(coll.gudang.find!fetch!)map (i) -> m \tr,
-						class: \has-text-danger if that.apotik > _.sumBy i.batch, \diapotik if i.treshold
+						class: \has-text-danger if do ->
+							if userGroup \obat then i.treshold?apotik > _.sumBy i.batch, \diapotik
+							else if userGroup \depook then i.treshold?depook > _.sumBy i.batch, \didepook
+							else if userGroup \farmasi then i.treshold?gudang > _.sumBy i.batch, \digudang
 						ondblclick: -> m.route.set "/farmasi/#{i._id}"
 						m \td, look(\barang, i.jenis)?label
 						m \td, i.nama
@@ -727,7 +727,8 @@ if Meteor.isClient
 						{name: 'Jenis Barang', cell: look(\barang, that.jenis)label}
 						{name: \Kandungan, cell: that.kandungan}
 						{name: \Satuan, cell: look(\satuan, that.satuan)label}
-					], 2)map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.cell)]
+						{name: \Fornas, cell: if that.fornas then \Ya else \Tidak}
+					], 3)map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.cell)]
 					m \tr,
 						ondblclick: -> if userGroup! in <[obat farmasi depook]>
 							state.modal = attr.farmasi.currentBarang!

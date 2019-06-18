@@ -1,15 +1,15 @@
 Jul 18th, 2019
-1. Tambahkan count untuk form array
-2. Tampilkan info Fornas untuk rincian obat
+oke 1. Tambahkan count untuk form array
+oke 2. Tampilkan info Fornas untuk rincian obat
 2. Berikan fungsi pencarian juga untuk selects.bhp
-4. Info ambang batas apotik, depook, dan gudang jangan campur
-5. Seharusnya baris merah ambang batas hanya untuk grup nya saja
+oke 4. Info ambang batas apotik, depook, dan gudang jangan campur
+oke 5. Seharusnya baris merah ambang batas hanya untuk grup nya saja
 6. Laporan keluaran obat depook masih tercampur dengan apotik
 7. Rekap apotik dan depook masih tercampur
 8. Notifkasi masih harus direfresh baru benar
 9. Pada pendaftaran, ganti kolom poliklinik jadi nama ibu
 10. Gunakan AI Geocode untuk identifikasi alamat
-11. Pasien yg pindah konsul bayar lagi di poli berikutnya
+oke 11. Pasien yg pindah konsul bayar lagi di poli berikutnya
 
 May 23rd, 2019
 oke 1. Dokter bisa melihat riwayat berobat pasien lintas poli

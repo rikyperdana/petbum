@@ -77,9 +77,19 @@ selects.obat = (name) -> if Meteor.isClient
 				i.treshold?depook < _.sum i.batch.map -> it.didepook
 	a.map -> value: it._id, label: it.nama
 
-selects.bhp = -> if Meteor.isClient
-	_.compact coll.gudang.find!fetch!map (i) ->
-		if i.jenis is 4 then value: i._id, label: i.nama
+selects.bhp = (name) -> if Meteor.isClient
+	current = if _.includes name, \bhp.
+		then "#{_.initial name.split(\.) .join \.}.search"
+	form = if afState.form then that.formRawat or that.formSerahObat
+	a = coll.gudang.find!fetch!filter (i) -> ands arr =
+		i.jenis is 4
+		unless current then true
+		else ands x =
+			_.includes _.lowerCase(i.nama), form[current]
+			ors list =
+				i.treshold?apotik < _.sum i.batch.map -> it.diapotik
+				i.treshold?depook < _.sum i.batch.map -> it.didepook
+	a.map -> value: it._id, label: it.nama
 
 selects.dokter = -> if Meteor.isClient
 	selPoli = afState.form.formJalan[\rawat.1.klinik] - 1

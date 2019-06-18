@@ -303,6 +303,7 @@ if Meteor.isClient
 							m \h5.subtitle, label
 							m \a.button.is-success, attr.arrLen(name, \inc), '+ Add'
 							m \a.button.is-warning, attr.arrLen(name, \dec), '- Rem'
+							if state.arrLen[name] then m \.button, that
 						[1 to (state.arrLen[name] or docLen or 0)]map (num) ->
 							type = j?autoform?type or \other
 							inputTypes "#name.#num", found .[type]!
