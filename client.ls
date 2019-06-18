@@ -436,7 +436,9 @@ if Meteor.isClient
 									{_id: m.route.param \idpasien},
 									$push: rawat:
 										klinik: that
-										billRegis: doc.billRegis
+										billRegis:
+											if doc.cara_bayar is 1 then false
+											else true
 										cara_bayar: doc.cara_bayar
 										idrawat: randomId!
 										petugas: doc.petugas

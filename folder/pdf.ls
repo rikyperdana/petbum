@@ -1,6 +1,6 @@
 if Meteor.isClient
 
-	kop = {text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. Dr. Soetomo No. 65, Telp. (0761) 23024\n', alignment: \center, bold: true}
+	kop = {text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. Dr. Soetomo No. 65, Telp. (0761) 23024\n\n', alignment: \center, bold: true}
 
 	@makePdf =
 		card: (idpasien) ->
