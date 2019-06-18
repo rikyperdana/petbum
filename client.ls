@@ -671,10 +671,10 @@ if Meteor.isClient
 						m \button.delete
 						m \b, "Terdapat #jumlah barang yang belum diberi ambang batas"
 				do ->
-					sumA = (.length) coll.gudang.find!fetch!filter (i) -> if i.treshold then ors arr =
-						i.treshold.depook > _.sumBy i.batch, \didepook
-						i.treshold.apotik > _.sumBy i.batch, \diapotik
-						i.treshold.gudang > _.sumBy i.batch, \digudang
+					sumA = (.length) coll.gudang.find!fetch!filter (i) -> if i.treshold
+						if userGroup \depook then i.treshold.depook > _.sumBy i.batch, \didepook
+						else if userGroup \diapotik then i.treshold.apotik > _.sumBy i.batch, \diapotik
+						else if userGroup \digudang then i.treshold.gudang > _.sumBy i.batch, \digudang
 					if sumA > 0 then m \.notification.is-danger,
 						m \button.delete
 						m \b, "Terdapat #sumA barang yang stoknya dibawah batas"

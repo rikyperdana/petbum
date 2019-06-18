@@ -12,7 +12,7 @@
 	bentuk: <[ butir kapsul tablet sendok_makan sendok_teh ]>
 	tipe_dokter: <[ umum spesialis ]>
 	rujukan: <[ datang_sendiri rs_lain puskesmas faskes_lainnya ]>
-	keluar: <[ pulang rujuk ]>
+	keluar: <[ pulang rujuk inap ]>
 	barang: <[ generik non_generik obat_narkotika bhp obat_keras_tertentu]>
 	satuan: <[ botol vial ampul pcs sachet tube supp tablet minidose pot turbuhaler kaplet kapsul bag pen rectal flash cream nebu galon lembar roll liter cup pasang bungkus box syringe]>
 	anggaran: <[ blud apbd ]>

@@ -10,7 +10,7 @@
 	diff /= 1000ms * 60sec * 60min * 24hour
 	Math.round diff
 @hari = -> moment it .format 'D MMM YYYY'
-@rupiah = -> "Rp #{numeral(+it or 0)format '0.00'},-"
+@rupiah = -> "Rp #{numeral(+it or 0)format '0,000.00'},-"
 @ols = -> m \ol, it.map -> m \li, it
 
 if Meteor.isClient

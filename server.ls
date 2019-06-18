@@ -280,7 +280,6 @@ if Meteor.isServer
 				obat: -> (.length) coll.pasien.aggregate $match: rawat: $elemMatch: $and: arr =
 					{givenDrug: $exists: false}
 					{obat: $exists: true}
-				depook: -> (.length) coll.pasien.aggregate [$match: rawat: $elemMatch: givenDrug: $exists: false]
 				jalan: -> (.length) coll.pasien.aggregate pipe =
 					a = $match: rawat: $elemMatch: $and: arr =
 						{klinik: $eq: (.value) selects.klinik.find -> params.0 is _.snakeCase it.label}

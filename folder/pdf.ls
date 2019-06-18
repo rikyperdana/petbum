@@ -1,6 +1,6 @@
 if Meteor.isClient
 
-	kop = {text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. Dr. Soetomo No. 65, Telp. (0761) 23024\n\n\n', alignment: \center, bold: true}
+	kop = {text: 'PEMERINTAH PROVINSI RIAU\nRUMAH SAKIT UMUM DAERAH PETALA BUMI\nJL. Dr. Soetomo No. 65, Telp. (0761) 23024\n', alignment: \center, bold: true}
 
 	@makePdf =
 		card: (idpasien) ->
@@ -199,7 +199,7 @@ if Meteor.isClient
 					['', '', {text: \Total, bold: true}, rupiah _.sum list.map -> it.3]
 			petugas =
 				{text: '\nPEKANBARU, ' + moment!format('D/MM/YYYY') +
-				'\n\n\n\n\n' + (_.startCase Meteor.user!username), alignment: \right}
+				'\n\n' + (_.startCase Meteor.user!username), alignment: \right}
 			pdfMake.createPdf do
 				pageOrientation: \landscape,
 				content: [kop, profile, '\n', obats, petugas], pageSize: \A5
