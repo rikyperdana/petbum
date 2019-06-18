@@ -70,10 +70,11 @@ selects.obat = (name) -> if Meteor.isClient
 	a = coll.gudang.find!fetch!filter (i) -> ands arr =
 		i.jenis in [1 2 3]
 		unless current then true
-		else _.includes _.lowerCase(i.nama), form[current]
-		ors list =
-			i.treshold?apotik < _.sum i.batch.map -> it.diapotik
-			i.treshold?depook < _.sum i.batch.map -> it.didepook
+		else ands x =
+			_.includes _.lowerCase(i.nama), form[current]
+			ors list =
+				i.treshold?apotik < _.sum i.batch.map -> it.diapotik
+				i.treshold?depook < _.sum i.batch.map -> it.didepook
 	a.map -> value: it._id, label: it.nama
 
 selects.bhp = -> if Meteor.isClient

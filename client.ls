@@ -52,7 +52,7 @@ if Meteor.isClient
 			lastKlinik: (arr) ->
 				unless roles!?jalan then arr
 				else if isDr! then arr.filter -> ands list =
-					_.last(it.rawat)dokter is Meteor.userId!
+					if _.last(it.rawat)dokter then that is Meteor.userId! else true
 					_.last(it.rawat)anamesa_perawat
 					not _.last(it.rawat)anamesa_dokter
 				else arr.filter -> ands list =
@@ -384,7 +384,7 @@ if Meteor.isClient
 						[\Edit, \is-warning, onclick: -> m.route.set "/regis/edit/#{m.route.param \idpasien}"]
 						['+Rawat Jalan', \is-success, attr.pasien.showForm.rawat ]
 					]map (i) -> m ".button.#{i.1}", (_.merge style: 'margin-right: 10px', i.2), i.0
-					m \button.button.is-warning, 'Rekap Rawat'
+					if currentRoute! is \jalan then m \button.button.is-warning, 'Rekap Rawat'
 					state.showAddRawat and m autoForm do
 						collection: coll.pasien
 						schema: new SimpleSchema schema.rawatRegis
