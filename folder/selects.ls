@@ -63,33 +63,23 @@ selects.gudang = -> if Meteor.isClient
 	coll.gudang.find!fetch!map (i) ->
 		value: i._id, label: i.nama
 
-selects.obat = (name) -> if Meteor.isClient
-	current = if _.includes name, \obat.
-		then "#{_.initial name.split(\.) .join \.}.search"
-	form = if afState.form then that.formRawat or that.formSerahObat
-	a = coll.gudang.find!fetch!filter (i) -> ands arr =
-		i.jenis in [1 2 3]
-		unless current then true
-		else ands x =
-			_.includes _.lowerCase(i.nama), form[current]
-			ors list =
-				i.treshold?apotik < _.sum i.batch.map -> it.diapotik
-				i.treshold?depook < _.sum i.batch.map -> it.didepook
-	a.map -> value: it._id, label: it.nama
-
-selects.bhp = (name) -> if Meteor.isClient
-	current = if _.includes name, \bhp.
-		then "#{_.initial name.split(\.) .join \.}.search"
-	form = if afState.form then that.formRawat or that.formSerahObat
-	a = coll.gudang.find!fetch!filter (i) -> ands arr =
-		i.jenis is 4
-		unless current then true
-		else ands x =
-			_.includes _.lowerCase(i.nama), form[current]
-			ors list =
-				i.treshold?apotik < _.sum i.batch.map -> it.diapotik
-				i.treshold?depook < _.sum i.batch.map -> it.didepook
-	a.map -> value: it._id, label: it.nama
+[{name: \obat, jenis: [1 2 3]}, {name: \bhp, jenis: [4]}]map (i) ->
+	selects[i.name] = (name) -> if Meteor.isClient
+		term =
+			if (_.includes name, "#{i.name}.")
+				"#{_.initial name.split(\.) .join \.}.search"
+			else if name is \nama then \search
+		form = if afState.form then ors <[formRawat formSerahObat formAmprahobat formAmprahbhp]>map ->
+			that[it]
+		a = coll.gudang.find!fetch!filter (j) -> ands arr =
+			j.jenis in i.jenis
+			unless term then true
+			else ands x =
+				_.includes _.lowerCase(j.nama), form[term]
+				ors list =
+					j.treshold?apotik < _.sum j.batch.map -> it.diapotik
+					j.treshold?depook < _.sum j.batch.map -> it.didepook
+		a.map -> value: it._id, label: it.nama
 
 selects.dokter = -> if Meteor.isClient
 	selPoli = afState.form.formJalan[\rawat.1.klinik] - 1

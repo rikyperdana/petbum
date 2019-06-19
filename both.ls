@@ -236,7 +236,8 @@ if Meteor.isClient
 		'batch.$.pengadaan': type: Number, optional: true
 
 	schema.amprah = (type) ->
-		nama: type: String, autoform: type: \select, options: selects[type]
+		search: type: String, label: 'Pencarian Barang'
+		nama: type: String, label: 'Pilihan Barang', autoform: type: \select, options: selects[type]
 		jumlah: type: Number
 		tanggal_minta:
 			type: Date
