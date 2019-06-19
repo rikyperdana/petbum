@@ -207,9 +207,9 @@ if Meteor.isServer
 			[...currencied, c]
 
 		dispenses: ({start, end, source}) -> if start < end
-			a = coll.rekap.find!fetch!filter -> start < it.printed < end
+			a = coll.rekap.find!fetch!filter -> ands [start < it.printed < end, it.source is source]
 			b = _.flattenDeep a.map (i) -> i.obat.map (j) -> j.batches.map (k) ->
-				nama_obat: j.nama_obat, idbatch: k.idbatch, jumlah: k.jumlah
+				nama_obat: j.nama_obat, idbatch: k.idbatch, jumlah: k.jumlah, source: i.source
 			c = reduce [], b, (res, inc) ->
 				matched = -> _.every arr =
 					it.nama_obat is inc.nama_obat
@@ -217,10 +217,15 @@ if Meteor.isServer
 				unless (res.find -> matched it) then [...res, inc]
 				else res.map -> unless matched(it) then it else
 					_.assign it, jumlah: it.jumlah + inc.jumlah
-			stokAwal = (i, source) -> _.sum (.map -> it.batch.serah) coll.amprah.aggregate pipe =
-				a = $unwind: \$batch
-				b = $match: $and: [{nama: i.nama_obat}, {ruangan: source}, {'batch.idbatch': i.idbatch}]
-			d = c.map (i) -> _.merge i, awal: stokAwal i, source
+			stokAwal = (doc) -> _.sum do ->
+				_.flatten coll.amprah.find!fetch!map (i) ->
+					i.batch.map (j) -> _.merge {}, i, j
+				.filter -> ands [
+					it.ruangan is source
+					it.nama is doc.nama_obat
+					it.idbatch is doc.idbatch]
+				.map -> it.serah
+			d = c.map (i) -> _.merge i, awal: stokAwal i
 			d.map (i) ->
 				obj = coll.gudang.findOne i.nama_obat
 				batch = obj.batch.find -> it.idbatch is i.idbatch

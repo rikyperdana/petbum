@@ -584,9 +584,10 @@ if Meteor.isClient
 				hooks:
 					before: (doc, cb) -> cb _.merge doc, source: userGroup!
 					after: (doc) ->
-						coll.rekap.insert doc.0
+						coll.rekap.insert _.merge doc.0, source: userGroup!
 						makePdf.ebiling doc.0
 						afState.form = {}; afState.arrLen = {}
+						state.showForm = false
 						m.redraw!
 			m \table.table,
 				oncreate: ->
@@ -630,7 +631,10 @@ if Meteor.isClient
 								unless i.idrawat is state.modal.idrawat then i else
 									_.assign givenDrug: true, _.omit i, <[_id no_mr regis]>
 						res.map ->
-							coll.rekap.insert _.merge it, idrawat: state.modal.idrawat, tanggal: new Date!
+							coll.rekap.insert _.merge it,
+								idrawat: state.modal.idrawat
+								tanggal: new Date!
+								source: userGroup!
 							makePdf.ebiling it
 						state.modal = null
 						m.redraw!
