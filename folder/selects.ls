@@ -74,6 +74,9 @@ selects.gudang = -> if Meteor.isClient
 		a = coll.gudang.find!fetch!filter (j) -> ands arr =
 			j.jenis in i.jenis
 			_.includes _.lowerCase(j.nama), form[term]
+			if name is \nama then true else ors arr =
+				j.treshold?apotik < _.sum j.batch.map -> it.diapotik
+				j.treshold?depook < _.sum j.batch.map -> it.didepook
 		a.map -> value: it._id, label: it.nama
 
 selects.dokter = -> if Meteor.isClient
