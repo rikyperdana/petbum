@@ -183,14 +183,14 @@ if Meteor.isClient
 				body: x =
 					['Nama Lengkap', ": #{pasien?regis.nama_lengkap or doc.nama_pasien}", 'No. MR', ": #{pasien?no_mr or doc.no_mr}"]
 					['Cara Bayar', ": #{look \cara_bayar, (rawat?cara_bayar or doc.cara_bayar) .label}", \Tanggal, ": #{hari new Date!}"]
-					[...sumber, \Dokter, ": #{dokter or doc.dokter}"]
+					[...(sumber or []), \Dokter, ": #{dokter or doc.dokter}"]
 					['No. SEP', ": #{if doc.no_sep then that else \-}", 'Jenis Pasien', ": #{look \rawat, (doc.rawat or 1) .label}"]
 			list = doc.obat.map (i) ->
 				barang = look2 \gudang, i.nama_obat
 				harga = barang.batch.0.jual
 				satuan = look \satuan, barang.satuan .label
 				jumlah = _.sumBy i.batches, \jumlah
-				[(look2 \gudang, i.nama_obat .nama), jumlah, harga, jumlah * harga, satuan]
+				[(look2 \gudang, i.nama_obat .nama), jumlah, harga, Math.ceil(jumlah * harga), satuan]
 			obats = table:
 				widths: [til 4]map -> \*
 				body: x =
@@ -201,6 +201,6 @@ if Meteor.isClient
 				{text: '\nPEKANBARU, ' + moment!format('D/MM/YYYY') +
 				'\n\n' + (_.startCase Meteor.user!username), alignment: \right}
 			pdfMake.createPdf do
-				pageOrientation: \landscape,
-				content: [kop, profile, '\n', obats, petugas], pageSize: \A5
+				pageOrientation: \portrait,
+				content: [kop, profile, '\n', obats, petugas], pageSize: \A4
 			.download title

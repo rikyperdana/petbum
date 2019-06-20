@@ -69,16 +69,11 @@ selects.gudang = -> if Meteor.isClient
 			if (_.includes name, "#{i.name}.")
 				"#{_.initial name.split(\.) .join \.}.search"
 			else if name is \nama then \search
-		form = if afState.form then ors <[formRawat formSerahObat formAmprahobat formAmprahbhp]>map ->
-			that[it]
+		list = <[formRawat formSerahObat formAmprahobat formAmprahbhp]>
+		form = if afState.form then ors list.map -> that[it]
 		a = coll.gudang.find!fetch!filter (j) -> ands arr =
 			j.jenis in i.jenis
-			unless term then true
-			else ands x =
-				_.includes _.lowerCase(j.nama), form[term]
-				ors list =
-					j.treshold?apotik < _.sum j.batch.map -> it.diapotik
-					j.treshold?depook < _.sum j.batch.map -> it.didepook
+			_.includes _.lowerCase(j.nama), form[term]
 		a.map -> value: it._id, label: it.nama
 
 selects.dokter = -> if Meteor.isClient
