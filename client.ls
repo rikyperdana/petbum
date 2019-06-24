@@ -67,7 +67,7 @@ if Meteor.isClient
 				if isDr! then it.anamesa_perawat else true
 				if isDr! then !it.anamesa_dokter else true
 				userRole! is _.snakeCase look(\klinik, it.klinik)label
-			cobain: (doc) -> m \div,
+			rawatDetails2: (doc) -> m \div,
 				m \h1, attr.pasien.currentPasien!regis.nama_lengkap
 				m \table.table,
 					attr.pasien.rawatDetails doc
@@ -408,7 +408,7 @@ if Meteor.isClient
 							'Rekap Rawat'
 					state.rekapRawat and elem.modal do
 						title: 'Rekap Riwayat Rawat Pasien'
-						content: m \div, state.rekapRawat.map -> attr.pasien.cobain it
+						content: m \div, state.rekapRawat.map -> attr.pasien.rawatDetails2 it
 					state.showAddRawat and m autoForm do
 						collection: coll.pasien
 						schema: new SimpleSchema schema.rawatRegis
@@ -499,7 +499,7 @@ if Meteor.isClient
 						elem.pagins!
 					if state.modal then elem.modal do
 						title: 'Rincian rawat'
-						content: attr.pasien.cobain state.modal
+						content: attr.pasien.rawatDetails2 state.modal
 						action: ->
 							state.docRawat = state.modal.idrawat
 							state.spm = new Date!
@@ -648,7 +648,7 @@ if Meteor.isClient
 			m \.button.is-warning,
 				onclick: -> Meteor.subscribe \coll, \pasien,
 					{_id: $in: coll.rekap.find!fetch!map -> it.idpasien}
-					onReady: -> makePdf.rekap!
+					onReady: -> makePdf.rekap userGroup!
 				m \span, "Cetak #{coll.rekap.find!fetch!length} Rekap"
 			[til 3]map -> m \br
 			if userRole \admin then elem.report do
@@ -978,7 +978,7 @@ if Meteor.isClient
 						schema: new SimpleSchema schema.amprah type
 						type: \insert
 						id: "formAmprah#type"
-						columns: 2
+						columns: 3
 						hooks: after: ->
 							state.showForm = obat: false, bhp: false
 							m.redraw!

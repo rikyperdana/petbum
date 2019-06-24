@@ -94,9 +94,9 @@ if Meteor.isClient
 				]}
 			pdf.download "#{zeros doc.no_mr}_payRegCard.pdf"
 
-		rekap: ->
+		rekap: (source) ->
 			fields = <[ no_mr_nama_pasien nama_obat nobatch jumlah satuan harga]>
-			source = coll.rekap.find!fetch!map (i) ->
+			source = coll.rekap.find!fetch!filter(-> it.source is source)map (i) ->
 				i.obat.map (j) -> j.batches.map (k) -> arr =
 					{
 						text:

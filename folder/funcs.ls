@@ -61,7 +61,7 @@ if Meteor.isClient
 			theSchema(normed name)?allowedValues?map (i) ->
 				value: i, label: _.startCase i
 			if _.isFunction theSchema(normed name)?autoform?options
-				theSchema(normed name)?autoform?options name
+				theSchema(normed name)?autoform?options name, opts.id
 			else theSchema(normed name)?autoform?options
 			<[true false]>map (i) ->
 				value: JSON.parse i
