@@ -35,7 +35,8 @@ if Meteor.isClient
 			m \.modal-card,
 				m \header.modal-card-head,
 					m \p.modal-card-title, obj.title
-					m \button.delete, 'aria-label': \close onclick: -> state.modal = null
+					unless obj.noClose then m \button.delete,
+						'aria-label': \close onclick: -> state.modal = null
 				if obj.content then m \section.modal-card-body, m \.content, that
 				m \footer.modal-card-foot,
 					if obj.confirm then m \button.button.is-success,

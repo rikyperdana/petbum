@@ -409,6 +409,9 @@ if Meteor.isClient
 					state.rekapRawat and elem.modal do
 						title: 'Rekap Riwayat Rawat Pasien'
 						content: m \div, state.rekapRawat.map -> attr.pasien.rawatDetails2 it
+						noClose: true
+						danger: \Tutup
+						dangerAction: -> state.rekapRawat = null
 					state.showAddRawat and m autoForm do
 						collection: coll.pasien
 						schema: new SimpleSchema schema.rawatRegis

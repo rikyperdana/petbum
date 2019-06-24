@@ -4,11 +4,11 @@ oke 2. Tampilkan info Fornas untuk rincian obat
 oke 2. Berikan fungsi pencarian juga untuk selects.bhp
 oke 4. Info ambang batas apotik, depook, dan gudang jangan campur
 oke 5. Seharusnya baris merah ambang batas hanya untuk grup nya saja
-6. Laporan keluaran obat depook masih tercampur dengan apotik
-7. Rekap apotik dan depook masih tercampur
+oke 6. Laporan keluaran obat depook masih tercampur dengan apotik
+oke 7. Rekap apotik dan depook masih tercampur
 8. Notifkasi masih harus direfresh baru benar
-9. Pada pendaftaran, ganti kolom poliklinik jadi nama ibu
-10. Gunakan AI Geocode untuk identifikasi alamat
+oke 9. Pada pendaftaran, ganti kolom poliklinik jadi nama ibu
+fail 10. Gunakan AI Geocode untuk identifikasi alamat
 oke 11. Pasien yg pindah konsul bayar lagi di poli berikutnya
 
 May 23rd, 2019
