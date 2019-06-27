@@ -365,7 +365,7 @@ if Meteor.isClient
 					Meteor.subscribe \coll, \gudang
 					Meteor.subscribe \coll, \pasien,
 						{_id: m.route.param \idpasien}, onReady: ->
-							Meteor.call \regions,
+							m.redraw! and Meteor.call \regions,
 								attr.pasien.currentPasien!regis
 								(err, res) ->
 									state.regions = res
@@ -492,11 +492,9 @@ if Meteor.isClient
 									else state.modal = i
 								m \span, if attr.pasien.continuable i then \Lanjutkan else \Lihat
 							if userRole \admin then m \.button.is-danger,
-								ondblclick: ->
-								obj =
-									idpasien: m.route.param \idpasien
-									idrawat: i.idrawat
-								Meteor.call \rmRawat, obj, (err, res) -> res and m.redraw!
+								ondblclick: -> Meteor.call \rmRawat,
+									{idpasien: m.route.param \idpasien, idrawat: i.idrawat}
+									(err, res) -> res and m.redraw!
 								m \span, \Hapus
 						]map (j) -> m \td, j or \-
 						elem.pagins!
@@ -963,7 +961,7 @@ if Meteor.isClient
 						if i.active then \Aktif else \Non-aktif
 				elem.pagins!
 
-		amprah: -> view: -> if attr.pageAccess(<[jalan inap obat farmasi depook]>) then m \.content,
+		amprah: -> view: -> m \.content,
 			oncreate: ->
 				Meteor.subscribe \users, onReady: -> m.redraw!
 				Meteor.subscribe \coll, \gudang, onReady: -> m.redraw!
