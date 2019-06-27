@@ -36,6 +36,38 @@ if Meteor.isClient
 	,
 		group: \depook
 		list: <[depook farmasi amprah]>
-
+	,
+		group: \radio
+		list: <[amprah]>
+	,
+		group: \labor
+		list: <[amprah]>
+	,
+		group: \gizi
+		list: <[amprah]>
+	,
+		group: \cssd
+		list: <[amprah]>
+	,
+		group: \bedah
+		list: <[amprah]>
+	,
+		group: \icu
+		list: <[amprah]>
+	,
+		group: \perina
+		list: <[amprah]>
+	,
+		group: \laundry
+		list: <[amprah]>
+	,
+		group: \jenazah
+		list: <[amprah]>
+	,
+		group: \promosi
+		list: <[amprah]>
+	,
+		group: \logistik
+		list: <[amprah]>
 	]map (i) -> _.assign i, list:
 		[...i.list, \panduan]
