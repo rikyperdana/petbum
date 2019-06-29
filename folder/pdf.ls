@@ -175,9 +175,9 @@ if Meteor.isClient
 			title = "Billing Obat - #{pasien?no_mr or doc.no_mr} - #{pasien?regis.nama_lengkap or doc.nama_pasien} - #{hari new Date!}.pdf"
 			sumber =
 				if rawat?klinik or doc.poli
-					[\Poliklinik, ": #{look(\klinik, that)label}"]
+					[\Poliklinik, ": #{look(\klinik, that)label or \-}"]
 				else if doc.ruangan
-					[\Ruangan, ": #{doc.ruangan}"]
+					[\Ruangan, ": #{doc.ruangan or \-}"]
 			profile = layout: \noBorders, table:
 				widths: [til 4]map -> \*
 				body: x =

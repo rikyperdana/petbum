@@ -87,9 +87,8 @@ if Meteor.isClient
 						state.form[opts.id][target.name] = target.value
 					opts.autosave and $ "form##{opts.id}" .submit!
 
-				onsubmit: (e) -> unless afState.disable
+				onsubmit: (e) -> e.preventDefault! and unless afState.disable
 					afState.disable = true
-					e.preventDefault!
 					temp = state.temp[opts.id]map -> "#{it.name}": it.value
 					formValues = _.filter e.target, (i) ->
 						a = -> (i.value isnt \on) and i.name
