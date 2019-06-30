@@ -238,6 +238,17 @@ if Meteor.isClient
 	schema.amprah = (type) ->
 		search: type: String, label: 'Pencarian Barang'
 		nama: type: String, label: 'Pilihan Barang', autoform: type: \select, options: selects[type]
+		stok:
+			type: String
+			label: 'Info Stok'
+			optional: true
+			autoform: type: \disabled
+			autoValue: (name, doc) ->
+				barang = coll.gudang.findOne afState.temp["formAmprah#type"]0?value
+				if barang then _.join arr =
+					"Apo: #{_.sum barang.batch.map -> it.diapotik}"
+					"Gud: #{_.sum barang.batch.map -> it.digudang}"
+					"OK: #{_.sum barang.batch.map -> it.didepook}"
 		jumlah: type: Number
 		tanggal_minta:
 			type: Date

@@ -979,7 +979,7 @@ if Meteor.isClient
 						schema: new SimpleSchema schema.amprah type
 						type: \insert
 						id: "formAmprah#type"
-						columns: 3
+						columns: 4
 						hooks: after: ->
 							state.showForm = obat: false, bhp: false
 							m.redraw!
