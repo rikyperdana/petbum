@@ -18,7 +18,7 @@ if Meteor.isClient
 				rawatFields: <[ tanggal_berobat poliklinik cara_bayar dokter bayar_pendaftaran status_bayar ]>
 				icdFields: <[ nama_pasien tanggal klinik dokter diagnosis nama_perawat cek ]>
 			rawatDetails: (doc) -> arr =
-				{head: \Tanggal, cell: hari that if doc.tanggal}
+				{head: \Tanggal, cell: if doc?tanggal then hari that}
 				{head: \Klinik, cell: look(\klinik, doc.klinik)label}
 				{head: 'Cara Bayar', cell: look(\cara_bayar, doc.cara_bayar)label}
 				{head: 'Anamesa Perawat', cell: doc?anamesa_perawat}
@@ -111,10 +111,11 @@ if Meteor.isClient
 		amprah:
 			headers: requests: <[ tanggal_minta ruangan peminta jumlah nama_barang penyerah diserah tanggal_serah]>
 			amprahList: ->
-				reverse coll.amprah.find!fetch!filter (i) ->
+				a = coll.amprah.find!fetch!filter (i) ->
 					if userGroup \jalan then i.ruangan is userRole!
 					else if not userGroup \farmasi then i.ruangan is userGroup!
 					else i
+				_.sortBy a, \tanggal_minta
 			buttonConds: (obj) -> ands arr =
 				not obj.diserah
 				userGroup! is \farmasi
@@ -998,7 +999,7 @@ if Meteor.isClient
 					"#{i.jumlah} unit"
 					look2(\gudang, i.nama)?nama
 					if i.penyerah then _.startCase (?username) Meteor.users.findOne that
-					if i.diserah then "#that unit"
+					if i.penyerah then "#that unit"
 					if i.tanggal_serah then hari that
 					if attr.amprah.buttonConds(i)
 						m \.button.is-primary,

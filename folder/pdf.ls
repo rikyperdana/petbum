@@ -65,7 +65,7 @@ if Meteor.isClient
 						zeros pasien.no_mr
 						_.startCase pasien.regis.nama_lengkap
 						look(\kelamin, pasien.regis.kelamin)?label or \-
-						moment!format 'D/MM/YYYY'
+						moment(pasien.regis.tgl_lahir)format 'D/MM/YYYY'
 						"#{moment!diff pasien.regis.tgl_lahir, \years} tahun"
 						look(\klinik, rawat.klinik)?label or \-
 					]map -> ": #it"
@@ -171,7 +171,7 @@ if Meteor.isClient
 		ebiling: (doc) ->
 			pasien = coll.pasien.findOne doc.idpasien
 			rawat = _.last that.rawat if pasien
-			dokter = Meteor.users.findOne(rawat?dokter)?username
+			dokter = Meteor.users.findOne(rawat?dokter or rawat?petugas?dokter)?username
 			title = "Billing Obat - #{pasien?no_mr or doc.no_mr} - #{pasien?regis.nama_lengkap or doc.nama_pasien} - #{hari new Date!}.pdf"
 			sumber =
 				if rawat?klinik or doc.poli
