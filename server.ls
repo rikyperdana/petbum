@@ -251,14 +251,17 @@ if Meteor.isServer
 				c = $match: $and: x =
 					{'rawat.tanggal': $gt: start}
 					{'rawat.tanggal': $lt: end}
-			docs.map (i) ->
-				hari: moment i.rawat.tanggal .format 'D MMM YYYY'
-				klinik: look \klinik, i.rawat.klinik .label
-				cara_bayar: look \cara_bayar, i.rawat.cara_bayar .label
-				baru_lama: \Lama
-				pendaftar: _.startCase Meteor.users.findOne(i.rawat.petugas.regis)?username
-				perawat: _.startCase Meteor.users.findOne(i.rawat.petugas.perawat)?username
-				dokter: _.startCase Meteor.users.findOne(i.rawat.petugas.dokter)?username
+			docs.map (i, j) ->
+				'No.': j+1
+				'No MR': zeros i.no_mr
+				'Nama Lengkap': i.regis.nama_lengkap
+				'Tanggal': moment i.rawat.tanggal .format 'D MMM YYYY'
+				'Poliklinik': look \klinik, i.rawat.klinik .label
+				'Cara bayar': look \cara_bayar, i.rawat.cara_bayar .label
+				'Baru/Lama': if i.rawat.first then \Baru else \Lama
+				'Pendaftar': _.startCase Meteor.users.findOne(i.rawat.petugas.regis)?username
+				'Perawat': _.startCase Meteor.users.findOne(i.rawat.petugas.perawat)?username
+				'Dokter': _.startCase Meteor.users.findOne(i.rawat.petugas.dokter)?username
 
 		stocks: ({start, end}) ->
 			_.flatten coll.gudang.find!fetch!map (i) -> i.batch.map (j) ->

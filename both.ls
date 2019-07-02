@@ -172,7 +172,7 @@ if Meteor.isClient
 			type: Number
 			autoform: type: \hidden
 			autoValue: -> moment!diff state.spm, \minutes
-		'rawat.$.pindah': type: Number, optional: true, label: \Konsultasi, autoform: options: selects.klinik
+		'rawat.$.pindah': type: Number, optional: true, label: 'Konsultasikan ke', autoform: options: selects.klinik
 		'rawat.$.keluar': type: Number, optional: true, autoform: options: selects.keluar
 
 	schema.rawatMR =
