@@ -57,7 +57,7 @@ if Meteor.isClient
 					vals = [to 2]map -> e.target[it]value
 					action do
 						start: new Date that if vals.0
-						end: new Date moment(that)add(1, \days) if vals.1
+						end: new Date moment(that)add(23, \hours) if vals.1
 						type: vals.2
 				m \.column, m \input.input, type: \date, placeholder: \Mulai
 				m \.column, m \input.input, type: \date, placeholder: \Akhir

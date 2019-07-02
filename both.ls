@@ -107,10 +107,6 @@ if Meteor.isClient
 				sel = docs.find -> \cara_bayar is _.last it.name.split \.
 				if sel?value is \1 then 0
 				else 1
-		'rawat.$.nobill':
-			type: Number
-			autoform: type: \hidden
-			autoValue: -> +(_.toString Date.now! .substr 7, 13)
 		'rawat.$.status_bayar':
 			type: Boolean
 			autoform: type: \hidden

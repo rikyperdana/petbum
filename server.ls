@@ -187,7 +187,7 @@ if Meteor.isServer
 				nama_pasien: i.regis.nama_lengkap
 				tanggal: hari i.rawat.tanggal
 				klinik: look(\klinik, i.rawat.klinik)label
-				no_karcis: i.rawat.nobill.toString!
+				no_karcis: _.toString Date.now! .substr 7, 13
 				tp_kartu: if i.rawat.first then 10000 else \-
 				tp_karcis: look(\karcis, i.rawat.klinik)label*1000
 				tp_tindakan: if i.rawat.tindakan then (_.sum that.map -> it.harga) else \-
@@ -259,7 +259,7 @@ if Meteor.isServer
 				'Poliklinik': look \klinik, i.rawat.klinik .label
 				'Cara bayar': look \cara_bayar, i.rawat.cara_bayar .label
 				'Baru/Lama': if i.rawat.first then \Baru else \Lama
-				'Pendaftar': _.startCase Meteor.users.findOne(i.rawat.petugas.regis)?username
+				'Petugas pendaftaran': _.startCase Meteor.users.findOne(i.rawat.petugas.regis)?username
 				'Perawat': _.startCase Meteor.users.findOne(i.rawat.petugas.perawat)?username
 				'Dokter': _.startCase Meteor.users.findOne(i.rawat.petugas.dokter)?username
 
@@ -293,7 +293,7 @@ if Meteor.isServer
 						{klinik: $eq: (.value) selects.klinik.find -> params.0 is _.snakeCase it.label}
 						if params.1 then anamesa_dokter: $exists: false
 						else anamesa_perawat: $exists: false
-			obj[name]? ...params
+			obj[name]?!
 
 		nextMR: ->
 			list = coll.pasien.aggregate pipe =
