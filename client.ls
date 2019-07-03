@@ -123,10 +123,7 @@ if Meteor.isClient
 			reqForm: -> arr =
 				\bhp unless userGroup \farmasi
 				if userGroup! in <[obat inap depook]> then \obat
-			available: ->
-				_.sum look2(\gudang, state.modal.nama)batch.map (i) ->
-					if userGroup \farmasi then i.digudang
-					else i.diapotik
+			available: -> _.sum look2(\gudang, state.modal.nama)batch.map -> it.digudang
 
 	loginComp = -> view: -> m \.container, m \.columns,
 		m \.column
