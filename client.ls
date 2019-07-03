@@ -999,7 +999,7 @@ if Meteor.isClient
 					"#{i.jumlah} unit"
 					look2(\gudang, i.nama)?nama
 					if i.penyerah then _.startCase (?username) Meteor.users.findOne that
-					if i.penyerah then "#that unit"
+					if i.penyerah then "#{i.diserah} unit"
 					if i.tanggal_serah then hari that
 					if attr.amprah.buttonConds(i)
 						m \.button.is-primary,

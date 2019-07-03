@@ -291,7 +291,9 @@ if Meteor.isServer
 				jalan: -> (.length) coll.pasien.aggregate pipe =
 					a = $match: rawat: $elemMatch: $and: arr =
 						{klinik: $eq: (.value) selects.klinik.find -> params.0 is _.snakeCase it.label}
-						if params.1 then anamesa_dokter: $exists: false
+						if params.1 then $and: arr =
+							{anamesa_dokter: $exists: false}
+							{anamesa_perawat: $exists: true}
 						else anamesa_perawat: $exists: false
 			obj[name]?!
 
