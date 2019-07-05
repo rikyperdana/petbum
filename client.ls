@@ -1009,7 +1009,7 @@ if Meteor.isClient
 				content:
 					if state.modal.nama then m \div,
 						m \table.table,
-							m \thead, m \tr, <[nama_barang diminta sedia]>map (i) ->
+							m \thead, m \tr, <[nama_barang diminta stok_di_gudang]>map (i) ->
 								m \th, _.startCase i
 							m \tbody, m \tr, tds arr =
 								look2(\gudang, state.modal.nama)nama

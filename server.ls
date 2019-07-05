@@ -248,7 +248,8 @@ if Meteor.isServer
 					{tanggal: $gt: start}
 					{tanggal: $lt: end}
 				b = $unwind: \$rawat
-				c = $match: $and: x =
+				c = $sort: 'rawat.tanggal': 1
+				d = $match: $and: x =
 					{'rawat.tanggal': $gt: start}
 					{'rawat.tanggal': $lt: end}
 			docs.map (i, j) ->

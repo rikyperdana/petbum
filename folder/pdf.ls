@@ -123,8 +123,9 @@ if Meteor.isClient
 			headers = [fields.map -> _.startCase it]
 			if rows.length > 0
 				Meteor.call \doneRekap
-				pdfMake.createPdf content:
-					[table: body: [...headers, ...rows]]
+				pdfMake.createPdf do
+					content: [table: body: [...headers, ...rows]]
+					defaultStyle: fontSize: 10
 				.download \cetak_rekap.pdf
 
 		icdx: (pasien) ->
@@ -145,13 +146,15 @@ if Meteor.isClient
 					pasien.regis.nama_lengkap
 					hari pasien.regis.tgl_lahir
 					look(\kelamin, pasien.regis.kelamin)?label or \-
-			pdfMake.createPdf content: arr =
-				kop
-				{text: 'FORM RESUME RAWAT JALAN', alignment: \center}
-				'\n\n'
-				{columns: columns}
-				'\n\n'
-				{table: body: [headers.map(-> _.startCase it), ...rows]}
+			pdfMake.createPdf do
+				defaultStyle: fontSize: 10
+				content: arr =
+					kop
+					{text: 'FORM RESUME RAWAT JALAN', alignment: \center}
+					'\n\n'
+					{columns: columns}
+					'\n\n'
+					{table: body: [headers.map(-> _.startCase it), ...rows]}
 			.download "icdX_#{pasien.no_mr}.pdf"
 
 		csv: (name, docs, head) ->
@@ -161,6 +164,7 @@ if Meteor.isClient
 			if rows.length > 0
 				pdfMake.createPdf do
 					pageOrientation: \landscape
+					defaultStyle: fontSize: 10
 					content: arr =
 						kop
 						{text: name, alignment: \center}
