@@ -289,7 +289,8 @@ if Meteor.isServer
 
 		notify: ({name, params}) ->
 			obj =
-				amprah: -> coll.amprah.find(diserah: $exists: false)fetch!length
+				amprah: -> (.fetch!length) coll.amprah.find do ->
+					if params.0 is \farmasi then diserah: $exists: false
 				obat: -> (.length) coll.pasien.aggregate $match: rawat: $elemMatch: $and: arr =
 					{givenDrug: $exists: false}
 					{obat: $exists: true}

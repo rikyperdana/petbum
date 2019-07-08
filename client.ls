@@ -50,14 +50,18 @@ if Meteor.isClient
 				byNoMR = no_mr: +(state.search or '')
 				(.fetch!) coll.pasien.find $or: [byName, byNoMR]
 			lastKlinik: (arr) ->
+				myKlinik = -> it in roles!?jalan?map (i) ->
+					(.value) selects.klinik.find (j) -> i is _.snakeCase j.label
 				unless roles!?jalan then arr
 				else if isDr! then arr.filter -> ands list =
 					if _.last(it.rawat)dokter then that is Meteor.userId! else true
 					_.last(it.rawat)anamesa_perawat
 					not _.last(it.rawat)anamesa_dokter
+					myKlinik it.klinik
 				else arr.filter -> ands list =
 					not _.last(it.rawat)anamesa_perawat
 					_.last(it.rawat)billRegis
+					myKlinik it.klinik
 			patientHistory: ->
 				_.reverse _.sortBy attr.pasien.currentPasien!rawat, \tanggal
 			continuable: -> ands arr =
@@ -182,7 +186,8 @@ if Meteor.isClient
 						oncreate: ->
 							args =
 								name: i.name
-								params: [userRole!, isDr!] if userGroup \jalan
+								if userGroup \jalan then params: [userRole!, isDr!]
+								else if userGroup \farmasi then params: [\farmasi]
 							Meteor.call \notify, args, (err, res) -> if res
 								state.notify[i.name] = res
 								m.redraw!
@@ -476,7 +481,6 @@ if Meteor.isClient
 								m \th, _.startCase i
 							m \th, \Rincian if userGroup \jalan
 							m \th, \Hapus if userRole \admin
-						# m \tbody, pagins attr.pasien.currentPasien!rawat?map (i) -> m \tr, [
 						m \tbody, pagins attr.pasien.patientHistory!map (i) -> m \tr, [
 							hari i.tanggal
 							look(\klinik, i.klinik)label
