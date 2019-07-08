@@ -115,7 +115,7 @@ if Meteor.isClient
 					if userGroup \jalan then i.ruangan is userRole!
 					else if not userGroup \farmasi then i.ruangan is userGroup!
 					else i
-				_.sortBy a, \tanggal_minta
+				_.reverse _.sortBy a, \tanggal_minta
 			buttonConds: (obj) -> ands arr =
 				not obj.diserah
 				userGroup! is \farmasi
@@ -490,8 +490,8 @@ if Meteor.isClient
 									else state.modal = i
 								m \span, if attr.pasien.continuable i then \Lanjutkan else \Lihat
 							if userRole \admin then m \.button.is-danger,
-								ondblclick: -> Meteor.call \rmRawat,
-									{idpasien: m.route.param \idpasien, idrawat: i.idrawat}
+								ondblclick: -> unless i.diagnosa then Meteor.call \rmRawat,
+									{idrawat: i.idrawat, idpasien: m.route.param \idpasien}
 									(err, res) -> res and m.redraw!
 								m \span, \Hapus
 						]map (j) -> m \td, j or \-
@@ -931,9 +931,7 @@ if Meteor.isClient
 									third: that if data.third
 									active: true
 								Meteor.call \import, \tarif, selector: sel, modifier: opt
-							if data.password
-								<[ newUser importRoles ]>map (i) ->
-									Meteor.call i, data
+							if data.password then Meteor.call \newUser, data
 							if data.daerah then coll.daerah.insert do
 								daerah: _.lowerCase data.daerah
 								provinsi: +that if data.provinsi

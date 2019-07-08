@@ -22,6 +22,8 @@ if Meteor.isServer
 				check args,
 					username: type: String
 					password: type: String
+					group: type: String, optional: true
+					role: type: String, optional: true
 			addRole: -> ands arr =
 				access \manajemen, \admin
 				check args,
@@ -47,12 +49,14 @@ if Meteor.isServer
 	Meteor.methods do
 
 		newUser: (doc) ->
-			{username, password} = doc
+			{username, password, group, role} = doc
 			if secureMethods(name: \newUser, userId: this.userId, args: doc)
 				if Accounts.findUserByUsername username
 					for i in <[ username password ]>
 						Accounts["set#{_.startCase i}"] that._id, doc[i]
 				else Accounts.createUser doc
+				one = Meteor.users.findOne username: username
+				Roles.addUsersToRoles one._id, [role], group
 
 		addRole: (doc) ->
 			{id, roles, group, poli} = doc
