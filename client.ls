@@ -57,11 +57,11 @@ if Meteor.isClient
 					if _.last(it.rawat)dokter then that is Meteor.userId! else true
 					_.last(it.rawat)anamesa_perawat
 					not _.last(it.rawat)anamesa_dokter
-					myKlinik it.klinik
+					myKlinik _.last(it.rawat)klinik
 				else arr.filter -> ands list =
 					not _.last(it.rawat)anamesa_perawat
 					_.last(it.rawat)billRegis
-					myKlinik it.klinik
+					myKlinik _.last(it.rawat)klinik
 			patientHistory: ->
 				_.reverse _.sortBy attr.pasien.currentPasien!rawat, \tanggal
 			continuable: -> ands arr =
