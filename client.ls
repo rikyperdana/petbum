@@ -5,7 +5,7 @@ if Meteor.isClient
 			hospital: 'RSUD Petala Bumi'
 			rights: -> modules.filter -> it.name in
 				_.flatMap (_.keys Meteor.user!?roles), (i) ->
-					(.list) rights.find -> it.group is i
+					(.access) modules.find -> it.name is i
 		pageAccess: -> userGroup! in it
 		pasien:
 			showForm:
@@ -858,7 +858,7 @@ if Meteor.isClient
 							meteormethod: \addRole
 							id: \formAddRole
 							buttonContent: \Beri
-							columns: 3
+							columns: 2
 							hooks:
 								before: (doc, cb) ->
 									cb _.merge doc, id: state.modal._id

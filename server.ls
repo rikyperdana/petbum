@@ -31,6 +31,7 @@ if Meteor.isServer
 					roles: type: String
 					group: type: String, optional: true
 					poli: type: String, optional: true
+					inap: type: String, optional: true
 			rmRole: -> ands arr =
 				access \manajemen, \admin
 				check args, id: type: String
@@ -59,9 +60,9 @@ if Meteor.isServer
 				Roles.addUsersToRoles one._id, [role], group
 
 		addRole: (doc) ->
-			{id, roles, group, poli} = doc
+			{id, roles, group, poli, inap} = doc
 			if secureMethods(name: \addRole, userId: this.userId, args: doc)
-				Roles.addUsersToRoles id, (poli or roles), group
+				Roles.addUsersToRoles id, (inap or poli or roles), group
 
 		rmRole: (doc) ->
 			if secureMethods(name: \rmRole, userId: this.userId, args: doc)

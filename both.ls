@@ -181,6 +181,8 @@ if Meteor.isClient
 			modules.map -> value: it.name, label: it.full
 		poli: type: String, optional: true, autoform: type: \select, options: ->
 			selects.klinik.map -> label: it.label, value: _.snakeCase it.label
+		inap: type: String, optional: true, autoform: type: \select, options: ->
+			selects.inap.map -> label: it.label, value: _.snakeCase it.label
 
 	schema.gudang =
 		idbarang:
@@ -258,7 +260,7 @@ if Meteor.isClient
 			type: String
 			autoform: type: \hidden
 			autoValue: ->
-				if userGroup \jalan then userRole!
+				if userGroup! in <[jalan inap]> then userRole!
 				else userGroup!
 
 	schema.responAmprah =

@@ -8,6 +8,7 @@
 	cara_bayar: <[ umum bpjs jamkesda_pekanbaru jamkesda_kampar lapas_dinsos jampersal ]>
 	nikah: <[ nikah belum_nikah janda duda ]>
 	klinik: <[ penyakit_dalam gigi kebidanan tht anak saraf mata bedah paru kulit fisioterapi gizi psikologi tindakan aps_labor aps_radio ]>
+	inap: <[ lantai3 bedah penyakit_dalam anak kebidanan ]>
 	karcis: [  50             30   50        50  50   50    50   50    50   50    50          50   50        50       0         0 ]
 	bentuk: <[ butir kapsul tablet sendok_makan sendok_teh ]>
 	tipe_dokter: <[ umum spesialis ]>
