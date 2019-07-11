@@ -57,7 +57,7 @@ if Meteor.isServer
 						Accounts["set#{_.startCase i}"] that._id, doc[i]
 				else Accounts.createUser doc
 				one = Meteor.users.findOne username: username
-				Roles.addUsersToRoles one._id, [role], group
+				if role then Roles.addUsersToRoles one._id, [role], group
 
 		addRole: (doc) ->
 			{id, roles, group, poli, inap} = doc
@@ -240,8 +240,8 @@ if Meteor.isServer
 				'No. Batch': batch.nobatch
 				'ED': hari batch.kadaluarsa
 				'Harga': rupiah batch.jual
-				'Barang Masuk': if start < batch.masuk < end then i.awal else \-
-				'Qty Awal': if batch.masuk < start then i.awal else \-
+				'Barang Masuk': if start <= batch.masuk <= end then i.awal else \-
+				'Qty Awal': if batch.masuk <= start then i.awal else \-
 				'Keluar': i.jumlah
 				'Sisa Stok': i.awal - i.jumlah
 				'Total Keluar': rupiah batch.jual * i.jumlah
@@ -281,8 +281,8 @@ if Meteor.isServer
 				'No. Batch': i.nobatch
 				'ED': hari i.kadaluarsa
 				'Harga': rupiah i.jual
-				'Barang Masuk': if start < i.masuk < end then i.awal else \-
-				'Stok Awal': if i.masuk < start then i.awal else \-
+				'Barang Masuk': if start <= i.masuk <= end then i.awal else \-
+				'Stok Awal': if i.masuk <= start then i.awal else \-
 				'Keluar': (or \-) _.sum i.amprah.map -> it.serah
 				'Sisa Stok': i.awal - _.sum i.amprah.map -> it.serah
 				'Total Keluar': rupiah i.jual * _.sum i.amprah.map -> it.serah

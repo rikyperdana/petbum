@@ -184,10 +184,9 @@ if Meteor.isClient
 					m \p.menu-label, 'Admin Menu'
 					m \ul.menu-list, attr.layout.rights!map (i) -> m \li,
 						oncreate: ->
-							args =
-								name: i.name
-								if userGroup \jalan then params: [userRole!, isDr!]
-								else if userGroup \farmasi then params: [\farmasi]
+							args = name: i.name, params:
+								if userGroup \jalan then [userRole!, isDr!]
+								else if userGroup \farmasi then [\farmasi]
 							Meteor.call \notify, args, (err, res) -> if res
 								state.notify[i.name] = res
 								m.redraw!
