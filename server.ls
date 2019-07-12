@@ -193,15 +193,21 @@ if Meteor.isServer
 				'Nama Pasien': i.regis.nama_lengkap
 				Tanggal: hari i.rawat.tanggal
 				Poliklinik: look(\klinik, i.rawat.klinik)label
-				'No. Karcis': i.rawat.tanggal or _.toString Date.now! .substr 7, 13
-				Kartu: if i.rawat.first then 10000
-				Karcis: look(\karcis, i.rawat.klinik)label*1000
-				Tindakan: if i.rawat.tindakan then _.sum that.map -> it.harga
-				Obat: if i.rawat.obat then _.sum do
+				'No. Karcis': _.toString i.rawat.tanggal.getTime! .substr 7, 13
+				Kartu: if i.rawat.first then 10000 else 0
+				Karcis: look(\karcis, i.rawat.klinik)label*1000 or 0
+				Tindakan: if i.rawat.tindakan then _.sum that.map -> it.harga else 0
+				Obat: unless i.rawat.obat then 0 else _.sum do
 					coll.rekap.findOne(idrawat: i.rawat.idrawat)?obat.map (j) ->
 						obat = coll.gudang.findOne j.nama_obat
 						_.sum j.batches.map (k) -> (.jual * k.jumlah) obat.batch.find (l) -> l.idbatch is k.idbatch
 			.map (j) -> _.assign j, Total: _.sum <[Kartu Karcis Tindakan Obat]>map -> j[it]
+			jumlah = (type) -> _.sum b.map -> it[type]
+			last = _.merge {},
+				...['No. MR', 'Nama Pasien', \Tanggal, \Poliklinik, 'No. Karcis']map -> "#it": ''
+				...<[Kartu Karcis Tindakan Obat]>map -> "#it": jumlah it
+				Total: ''
+			[...b, last]map (i) -> _.assign i, ...<[Kartu Karcis Tindakan Obat Total]>map -> "#it": if i[it] > 0 then rupiah i[it] else ''
 
 		dispenses: ({start, end, source}) -> if start < end
 			a = coll.rekap.find!fetch!filter -> ands [start < it.printed < end, it.source is source]
