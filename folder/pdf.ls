@@ -51,9 +51,7 @@ if Meteor.isClient
 				]}
 			pdf.download "#{zeros doc.no_mr}_consent.pdf"
 
-		payRawat: (idpasien, idrawat, rows) ->
-			pasien = coll.pasien.findOne idpasien
-			rawat = pasien.rawat.find -> it.idrawat is idrawat
+		payRawat: ({pasien, rawat, rows}) ->
 			items = rows.map -> [it.0, rupiah it.1]
 			table = table: widths: [\*, \auto], body: [[\Uraian \Harga], ...items]
 			pdf = pdfMake.createPdf content: arr =

@@ -220,9 +220,6 @@ if Meteor.isClient
 			m \div, guide userGroup!, userRole!
 
 		pasien: -> view: -> if attr.pageAccess(<[regis jalan]>) then m \.content,
-			oncreate: Meteor.subscribe \coll, \daerah, $and: arr =
-				{provinsi: $exists: true}
-				{kabupaten: $exists: false}
 			if userGroup \regis and userRole \admin then elem.report do
 				title: 'Laporan Kunjungan Poliklinik'
 				action: ({start, end, type}) -> if start and end
@@ -244,18 +241,6 @@ if Meteor.isClient
 							if res then afState.errors.formRegis = no_mr: \Terpakai
 							else delete afState.errors.formRegis.no_mr
 							m.redraw!
-					else if doc.name is \regis.provinsi
-						Meteor.subscribe \coll, \daerah, $and: arr =
-							{provinsi: +doc.value}
-							{kabupaten: $exists: true}
-					else if doc.name is \regis.kabupaten
-						Meteor.subscribe \coll, \daerah, $and: arr =
-							{kabupaten: +doc.value}
-							{kecamatan: $exists: true}
-					else if doc.name is \regis.kecamatan
-						Meteor.subscribe \coll, \daerah, $and: arr =
-							{kecamatan: +doc.value}
-							{kelurahan: $exists: true}
 				hooks:
 					before: (doc, cb) ->
 						if \edit is m.route.param \jenis then cb doc
@@ -366,13 +351,7 @@ if Meteor.isClient
 					Meteor.subscribe \coll, \tarif
 					Meteor.subscribe \coll, \gudang
 					Meteor.subscribe \coll, \pasien,
-						{_id: m.route.param \idpasien}, onReady: ->
-							m.redraw! and Meteor.call \regions,
-								attr.pasien.currentPasien!regis
-								(err, res) ->
-									state.regions = res
-									m.redraw!
-							m.redraw!
+						{_id: m.route.param \idpasien}, onReady: -> m.redraw!
 				[til 2]map -> m \br
 				m \.content, m \h4, 'Rincian Pasien'
 				if doc = attr.pasien.currentPasien! then m \div,
@@ -393,10 +372,6 @@ if Meteor.isClient
 						{name: 'Nama Ibu', data: doc.regis.ibu}
 						{name: 'Suami/Istri', data: doc.regis.pasangan}
 						{name: \Kontak, data: doc.regis.kontak}
-						{name: \Provinsi, data: _.startCase that if state.regions.provinsi}
-						{name: \Kabupaten, data: _.startCase that if state.regions.kabupaten}
-						{name: \Kecamatan, data: _.startCase that if state.regions.kecamatan}
-						{name: \Kelurahan, data: _.startCase that if state.regions.kelurahan}
 					], 4)map (i) -> m \tr, i.map (j) -> [(m \th, j.name), (m \td, j.data)]
 					if currentRoute! is \regis then m \div, [
 						[\Kartu, \is-info, onclick: -> makePdf.card m.route.param \idpasien]
@@ -565,7 +540,10 @@ if Meteor.isClient
 						(err, res) -> if res
 							unless state.modal.anamesa_perawat
 								makePdf.payRegCard ...params, _.compact uraian
-							else makePdf.payRawat ...params, _.compact uraian
+							else makePdf.payRawat do
+								pasien: coll.pasien.findOne state.modal.pasienId
+								rawat: state.modal
+								rows: _.compact uraian
 							state.modal = null
 							m.redraw!
 			if userRole \admin then elem.report do
@@ -579,7 +557,7 @@ if Meteor.isClient
 
 		obat: -> view: -> if attr.pageAccess(<[obat depook]>) then m \.content,
 			oncreate: -> Meteor.subscribe \users
-			m \h4, \Apotik
+			m \h4, if userGroup \obat then \Apotik else if userGroup \depook then 'Depo OK'
 			m \button.button.is-success,
 				onclick: -> state.showForm = not state.showForm
 				m \span, 'Billing Obat'
@@ -933,14 +911,8 @@ if Meteor.isClient
 									second: data.second
 									third: that if data.third
 									active: true
-								Meteor.call \import, \tarif, selector: sel, modifier: opt
+								Meteor.call \import, name: \tarif, selector: sel, modifier: opt
 							if data.password then Meteor.call \newUser, data
-							if data.daerah then coll.daerah.insert do
-								daerah: _.lowerCase data.daerah
-								provinsi: +that if data.provinsi
-								kabupaten: +that if data.kabupaten
-								kecamatan: +that if data.kecamatan
-								kelurahan: +that if data.kelurahan
 					m \span.file-cta,
 						m \span.file-icon, m \i.fa.fa-upload
 						m \span.file-label, 'Pilih file .csv'

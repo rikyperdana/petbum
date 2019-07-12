@@ -69,7 +69,8 @@ if Meteor.isServer
 				Meteor.users.update {_id: doc.id}, $set: roles: {}
 
 		import: ({name, selector, modifier, arrName}) ->
-			find = coll[name]find selector
+			console.log name, selector, modifier, arrName
+			find = coll[name]?find selector
 			if arrName
 				if find then coll[name]update do
 					{_id: find._id}, $push: "#that": modifier[that]0
@@ -313,13 +314,4 @@ if Meteor.isServer
 			nums[index-1]+1
 
 		backupNow: backup
-
-		regions: ({provinsi, kabupaten, kecamatan, kelurahan}) ->
-			if ands [provinsi, kabupaten, kecamatan, kelurahan]
-				provinsi: (.daerah) coll.daerah.findOne provinsi: provinsi
-				kabupaten: (.daerah) coll.daerah.findOne provinsi: provinsi, kabupaten: kabupaten
-				kecamatan: (.daerah) coll.daerah.findOne kabupaten: kabupaten, kecamatan: kecamatan
-				kelurahan: (.daerah) coll.daerah.findOne kecamatan: kecamatan, kelurahan: kelurahan
-			else {}
-
 		userProfile: (doc) -> Meteor.users.update doc.id, $set: profile: _.omit doc, \id

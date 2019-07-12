@@ -1,4 +1,4 @@
-<[pasien gudang tarif rekap amprah daerah]>map (i) ->
+<[pasien gudang tarif rekap amprah]>map (i) ->
 	coll[i] = new Meteor.Collection i
 	coll[i]allow _.merge ... <[insert update]>map -> "#it": -> true
 	if Meteor.isClient then <[added changed]>map (j) ->
@@ -20,10 +20,6 @@ if Meteor.isClient
 		'regis.darah': type: Number, optional: true, label: 'Golongan Darah', autoform: options: selects.darah
 		'regis.pekerjaan': type: Number, optional: true, autoform: options: selects.pekerjaan
 		'regis.alamat': type: String, optional: true
-		'regis.provinsi': type: Number, optional: true, autoform: options: selects.provinsi
-		'regis.kabupaten': type: Number, optional: true, label: 'Kabupaten/Kota', autoform: options: selects.kabupaten
-		'regis.kecamatan': type: Number, optional: true, autoform: options: selects.kecamatan
-		'regis.kelurahan': type: Number, optional: true, autoform: options: selects.kelurahan
 		'regis.kontak': type: String, optional: true
 		'regis.ayah': type: String, optional: true
 		'regis.ibu': type: String, optional: true
