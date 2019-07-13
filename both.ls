@@ -20,6 +20,10 @@ if Meteor.isClient
 		'regis.darah': type: Number, optional: true, label: 'Golongan Darah', autoform: options: selects.darah
 		'regis.pekerjaan': type: Number, optional: true, autoform: options: selects.pekerjaan
 		'regis.alamat': type: String, optional: true
+		'regis.kelurahan': type: String, optional: true
+		'regis.kecamatan': type: String, optional: true
+		'regis.kabupaten': type: String, optional: true, label: 'Kabupaten/Kota'
+		'regis.provinsi': type: String, optional: true
 		'regis.kontak': type: String, optional: true
 		'regis.ayah': type: String, optional: true
 		'regis.ibu': type: String, optional: true

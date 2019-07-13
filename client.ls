@@ -367,6 +367,10 @@ if Meteor.isClient
 						{name: 'Golongan Darah', data: look(\darah, that)label if doc.regis.darah}
 						{name: 'Pekerjaan terakhir', data: look(\pekerjaan, that)label if doc.regis.pekerjaan}
 						{name: 'Tempat Tinggal', data: doc.regis.alamat}
+						{name: 'Kelurahan', data: doc.regis.kelurahan}
+						{name: 'Kecamatan', data: doc.regis.kecamatan}
+						{name: 'Kabupaten/Kota', data: doc.regis.kabupaten}
+						{name: 'Provinsi', data: doc.regis.provinsi}
 						{name: 'Umur', data: moment!diff(doc.regis.tgl_lahir, \years) + ' tahun'}
 						{name: 'Nama Bapak', data: doc.regis.ayah}
 						{name: 'Nama Ibu', data: doc.regis.ibu}
@@ -541,7 +545,7 @@ if Meteor.isClient
 							unless state.modal.anamesa_perawat
 								makePdf.payRegCard ...params, _.compact uraian
 							else makePdf.payRawat do
-								pasien: coll.pasien.findOne state.modal.pasienId
+								pasien: coll.pasien.findOne _id: state.modal.pasienId
 								rawat: state.modal
 								rows: _.compact uraian
 							state.modal = null
