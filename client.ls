@@ -526,7 +526,9 @@ if Meteor.isClient
 					['Cetak Kartu', 10000] if ands arr =
 						not coll.pasien.findOne(state.modal.pasienId)rawat?0?billRegis
 						coll.pasien.findOne(state.modal.pasienId)regis.petugas
-					['Konsultasi Spesialis', look(\karcis, that.klinik)label*1000] unless state.modal.billRegis
+					unless state.modal.billRegis then arr1 =
+						if that.klinik is 2 then 'Konsultasi Umum' else 'Konsultasi Spesialis'
+						look(\karcis, that.klinik)label*1000
 					... tindakans or []
 				params = <[ pasienId idrawat ]>map -> state.modal[it]
 				elem.modal do

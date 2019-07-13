@@ -187,7 +187,8 @@ if Meteor.isServer
 			a = coll.pasien.aggregate pipe =
 				a = $match: rawat: $elemMatch: $and: [{tanggal: $gt: start}, {tanggal: $lt: end}]
 				b = $unwind: \$rawat
-				b = $match: $and: [{'rawat.tanggal': $gt: start}, {'rawat.tanggal': $lt: end}, {'rawat.cara_bayar': $eq: 1}]
+				c = $sort: 'rawat.tanggal': 1
+				d = $match: $and: [{'rawat.tanggal': $gt: start}, {'rawat.tanggal': $lt: end}, {'rawat.cara_bayar': $eq: 1}]
 			b = a.map (i) ->
 				'No. MR': zeros i.no_mr
 				'Nama Pasien': i.regis.nama_lengkap
