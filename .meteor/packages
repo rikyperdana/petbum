@@ -33,3 +33,4 @@ lfergon:exportcsv            # Decode informations back to csv
 sakulstra:aggregate          # Allows aggregation command in server-side
 izzilab:shelljs              # Allow shell command execution on server-side
 mrt:cron                     # Simplest CRON job at server-side
+http

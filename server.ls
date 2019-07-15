@@ -208,7 +208,7 @@ if Meteor.isServer
 				...['No. MR', 'Nama Pasien', \Tanggal, \Poliklinik, 'No. Karcis']map -> "#it": ''
 				...<[Kartu Karcis Tindakan Obat]>map -> "#it": jumlah it
 				Total: ''
-			[...b, last]map (i) -> _.assign i, ...<[Kartu Karcis Tindakan Obat Total]>map -> "#it": if i[it] > 0 then rupiah i[it] else ''
+			[...b, last]map (i) -> _.assign i, ...<[Kartu Karcis Tindakan Obat Total]>map -> "#it": if i[it] then rupiah that else \-
 
 		dispenses: ({start, end, source}) -> if start < end
 			a = coll.rekap.find!fetch!filter -> ands [start < it.printed < end, it.source is source]
@@ -313,3 +313,8 @@ if Meteor.isServer
 
 		backupNow: backup
 		userProfile: (doc) -> Meteor.users.update doc.id, $set: profile: _.omit doc, \id
+		bpjs: (type) ->
+			base = 'http://api.bpjs-kesehatan.go.id/'; kodeppk = ''; service_name = ''
+			list =
+				ref_kelas: -> HTTP.get "#base/aplicaresws/rest/ref/kelas"
+			list[type]!
