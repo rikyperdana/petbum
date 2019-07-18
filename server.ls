@@ -222,8 +222,7 @@ if Meteor.isServer
 				else res.map -> unless matched(it) then it else
 					_.assign it, jumlah: it.jumlah + inc.jumlah
 			stokAwal = (doc) -> _.sum do ->
-				_.flatten coll.amprah.find!fetch!map (i) ->
-					i.batch.map (j) -> _.merge {}, i, j
+				_.flatten(coll.amprah.find!fetch!map (i) -> i.batch.map (j) -> _.merge {}, i, j)
 				.filter -> ands [
 					it.ruangan is source
 					it.nama is doc.nama_obat
@@ -270,7 +269,7 @@ if Meteor.isServer
 
 		stocks: ({start, end}) ->
 			docs = _.flatten coll.gudang.find!fetch!map (i) -> i.batch.map (j) ->
-				_.merge {}, i, j, amprah: do -> _.flatten do
+				_.merge {}, i, j, amprah: do -> _.flatten do ->
 					coll.amprah.find!fetch!filter (k) -> k.nama is i._id
 					.map -> it.batch.filter -> it.idbatch is j.idbatch
 			.map (i) ->
