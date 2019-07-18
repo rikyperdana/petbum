@@ -793,6 +793,9 @@ if Meteor.isClient
 						contents.map (i) -> m \tr,
 							m \td, m \b, i.0
 							m \td, i?1
+					danger: if ok then \Returkan
+					dangerAction: -> state.modal = _.merge state.modal, diretur:
+						if state.modal then _.sum <[diapotik didepook digudang]>map -> that[it]
 
 		manajemen: -> view: -> if attr.pageAccess(<[manajemen]>)
 			if \users is m.route.param \subroute then m \.content,
@@ -903,6 +906,7 @@ if Meteor.isClient
 									beli: +that if data.beli
 									jual: +that if data.jual
 									suplier: that if data.suplier
+									fornas: that if data.fornas
 									returnable: !!that if data.returnable
 									anggaran: +that if data.anggaran
 									pengadaan: that if data.pengadaan
