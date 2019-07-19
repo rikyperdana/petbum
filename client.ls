@@ -790,12 +790,20 @@ if Meteor.isClient
 							['Bisa diretur', if state.modal?returnable then \Bisa else \Tidak]
 							['Sumber Anggaran', look \anggaran, state.modal?anggaran .label]
 							['Tahun Pengadaan', state.modal?pengadaan]
+							['No. SPK', state.modal?no_spk]
+							['Tanggal SPK', state.modal?tanggal_spk]
 						contents.map (i) -> m \tr,
 							m \td, m \b, i.0
 							m \td, i?1
-					danger: if ok then \Returkan
-					dangerAction: -> state.modal = _.merge state.modal, diretur:
-						if state.modal then _.sum <[diapotik didepook digudang]>map -> that[it]
+					danger: \Returkan
+					dangerAction: -> Meteor.call \updateArrayElm,
+						name: \gudang, recId: m.route.param(\idbarang), scope: \batch,
+						elmId: state.modal.idbatch, doc: _.assign state.modal,
+							diretur: _.sum <[diapotik didepook digudang]>map -> state.modal[it]
+							...<[diapotik didepook digudang]>map -> "#it": 0
+						(err, res) ->
+							state.modal = null
+							m.redraw!
 
 		manajemen: -> view: -> if attr.pageAccess(<[manajemen]>)
 			if \users is m.route.param \subroute then m \.content,

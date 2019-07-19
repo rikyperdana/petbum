@@ -41,7 +41,7 @@ if Meteor.isServer
 					idpasien: type: String
 					idrawat: type: String
 			updateArrayElm: -> ands arr =
-				access \bayar
+				ors <[bayar farmasi]>map access
 				check (_.omit args, \doc), _.merge {},
 					... <[name scope recId elmId]>map ->
 						"#it": type: String

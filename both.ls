@@ -232,6 +232,8 @@ if Meteor.isClient
 		'batch.$.returnable': type: Number, optional: true, autoform: options: selects.yatidak
 		'batch.$.anggaran': type: Number, autoform: options: selects.anggaran
 		'batch.$.pengadaan': type: Number, optional: true
+		'batch.$.no_spk': type: Number, optional: true
+		'batch.$.tanggal_spk': type: Date, optional: true
 
 	schema.amprah = (type) ->
 		search: type: String, label: 'Pencarian Barang'
