@@ -554,8 +554,10 @@ if Meteor.isClient
 							m.redraw!
 			if userRole \admin then elem.report do
 				title: 'Laporan Pemasukan'
-				action: ({start, end, type}) -> if start and end
-					Meteor.call \incomes, {start, end}, (err, res) -> if res
+				fields: type: [Number], autoform:
+					type: \checkbox, options: selects.cara_bayar
+				action: ({start, end, type, options}) -> if start and end
+					Meteor.call \incomes, {start, end, bayars: options}, (err, res) -> if res
 						title = "Pemasukan #{hari start} - #{hari end}"
 						header = ['No. MR', 'Nama Pasien', \Tanggal, \Poliklinik, 'No. Karcis', \Kartu, \Karcis, \Tindakan, \Obat, \Total]
 						obj = Excel: csv, Pdf: makePdf.csv

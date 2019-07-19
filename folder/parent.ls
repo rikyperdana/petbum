@@ -50,21 +50,19 @@ if Meteor.isClient
 				m \span, _.startCase i.0
 			m \.pagination-list, [til 3]map (i) -> m \a.pagination-link,
 				m \span, _.startCase state.pagins.page+i+1
-		report: ({title, action}) -> m \.box,
-			m \h5, title
-			m \form.columns,
-				onsubmit: (e) -> arr =
-					e.preventDefault!
-					vals = [to 2]map -> e.target[it]value
-					action do
-						start: new Date that if vals.0
-						end: new Date moment(that)add(23, \hours) if vals.1
-						type: vals.2
-				m \.column, m \input.input, type: \date, placeholder: \Mulai
-				m \.column, m \input.input, type: \date, placeholder: \Akhir
-				m \.column.is-2, m \.field, m \.control, m \.select, m \select,
-					<[Pdf Excel]>map (i) -> m \option, i
-				m \.column.is-1, m \input.button.is-info, type: \submit, value: \Unduh
+		report: ({title, action, fields}) ->
+			m \.box, (m \h5, title), m autoForm do ->
+				schema =
+					start: type: Date, label: \Mulai
+					end: type: Date, label: \Akhir
+					type: type: String, autoform: options:
+						<[Pdf Excel]>map -> label: it, value: it
+				if fields then _.assign schema, options: that
+				schema: new SimpleSchema schema
+				columns: 3
+				type: \method
+				meteormethod: \dummy
+				hooks: after: action
 	@csv = (title, docs) ->
 		content = exportcsv.exportToCSV docs, true, \;
 		blob = new Blob [content], type: 'text/plain;charset=utf-8'

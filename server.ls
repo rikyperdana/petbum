@@ -183,18 +183,19 @@ if Meteor.isServer
 				coll.pasien.remove no_mr: it.no_mr
 				coll.pasien.insert it
 
-		incomes: ({start, end}) -> if start < end
+		incomes: ({start, end, bayars}) -> if start < end
 			a = coll.pasien.aggregate pipe =
 				a = $match: rawat: $elemMatch: $and: [{tanggal: $gt: start}, {tanggal: $lt: end}]
 				b = $unwind: \$rawat
 				c = $sort: 'rawat.tanggal': 1
-				d = $match: $and: [{'rawat.tanggal': $gt: start}, {'rawat.tanggal': $lt: end}, {'rawat.cara_bayar': $eq: 1}]
+				d = $match: $and: [{'rawat.tanggal': $gt: start}, {'rawat.tanggal': $lt: end}, {'rawat.cara_bayar': $in: bayars}]
 			b = a.map (i) ->
 				'No. MR': zeros i.no_mr
 				'Nama Pasien': i.regis.nama_lengkap
 				Tanggal: hari i.rawat.tanggal
 				Poliklinik: look(\klinik, i.rawat.klinik)label
 				'No. Karcis': _.toString i.rawat.tanggal.getTime! .substr 7, 13
+				'Cara Bayar': look(\cara_bayar, i.rawat.cara_bayar)label
 				Kartu: if i.rawat.first then 10000 else 0
 				Karcis: look(\karcis, i.rawat.klinik)label*1000 or 0
 				Tindakan: if i.rawat.tindakan then _.sum that.map -> it.harga else 0
@@ -205,7 +206,7 @@ if Meteor.isServer
 			.map (j) -> _.assign j, Total: _.sum <[Kartu Karcis Tindakan Obat]>map -> j[it]
 			jumlah = (type) -> _.sum b.map -> it[type]
 			last = _.merge {},
-				...['No. MR', 'Nama Pasien', \Tanggal, \Poliklinik, 'No. Karcis']map -> "#it": ''
+				...['No. MR', 'Nama Pasien', \Tanggal, \Poliklinik, 'No. Karcis', 'Cara Bayar']map -> "#it": ''
 				...<[Kartu Karcis Tindakan Obat]>map -> "#it": jumlah it
 				Total: ''
 			[...b, last]map (i) -> _.assign i, ...<[Kartu Karcis Tindakan Obat Total]>map -> "#it": if i[it] then rupiah that else \-
@@ -318,3 +319,5 @@ if Meteor.isServer
 			list =
 				ref_kelas: -> HTTP.get "#base/aplicaresws/rest/ref/kelas"
 			list[type]!
+
+		dummy: -> it

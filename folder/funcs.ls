@@ -227,9 +227,9 @@ if Meteor.isClient
 					value: state.form[opts.id][name] or usedDoc?[name]?toString!
 				m \p.help.is-danger, error if error
 
-			checkbox: -> m \div,
+			checkbox: -> m \.columns,
 				label
-				optionList(name)map (j) -> m \label.checkbox,
+				optionList(name)map (j) -> m \.column, m \label.checkbox,
 					m \input, attr.checkbox name, j.value
 					m \span, _.startCase j.label
 				m \p.help.is-danger, error if error
@@ -318,7 +318,8 @@ if Meteor.isClient
 					type: \submit
 					value: opts?buttonContent
 					class: opts?buttonClasses
-				m \.column.is-1, m \input.button.is-warning,
-					type: \reset
-					value: opts?reset?content
-					class: opts?reset?classes
+				if opts?reset
+					m \.column.is-1, m \input.button.is-warning,
+						type: \reset
+						value: that?content
+						class: that?classes
