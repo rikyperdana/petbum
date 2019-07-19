@@ -268,7 +268,7 @@ if Meteor.isServer
 				'Perawat': _.startCase Meteor.users.findOne(i.rawat.petugas.perawat)?username
 				'Dokter': _.startCase Meteor.users.findOne(i.rawat.petugas.dokter)?username
 
-		stocks: ({start, end}) ->
+		stocks: ({start, end, fields}) ->
 			docs = _.flatten coll.gudang.find!fetch!map (i) -> i.batch.map (j) ->
 				_.merge {}, i, j, amprah: do -> _.flatten do ->
 					coll.amprah.find!fetch!filter (k) -> k.nama is i._id
@@ -286,6 +286,7 @@ if Meteor.isServer
 				'Sisa Stok': i.awal - _.sum i.amprah.map -> it.serah
 				'Total Keluar': rupiah i.jual * _.sum i.amprah.map -> it.serah
 				'Total Persediaan': rupiah (* i.jual) i.awal - _.sum i.amprah.map -> it.serah
+			.map -> _.pick it, fields
 			_.sortBy docs, ['Jenis', 'Nama Obat']
 
 		notify: ({name, params}) ->

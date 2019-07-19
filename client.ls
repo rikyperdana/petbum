@@ -653,8 +653,11 @@ if Meteor.isClient
 			oncreate: -> state.showForm = batch: false
 			if (userGroup \farmasi) and userRole(\admin) then elem.report do
 				title: 'Laporan Stok Barang'
-				action: ({start, end, type}) -> if start and end
-					Meteor.call \stocks, {start, end}, (err, res) -> if res
+				fields: type: [String], autoform: type: \checkbox, options: do ->
+					['Nama Obat', 'Satuan', 'Jenis', 'No. Batch', 'ED', 'Harga', 'Barang Masuk', 'Stok Awal', 'Keluar', 'Sisa Stok', 'Total Keluar', 'Total Persediaan']
+					.map -> value: it, label: it
+				action: ({start, end, type, options}) -> if start and end
+					Meteor.call \stocks, {start, end, fields: options}, (err, res) -> if res
 						title = "Stok Barang Farmasi #{hari start} - #{hari end}"
 						obj = Excel: csv, Pdf: makePdf.csv
 						obj[type] title, that
