@@ -63,6 +63,7 @@ if Meteor.isClient
 				columns: 3
 				type: \method
 				meteormethod: \dummy
+				nonAlphabetic: true
 				hooks: after: action
 	@csv = (title, docs) ->
 		content = exportcsv.exportToCSV docs, true, \;

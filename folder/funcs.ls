@@ -57,7 +57,9 @@ if Meteor.isClient
 			opts.fields
 			usedSchema._firstLevelSchemaKeys
 
-		alphabetically = -> _.sortBy it, \label
+		alphabetically = ->
+			if opts.nonAlphabetic then it
+			else _.sortBy it, \label
 		optionList = (name) -> alphabetically ors arr =
 			theSchema(normed name)?allowedValues?map (i) ->
 				value: i, label: _.startCase i
