@@ -18,7 +18,8 @@ if Meteor.isClient
 	@normalize = (obj) ->
 		recurse = (value, name) ->
 			if _.isObject value
-				isNum = _.size _.filter value, (val, key) -> +key
+				isNum = _.size _.filter value, (val, key) -> +key+1
+				console.log value, name, isNum
 				res = "#name":
 					if isNum > 0 then _.map value, recurse
 					else if value.getMonth then value

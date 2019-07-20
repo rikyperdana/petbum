@@ -59,6 +59,7 @@ if Meteor.isClient
 						<[Pdf Excel]>map -> label: it, value: it
 				if fields then _.assign schema, options: that
 				schema: new SimpleSchema schema
+				id: \formReport
 				columns: 3
 				type: \method
 				meteormethod: \dummy
