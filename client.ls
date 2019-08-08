@@ -226,7 +226,7 @@ if Meteor.isClient
 					Meteor.call \visits, {start, end}, (err, res) -> if res
 						title = "Kunjungan #{hari start} - #{hari end}"
 						obj = Excel: csv, Pdf: makePdf.csv
-						obj[type] title, that
+						obj[type] name: title, docs: that
 			if m.route.param(\jenis) in <[baru edit]> then m autoForm do
 				collection: coll.pasien
 				schema: new SimpleSchema schema.regis
@@ -561,7 +561,7 @@ if Meteor.isClient
 						title = "Pemasukan #{hari start} - #{hari end}"
 						header = ['No. MR', 'Nama Pasien', \Tanggal, \Poliklinik, 'No. Karcis', \Kartu, \Karcis, \Tindakan, \Obat, \Total]
 						obj = Excel: csv, Pdf: makePdf.csv
-						obj[type] title, that, [header]
+						obj[type] name: title, docs: that, head: [header]
 
 		obat: -> view: -> if attr.pageAccess(<[obat depook]>) then m \.content,
 			oncreate: -> Meteor.subscribe \users
@@ -645,7 +645,7 @@ if Meteor.isClient
 					Meteor.call \dispenses, {start, end, source: userGroup!}, (err, res) -> if res
 						opts = obat: \Apotik, farmasi: 'Gudang Farmasi', depook: 'Depo OK'
 						title = "Pengeluaran Obat #{opts[userGroup!]} #{hari start}-#{hari end}"
-						makePdf.csv title, res
+						makePdf.csv name: title, docs: res
 
 		depook: -> this.obat
 
@@ -660,7 +660,7 @@ if Meteor.isClient
 					Meteor.call \stocks, {start, end, fields: options}, (err, res) -> if res
 						title = "Stok Barang Farmasi #{hari start} - #{hari end}"
 						obj = Excel: csv, Pdf: makePdf.csv
-						obj[type] title, that
+						obj[type] name: title, docs: that
 			unless m.route.param(\idbarang) then m \div,
 				if userGroup! in <[obat farmasi depook]>
 					jumlah = (.length) coll.gudang.find!fetch!filter ->
@@ -978,6 +978,13 @@ if Meteor.isClient
 							state.showForm = obat: false, bhp: false
 							m.redraw!
 			m \br
+			if userGroup \farmasi then elem.report do
+				title: 'Riwayat Amprah'
+				action: ({start, end, type}) -> if start and end
+					Meteor.call \amprahs, {start, end}, (err, res) -> if res
+						title = "Riwayat Amprah #{hari start} - #{hari end}"
+						obj = Excel: csv, Pdf: makePdf.csv
+						obj[type] name: title, docs: that
 			m \h4, 'Daftar Amprah'
 			m \table.table,
 				oncreate: ->

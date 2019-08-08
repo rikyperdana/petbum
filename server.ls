@@ -289,10 +289,20 @@ if Meteor.isServer
 			.map -> _.pick it, fields
 			_.sortBy docs, ['Jenis', 'Nama Obat']
 
+		amprahs: ({start, end}) -> coll.amprah.find!map (i) ->
+			'Tanggal Minta': hari i.tanggal_minta
+			'Nama Peminta': Meteor.users.findOne username: i.peminta
+			'Ruangan Peminta': (.full) modules.find -> it.name is i.ruangan
+			'Nama Barang': coll.gudang.findOne(_id: i.nama)nama
+			'Jumlah Diminta': i.jumlah
+			'Tanggal Serah': hari i.tanggal_serah
+			'Jumlah Diserah': i.diserah
+			'Nama Penyerah': Meteor.users.findOne username: i.penyerah
+
 		notify: ({name, params}) ->
 			obj =
 				amprah: -> (.fetch!length) coll.amprah.find do ->
-					if params.0 is \farmasi then diserah: $exists: false
+					if params?0 is \farmasi then diserah: $exists: false
 				obat: -> (.length) coll.pasien.aggregate $match: rawat: $elemMatch: $and: arr =
 					{givenDrug: $exists: false}
 					{obat: $exists: true}
